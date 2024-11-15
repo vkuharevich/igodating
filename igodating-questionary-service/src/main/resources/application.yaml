@@ -2,6 +2,11 @@ server:
   port: 8081
 
 spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          textEmbeddingService.url: http://localhost:5000/api/v1/
   application:
     name: igowed-questionary-service
   datasource:
@@ -23,6 +28,6 @@ spring:
 
 task:
   user-questionary-embedding-calculation-task:
-    cron: 0 0/15 * * * ?
+    cron: 0 0/1 * * * ?
     batch-size: 100
     threads-count: 5

@@ -48,7 +48,6 @@ public class UserQuestionaryAnswer {
 
     private String value;
 
-    @Column( name = "embedding" )
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 512)
     private float[] embedding;

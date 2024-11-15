@@ -9,6 +9,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +25,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -29,6 +34,17 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
+@NamedEntityGraph(name = "userQuestionary.answers", attributeNodes = {
+        @NamedAttributeNode(value = "answers", subgraph = "userQuestionaryAnswer")
+}, subgraphs = {
+        @NamedSubgraph(name = "userQuestionaryAnswer", attributeNodes = {
+                @NamedAttributeNode(value = "question", subgraph = "question")
+        }),
+        @NamedSubgraph(name = "question", attributeNodes = {
+                @NamedAttributeNode("questionaryTemplate"),
+                @NamedAttributeNode("matchingRule")
+        })
+})
 public class UserQuestionary {
 
     @Id
@@ -53,7 +69,6 @@ public class UserQuestionary {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private UserQuestionaryStatus questionaryStatus;
 
-    @Column( name = "embedding" )
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 512)
     private float[] embedding;
@@ -63,6 +78,9 @@ public class UserQuestionary {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "questionary", fetch = FetchType.LAZY)
+    private List<UserQuestionaryAnswer> answers;
 
     @Override
     public boolean equals(Object o) {

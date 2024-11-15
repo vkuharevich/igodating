@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +40,9 @@ public class Question {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "questionary_template_id", referencedColumnName = "id", insertable = false, updatable = false)
     private QuestionaryTemplate questionaryTemplate;
+
+    @OneToOne(mappedBy = "question", fetch = FetchType.LAZY)
+    private MatchingRule matchingRule;
 
     private String title;
 

@@ -121,7 +121,7 @@
                 user_id varchar(36) NOT NULL,
                 questionary_template_id bigint NOT NULL REFERENCES questionary_template(id),
                 questionary_status user_questionary_status NOT NULL,
-                embedding vector(512) NOT NULL,
+                embedding vector(512),
                 created_at timestamp default current_timestamp,
                 deleted_at timestamp
             );
@@ -137,7 +137,7 @@
                 question_id bigint NOT NULL REFERENCES question(id),
                 user_questionary_id bigint NOT NULL REFERENCES user_questionary(id),
                 value text NOT NULL,
-                embedding vector(512) NOT NULL,
+                embedding vector(512),
                 created_at timestamp default current_timestamp,
                 deleted_at timestamp
             );

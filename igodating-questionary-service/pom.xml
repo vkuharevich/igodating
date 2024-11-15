@@ -20,6 +20,8 @@
         <hibernate.vector.version>6.4.0.Final</hibernate.vector.version>
         <hypersistence.hibernate.version>3.8.2</hypersistence.hibernate.version>
         <schedlock.version>5.16.0</schedlock.version>
+        <spring.cloud.version>2023.0.3</spring.cloud.version>
+        <openfeign.version>4.1.3</openfeign.version>
     </properties>
 
     <dependencies>
@@ -53,6 +55,18 @@
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-provider-jdbc-template</artifactId>
             <version>${schedlock.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>${spring.cloud.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${openfeign.version}</version>
         </dependency>
     </dependencies>
 

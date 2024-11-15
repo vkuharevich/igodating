@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="2024-11-15_00_00_00" author="Ihar Smolka">
+        <sql>
+            CREATE TABLE country(
+                id bigserial PRIMARY KEY,
+                code varchar(2) NOT NULL,
+                name varchar(100) NOT NULL,
+                deleted_at timestamp,
+
+                UNIQUE (code, deleted_at),
+                UNIQUE ("name", deleted_at)
+            );
+
+            CREATE INDEX country_code_idx ON country(code);
+            CREATE INDEX country_name_idx ON country("name");
+        </sql>
+
+        <sql>
+            CREATE TABLE region(
+                id bigserial PRIMARY KEY,
+                name varchar(100) NOT NULL,
+                country_id bigint NOT NULL REFERENCES country(id) ON DELETE CASCADE,
+                deleted_at timestamp,
+
+                UNIQUE ("name", deleted_at)
+            );
+
+            CREATE INDEX region_name_idx ON region("name");
+            CREATE INDEX region_country_idx ON region("country_id");
+        </sql>
+
+        <sql>
+            CREATE TABLE city(
+                id bigserial PRIMARY KEY,
+                name varchar(100) NOT NULL,
+                region_id bigint NOT NULL REFERENCES region(id) ON DELETE CASCADE,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX city_name_idx ON city("name");
+            CREATE INDEX city_region_idx ON city("region_id");
+        </sql>
+
+        <sql>
+            CREATE TABLE questionary_template(
+                id bigserial PRIMARY KEY,
+                name varchar(100) NOT NULL,
+                description text NOT NULL,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX questionary_template_name_idx ON questionary_template("name");
+        </sql>
+
+        <sql>
+            CREATE TYPE answer_type as enum('FREE_FORM', 'CHOICE', 'MULTIPLE_CHOICE', 'NUMERIC');
+
+            CREATE TABLE question(
+                id bigserial PRIMARY KEY,
+                questionary_template_id bigint NOT NULL REFERENCES questionary_template(id) ON DELETE CASCADE,
+                title varchar(500) NOT NULL,
+                description text NOT NULL,
+                type answer_type NOT NULL,
+                is_mandatory boolean default false,
+                from_val numeric,
+                to_val numeric,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX question_template_idx ON question(questionary_template_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE answer_option(
+                id bigserial PRIMARY KEY,
+                question_id bigint NOT NULL REFERENCES question(id) ON DELETE CASCADE,
+                value text NOT NULL
+            );
+
+            CREATE INDEX answer_option_question_idx ON answer_option(question_id);
+        </sql>
+
+        <sql>
+            CREATE TYPE rule_matching_type as enum('EQUALS', 'LIKE', 'IN_RANGE', 'IN_SET', 'SEMANTIC_RANGING');
+
+            CREATE TYPE rule_access_type as enum('PUBLIC', 'PRIVATE');
+
+            CREATE TABLE matching_rule(
+                id bigserial PRIMARY KEY,
+                question_id bigint NOT NULL REFERENCES question(id) ON DELETE CASCADE,
+                type rule_matching_type NOT NULL,
+                preset_value text,
+                access_type rule_access_type NOT NULL,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp,
+
+                UNIQUE (question_id)
+            );
+
+            CREATE INDEX matching_rule_question_idx ON matching_rule(question_id);
+        </sql>
+
+        <sql>
+            CREATE TYPE questionary_status as enum('DRAFT', 'ON_PROCESSING', 'PROCESSED', 'DELETED');
+
+            CREATE TABLE user_questionary(
+                id bigserial PRIMARY KEY,
+                title varchar(500) NOT NULL,
+                description text NOT NULL,
+                user_id varchar(36) NOT NULL,
+                questionary_template_id bigint NOT NULL REFERENCES questionary_template(id),
+                status questionary_status NOT NULL,
+                embedding vector(512) NOT NULL,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX questionary_embedding_hnsw_idx ON user_questionary USING ivfflat (embedding);
+            CREATE INDEX questionary_user_idx ON user_questionary(user_id);
+            CREATE INDEX questionary_template_idx ON user_questionary(questionary_template_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE user_questionary_answer(
+                id bigserial PRIMARY KEY,
+                question_id bigint NOT NULL REFERENCES question(id),
+                questionary_id bigint NOT NULL REFERENCES user_questionary(id),
+                value text NOT NULL,
+                embedding vector(512) NOT NULL,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX questionary_answer_embedding_hnsw_idx ON user_questionary_answer USING ivfflat (embedding);
+            CREATE INDEX questionary_answer_question_idx ON user_questionary_answer(question_id);
+            CREATE INDEX questionary_answer_questionary_id_idx ON user_questionary_answer(questionary_id);
+            CREATE INDEX questionary_answer_value_idx ON user_questionary_answer(value);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

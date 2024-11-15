@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <liquibase.version>4.29.1</liquibase.version>
         <postgresql.version>42.7.2</postgresql.version>
+        <hibernate.vector.version>6.4.0.Final</hibernate.vector.version>
     </properties>
 
     <dependencies>
@@ -29,6 +30,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-vector</artifactId>
+            <version>${hibernate.vector.version}</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 

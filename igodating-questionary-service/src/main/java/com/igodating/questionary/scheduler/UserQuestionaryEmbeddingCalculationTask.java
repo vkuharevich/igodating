@@ -1,4 +1,4 @@
-package com.igodating.questionary.sceduler;
+package com.igodating.questionary.scheduler;
 
 import com.igodating.questionary.dto.TextEmbeddingRequest;
 import com.igodating.questionary.dto.TextEmbeddingRequestItem;

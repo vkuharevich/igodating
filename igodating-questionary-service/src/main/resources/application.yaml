@@ -20,3 +20,9 @@ spring:
           batch_size: 20
         default_schema: questionary
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+task:
+  user-questionary-embedding-calculation-task:
+    cron: 0 0/15 * * * ?
+    batch-size: 100
+    threads-count: 5

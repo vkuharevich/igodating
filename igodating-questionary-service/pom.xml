@@ -18,6 +18,8 @@
         <liquibase.version>4.29.1</liquibase.version>
         <postgresql.version>42.7.2</postgresql.version>
         <hibernate.vector.version>6.4.0.Final</hibernate.vector.version>
+        <hypersistence.hibernate.version>3.8.2</hypersistence.hibernate.version>
+        <schedlock.version>5.16.0</schedlock.version>
     </properties>
 
     <dependencies>
@@ -32,10 +34,25 @@
             <version>${postgresql.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-utils-hibernate-60</artifactId>
+            <version>${hypersistence.hibernate.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-vector</artifactId>
             <version>${hibernate.vector.version}</version>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${schedlock.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${schedlock.version}</version>
         </dependency>
     </dependencies>
 

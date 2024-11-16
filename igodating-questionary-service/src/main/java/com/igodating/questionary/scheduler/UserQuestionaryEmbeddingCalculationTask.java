@@ -15,11 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.igodating.questionary.model.constant.QuestionAnswerType.FREE_FORM;
 import static com.igodating.questionary.model.constant.RuleMatchingType.SEMANTIC_RANGING;
@@ -33,26 +36,27 @@ public class UserQuestionaryEmbeddingCalculationTask {
 
     private final TextEmbeddingService textEmbeddingService;
 
-    private ExecutorService executorService;
-
     @Value("${task.user-questionary-embedding-calculation-task.batch-size}")
     private Integer batchSize;
 
     @Value("${task.user-questionary-embedding-calculation-task.threads-count}")
     private Integer threadsCount;
 
-    @PostConstruct
-    public void init() {
-        this.executorService = Executors.newFixedThreadPool(threadsCount);
-    }
 
     @Scheduled(cron = "${task.user-questionary-embedding-calculation-task.cron}")
     @SchedulerLock(name = "UserQuestionaryEmbeddingCalculationTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT14M")
-    public void scheduledTask() {
-        List<UserQuestionary> questionaries = userQuestionaryService.findUnprocessedWithLimit(batchSize);
+    public void scheduledTask() throws ExecutionException, InterruptedException {
+        try (ExecutorService executorService = Executors.newFixedThreadPool(threadsCount)) {
+            List<UserQuestionary> questionaries = userQuestionaryService.findUnprocessedWithLimit(batchSize);
 
-        for (UserQuestionary userQuestionary : questionaries) {
-            executorService.submit(() -> handleQuestionary(userQuestionary));
+            List<Future<?>> futures = new ArrayList<>();
+            for (UserQuestionary userQuestionary : questionaries) {
+                futures.add(executorService.submit(() -> handleQuestionary(userQuestionary)));
+            }
+
+            for (Future<?> future : futures) {
+                future.get();
+            }
         }
     }
 

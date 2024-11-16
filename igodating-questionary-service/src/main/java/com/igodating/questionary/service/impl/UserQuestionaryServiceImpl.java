@@ -65,14 +65,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         existedQuestionary.setTitle(userQuestionary.getTitle());
         existedQuestionary.setDescription(userQuestionary.getDescription());
 
-        userQuestionaryRepository.save(userQuestionary);
-
         EntitiesListChange<UserQuestionaryAnswer, Long> answersChange = ServiceUtils.changes(existedQuestionary.getAnswers(), userQuestionary.getAnswers(), (first, second) -> !Objects.equals(first.getValue(), second.getValue()));
 
+        boolean isDraft = UserQuestionaryStatus.DRAFT.equals(existedQuestionary.getQuestionaryStatus());
         boolean semanticRankingAnswerWasChanged = false;
 
         for (UserQuestionaryAnswer answerToDelete : answersChange.getToDelete()) {
-            if (!semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(answerToDelete.getQuestionId()))) {
+            if (!isDraft && !semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(answerToDelete.getQuestionId()))) {
                 semanticRankingAnswerWasChanged = true;
             }
             userQuestionaryAnswerRepository.delete(answerToDelete);
@@ -82,7 +81,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
             UserQuestionaryAnswer oldAnswer = answerPairToUpdate.getFirst();
             UserQuestionaryAnswer newAnswer = answerPairToUpdate.getSecond();
 
-            if (!semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(oldAnswer.getQuestionId()))) {
+            if (!isDraft && !semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(oldAnswer.getQuestionId()))) {
                 semanticRankingAnswerWasChanged = true;
             }
 
@@ -91,7 +90,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         }
 
         for (UserQuestionaryAnswer answerToCreate : answersChange.getToCreate()) {
-            if (!semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(answerToCreate.getQuestionId()))) {
+            if (!isDraft && !semanticRankingAnswerWasChanged && questionIsSemantic(questionRepository.getReferenceById(answerToCreate.getQuestionId()))) {
                 semanticRankingAnswerWasChanged = true;
             }
 
@@ -99,7 +98,11 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
             userQuestionaryAnswerRepository.save(answerToCreate);
         }
 
-        userQuestionaryAnswerRepository.saveAll(userQuestionary.getAnswers());
+        if (!isDraft && semanticRankingAnswerWasChanged) {
+            existedQuestionary.setQuestionaryStatus(UserQuestionaryStatus.ON_PROCESSING);
+        }
+
+        userQuestionaryRepository.save(existedQuestionary);
     }
 
     @Override

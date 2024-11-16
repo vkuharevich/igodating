@@ -20,7 +20,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class QuestionaryTemplate {
+public class QuestionaryTemplate implements SoftDeletable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,5 +47,15 @@ public class QuestionaryTemplate {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public void setToDelete() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

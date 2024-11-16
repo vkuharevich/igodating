@@ -45,7 +45,7 @@ import java.util.Objects;
                 @NamedAttributeNode("matchingRule")
         })
 })
-public class UserQuestionary {
+public class UserQuestionary implements SoftDeletable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -92,5 +92,15 @@ public class UserQuestionary {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public void setToDelete() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

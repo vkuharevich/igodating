@@ -26,7 +26,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class UserQuestionaryAnswer {
+public class UserQuestionaryAnswer implements SoftDeletable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,5 +68,15 @@ public class UserQuestionaryAnswer {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public void setToDelete() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

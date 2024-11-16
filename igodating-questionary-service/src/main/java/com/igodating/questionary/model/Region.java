@@ -23,7 +23,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class Region {
+public class Region implements SoftDeletable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +55,15 @@ public class Region {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public void setToDelete() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

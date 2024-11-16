@@ -14,12 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +30,7 @@ public class UserQuestionaryEmbeddingCalculationTaskScheduler {
 
 
     @Scheduled(cron = "${task.user-questionary-embedding-calculation-task.cron}")
-    @SchedulerLock(name = "UserQuestionaryEmbeddingCalculationTask", lockAtLeastFor = "PT5M", lockAtMostFor = "PT14M")
+    @SchedulerLock(name = "UserQuestionaryEmbeddingCalculationTask")
     public void scheduledTask() throws ExecutionException, InterruptedException {
         userQuestionaryEmbeddingCalculationTask.executeEmbeddingCalculation(batchSize, threadsCount);
     }

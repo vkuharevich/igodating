@@ -7,8 +7,8 @@ import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
-import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.validation.UserQuestionaryAnswerValidationService;
+import com.igodating.questionary.service.validation.ValueFormatValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,8 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestionaryAnswerValidationService {
+
+    private final ValueFormatValidationService valueFormatValidationService;
 
     private final QuestionRepository questionRepository;
 
@@ -45,7 +47,7 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
             throw new ValidationException(String.format("Wrong template id %d", question.getQuestionaryTemplateId()));
         }
 
-        checkValueFormat(userQuestionaryAnswer.getValue(), question.getAnswerType());
+        valueFormatValidationService.validateValueWithType(userQuestionaryAnswer.getValue(), question.getAnswerType());
     }
 
     @Override
@@ -64,7 +66,7 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
             throw new ValidationException(String.format("Wrong template id %d", question.getQuestionaryTemplateId()));
         }
 
-        checkValueFormat(userQuestionaryAnswer.getValue(), question.getAnswerType());
+        valueFormatValidationService.validateValueWithType(userQuestionaryAnswer.getValue(), question.getAnswerType());
     }
 
     private void checkCommonRequiredFieldsForCreateAndUpdateInAnswer(UserQuestionaryAnswer userQuestionaryAnswer) {
@@ -79,10 +81,6 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
 
     private Question checkQuestionOnExistenceAndReturn(Long questionId) {
         return questionRepository.findById(questionId).orElseThrow(() -> new ValidationException(String.format("Question doesn't exist by id %d", questionId)));
-    }
-
-    private void checkValueFormat(String value, QuestionAnswerType answerType) {
-        //todo проверка формата значения и answerType
     }
 
     private UserQuestionaryAnswer checkAnswerOnExistence(UserQuestionaryAnswer answer) {

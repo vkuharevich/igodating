@@ -1,13 +1,5 @@
 package com.igodating.questionary.scheduler;
 
-import com.igodating.questionary.dto.TextEmbeddingRequest;
-import com.igodating.questionary.dto.TextEmbeddingRequestItem;
-import com.igodating.questionary.dto.TextEmbeddingResponse;
-import com.igodating.questionary.feign.TextEmbeddingService;
-import com.igodating.questionary.model.Question;
-import com.igodating.questionary.model.UserQuestionary;
-import com.igodating.questionary.model.UserQuestionaryAnswer;
-import com.igodating.questionary.service.UserQuestionaryService;
 import lombok.RequiredArgsConstructor;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;

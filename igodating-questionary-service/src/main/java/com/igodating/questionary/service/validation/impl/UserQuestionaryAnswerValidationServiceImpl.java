@@ -20,8 +20,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestionaryAnswerValidationService {
 
-    private final UserQuestionaryRepository userQuestionaryRepository;
-
     private final QuestionRepository questionRepository;
 
     private final UserQuestionaryAnswerRepository userQuestionaryAnswerRepository;

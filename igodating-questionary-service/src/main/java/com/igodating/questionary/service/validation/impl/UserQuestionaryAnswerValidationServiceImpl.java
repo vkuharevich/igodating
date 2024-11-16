@@ -35,6 +35,10 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
     @Override
     @Transactional(readOnly = true)
     public void validateOnCreate(UserQuestionaryAnswer userQuestionaryAnswer, UserQuestionary userQuestionary) {
+        if (userQuestionaryAnswer.getId() != null) {
+            throw new ValidationException("Cannot create answer with preset id");
+        }
+
         checkCommonRequiredFieldsForCreateAndUpdateInAnswer(userQuestionaryAnswer);
 
         if (userQuestionaryAnswer.getId() != null) {

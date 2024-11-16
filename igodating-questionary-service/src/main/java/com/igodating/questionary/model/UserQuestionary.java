@@ -45,7 +45,7 @@ import java.util.Objects;
                 @NamedAttributeNode("matchingRule")
         })
 })
-public class UserQuestionary implements SoftDeletable {
+public class UserQuestionary implements SoftDeletable, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,11 +96,12 @@ public class UserQuestionary implements SoftDeletable {
 
     @Override
     public void setToDelete() {
+        questionaryStatus = UserQuestionaryStatus.DELETED;
         deletedAt = LocalDateTime.now();
     }
 
     @Override
     public boolean isDeleted() {
-        return deletedAt != null;
+        return UserQuestionaryStatus.DELETED.equals(questionaryStatus);
     }
 }

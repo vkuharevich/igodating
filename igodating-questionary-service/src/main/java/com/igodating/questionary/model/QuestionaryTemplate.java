@@ -20,7 +20,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class QuestionaryTemplate implements SoftDeletable {
+public class QuestionaryTemplate implements SoftDeletable, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

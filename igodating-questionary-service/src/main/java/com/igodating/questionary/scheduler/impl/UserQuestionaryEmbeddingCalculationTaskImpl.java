@@ -4,9 +4,11 @@ import com.igodating.questionary.dto.TextEmbeddingRequest;
 import com.igodating.questionary.dto.TextEmbeddingRequestItem;
 import com.igodating.questionary.dto.TextEmbeddingResponse;
 import com.igodating.questionary.feign.TextEmbeddingService;
+import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
+import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.scheduler.UserQuestionaryEmbeddingCalculationTask;
 import com.igodating.questionary.service.UserQuestionaryService;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +24,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static com.igodating.questionary.model.constant.QuestionAnswerType.FREE_FORM;
-import static com.igodating.questionary.model.constant.RuleMatchingType.SEMANTIC_RANGING;
-import static com.igodating.questionary.model.constant.UserQuestionaryStatus.PROCESSED;
 
 @Service
 @RequiredArgsConstructor
@@ -64,13 +62,13 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
                 .filter(answer -> {
                     answersIdMap.put(answer.getId(), answer);
                     Question question = answer.getQuestion();
-                    return FREE_FORM.equals(question.getAnswerType()) && question.getMatchingRule() != null && SEMANTIC_RANGING.equals(question.getMatchingRule().getMatchingType());
+                    MatchingRule matchingRule = question.getMatchingRule();
+                    return matchingRule != null && RuleMatchingType.SEMANTIC_RANGING.equals(matchingRule.getMatchingType());
                 })
                 .toList();
 
         if (answersInFreeFormAndSemanticMatchingRule.isEmpty()) {
-            questionary.setQuestionaryStatus(PROCESSED);
-            userQuestionaryService.update(questionary);
+            userQuestionaryService.setStatusToPublished(questionary);
             return;
         }
 
@@ -82,12 +80,11 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
         TextEmbeddingResponse response = textEmbeddingService.getEmbeddings(new TextEmbeddingRequest(requestItems));
 
         questionary.setEmbedding(response.globalEmbedding());
-        questionary.setQuestionaryStatus(PROCESSED);
         response.sentences().forEach(resultItem -> {
             UserQuestionaryAnswer answer = answersIdMap.get(Long.parseLong(resultItem.sentenceId()));
             answer.setEmbedding(resultItem.embedding());
         });
 
-        userQuestionaryService.update(questionary);
+        userQuestionaryService.updateEmbeddingAndSetProcessed(questionary);
     }
 }

@@ -23,7 +23,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class Country implements SoftDeletable {
+public class Country implements SoftDeletable, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

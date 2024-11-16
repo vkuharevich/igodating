@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserQuestionaryAnswerRepository extends JpaRepository<UserQuestionaryAnswer, Long> {
+
+    void deleteAllByUserQuestionaryId(Long userQuestionaryId);
 }

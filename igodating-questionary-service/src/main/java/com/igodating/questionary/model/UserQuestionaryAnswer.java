@@ -26,7 +26,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class UserQuestionaryAnswer implements SoftDeletable {
+public class UserQuestionaryAnswer implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,9 +55,6 @@ public class UserQuestionaryAnswer implements SoftDeletable {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -68,15 +65,5 @@ public class UserQuestionaryAnswer implements SoftDeletable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public void setToDelete() {
-        deletedAt = LocalDateTime.now();
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return deletedAt != null;
     }
 }

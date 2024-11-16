@@ -18,5 +18,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     Optional<Question> findById(@NonNull Long id);
 
     @EntityGraph("question")
-    List<Question> findAllByQuestionaryTemplateIdAndDeletedIsFalse(Long questionaryTemplateId);
+    List<Question> findAllByQuestionaryTemplateIdAndDeletedAtIsNull(Long questionaryTemplateId);
 }

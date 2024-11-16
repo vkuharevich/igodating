@@ -36,7 +36,7 @@ import java.util.Objects;
         @NamedAttributeNode("questionaryTemplate"),
         @NamedAttributeNode("matchingRule")
 })
-public class Question implements SoftDeletable, Identifiable<Long> {
+public class Question implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,9 +72,6 @@ public class Question implements SoftDeletable, Identifiable<Long> {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY)
     private List<AnswerOption> answerOptions;
 
@@ -88,15 +85,5 @@ public class Question implements SoftDeletable, Identifiable<Long> {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public void setToDelete() {
-        deletedAt = LocalDateTime.now();
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return deletedAt != null;
     }
 }

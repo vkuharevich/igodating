@@ -14,5 +14,10 @@ public interface QuestionaryTemplateRepository extends JpaRepository<Questionary
     @Override
     @EntityGraph("questionaryTemplate")
     @NonNull
+    QuestionaryTemplate getReferenceById(@NonNull Long id);
+
+    @Override
+    @EntityGraph("questionaryTemplate")
+    @NonNull
     Optional<QuestionaryTemplate> findById(@NonNull Long id);
 }

@@ -32,7 +32,7 @@ public class ServiceUtils {
                 continue;
             }
 
-            if (equalsPredicate.test(newEntity, actualEntity)) {
+            if (!equalsPredicate.test(newEntity, actualEntity)) {
                 toUpdate.add(Pair.of(actualEntity, newEntity));
             }
         }

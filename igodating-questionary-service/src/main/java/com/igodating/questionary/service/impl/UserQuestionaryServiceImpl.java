@@ -65,7 +65,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         existedQuestionary.setTitle(userQuestionary.getTitle());
         existedQuestionary.setDescription(userQuestionary.getDescription());
 
-        EntitiesListChange<UserQuestionaryAnswer, Long> answersChange = ServiceUtils.changes(existedQuestionary.getAnswers(), userQuestionary.getAnswers(), (first, second) -> !Objects.equals(first.getValue(), second.getValue()));
+        EntitiesListChange<UserQuestionaryAnswer, Long> answersChange = ServiceUtils.changes(existedQuestionary.getAnswers(), userQuestionary.getAnswers(), (first, second) -> Objects.equals(first.getValue(), second.getValue()));
 
         boolean isDraft = UserQuestionaryStatus.DRAFT.equals(existedQuestionary.getQuestionaryStatus());
         boolean semanticRankingAnswerWasChanged = false;

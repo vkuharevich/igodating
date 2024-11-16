@@ -4,8 +4,9 @@ import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.repository.QuestionRepository;
+import com.igodating.questionary.service.validation.AnswerOptionValidationService;
+import com.igodating.questionary.service.validation.MatchingRuleValidationService;
 import com.igodating.questionary.service.validation.QuestionValidationService;
-import com.igodating.questionary.service.validation.ValueFormatValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,9 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
 
     private final QuestionRepository questionRepository;
 
-    private final ValueFormatValidationService valueFormatValidationService;
+    private final AnswerOptionValidationService answerOptionValidationService;
+
+    private final MatchingRuleValidationService matchingRuleValidationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -30,7 +33,11 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
         checkCommonRequiredFieldsForCreateAndUpdateInQuestion(question);
 
         if (!CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            question.getAnswerOptions().forEach(answerOptions -> valueFormatValidationService.validateMultipleValues(answerOptions.getValue()));
+            question.getAnswerOptions().forEach(answerOptionValidationService::validateOnCreate);
+        }
+
+        if (question.getMatchingRule() != null) {
+            matchingRuleValidationService.validateOnCreate(question.getMatchingRule(), question);
         }
     }
 
@@ -42,7 +49,11 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
         checkQuestionOnExistenceAndThrowIfDeleted(question);
 
         if (!CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            question.getAnswerOptions().forEach(answerOptions -> valueFormatValidationService.validateMultipleValues(answerOptions.getValue()));
+            question.getAnswerOptions().forEach(answerOptionValidationService::validateOnUpdate);
+        }
+
+        if (question.getMatchingRule() != null) {
+            matchingRuleValidationService.validateOnUpdate(question.getMatchingRule(), question);
         }
     }
 

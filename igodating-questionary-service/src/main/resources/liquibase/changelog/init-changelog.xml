@@ -72,8 +72,7 @@
                 is_mandatory boolean default false,
                 from_val numeric,
                 to_val numeric,
-                created_at timestamp default current_timestamp,
-                deleted_at timestamp
+                created_at timestamp default current_timestamp
             );
 
             CREATE INDEX question_template_idx ON question(questionary_template_id);
@@ -84,8 +83,7 @@
                 id bigserial PRIMARY KEY,
                 question_id bigint NOT NULL REFERENCES question(id) ON DELETE CASCADE,
                 value text NOT NULL,
-                created_at timestamp default current_timestamp,
-                deleted_at timestamp
+                created_at timestamp default current_timestamp
             );
 
             CREATE INDEX answer_option_question_idx ON answer_option(question_id);
@@ -111,7 +109,7 @@
         </sql>
 
         <sql>
-            CREATE TYPE user_questionary_status as enum('DRAFT', 'ON_PROCESSING', 'PUBLISHED', 'DELETED');
+            CREATE TYPE user_questionary_status as enum('DRAFT', 'ON_PROCESSING', 'PUBLISHED', 'NEEDS_CHANGES', 'DELETED');
 
             CREATE TABLE user_questionary(
                 id bigserial PRIMARY KEY,

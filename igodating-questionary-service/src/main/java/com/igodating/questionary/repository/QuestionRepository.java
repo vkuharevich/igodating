@@ -23,9 +23,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @EntityGraph("question")
     List<Question> findAllByQuestionaryTemplateIdAndDeletedAtIsNull(Long questionaryTemplateId);
 
-    @Modifying
-    @Query(value = """
-            update Question q set q.deletedAt = current_timestamp where q.questionaryTemplateId = :questionTemplateId
-            """)
-    void setDeletedByQuestionTemplateId(@Param("questionTemplateId") Long questionTemplateId);
+    void deleteAllByQuestionaryTemplateId(Long questionaryTemplateId);
 }

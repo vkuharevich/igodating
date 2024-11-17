@@ -11,7 +11,7 @@ import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
 import com.igodating.questionary.service.validation.UserQuestionaryFilterValidationService;
-import com.igodating.questionary.service.validation.ValueFormatValidationService;
+import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
 
     private final QuestionaryTemplateCacheService questionaryTemplateCacheService;
 
-    private final ValueFormatValidationService valueFormatValidationService;
+    private final AnswerValueFormatValidationService answerValueFormatValidationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
                 throw new ValidationException("Private access");
             }
 
-            valueFormatValidationService.validateValueWithType(userQuestionaryFilterItem.filterValue(), matchedQuestionFromTemplate.getAnswerType());
+            answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryFilterItem.filterValue(), matchedQuestionFromTemplate);
         }
     }
 }

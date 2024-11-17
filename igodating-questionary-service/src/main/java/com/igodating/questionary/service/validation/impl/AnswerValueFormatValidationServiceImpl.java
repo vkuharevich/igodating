@@ -2,8 +2,9 @@ package com.igodating.questionary.service.validation.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
 import com.igodating.questionary.exception.ValidationException;
+import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
-import com.igodating.questionary.service.validation.ValueFormatValidationService;
+import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,12 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
-public class ValueFormatValidationServiceImpl implements ValueFormatValidationService {
+public class AnswerValueFormatValidationServiceImpl implements AnswerValueFormatValidationService {
 
 
 
     @Override
-    public void validateValueWithType(String value, QuestionAnswerType answerType) {
+    public void validateValueWithQuestion(String value, Question question) {
         if (StringUtils.isBlank(value)) {
             throw new ValidationException("Value is empty");
         }

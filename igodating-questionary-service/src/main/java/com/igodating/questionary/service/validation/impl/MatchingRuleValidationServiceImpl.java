@@ -8,7 +8,7 @@ import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.service.validation.MatchingRuleValidationService;
-import com.igodating.questionary.service.validation.ValueFormatValidationService;
+import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
 
     private final MatchingRuleRepository matchingRuleRepository;
 
-    private final ValueFormatValidationService valueFormatValidationService;
+    private final AnswerValueFormatValidationService answerValueFormatValidationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -29,18 +29,19 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Cannot create matching rule with preset id");
         }
 
-        checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(matchingRule, question.getAnswerType());
+        checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(matchingRule, question);
     }
 
     @Override
     @Transactional(readOnly = true)
     public void validateOnUpdate(MatchingRule matchingRule, Question question) {
-        checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(matchingRule, question.getAnswerType());
+        checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(matchingRule, question);
 
         checkMatchingRuleOnExistenceAndThrowIfDeleted(matchingRule);
     }
 
-    private void checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(MatchingRule matchingRule, QuestionAnswerType answerType) {
+    private void checkCommonRequiredFieldsForCreateAndUpdateInMatchingRule(MatchingRule matchingRule, Question question) {
+        QuestionAnswerType answerType = question.getAnswerType();
         RuleMatchingType matchingType = matchingRule.getMatchingType();
         RuleAccessType accessType = matchingRule.getAccessType();
 
@@ -81,7 +82,7 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
         }
 
         if (StringUtils.isNotEmpty(matchingRule.getPresetValue())) {
-            valueFormatValidationService.validateValueWithType(matchingRule.getPresetValue(), answerType);
+            answerValueFormatValidationService.validateValueWithQuestion(matchingRule.getPresetValue(), question);
         }
     }
 

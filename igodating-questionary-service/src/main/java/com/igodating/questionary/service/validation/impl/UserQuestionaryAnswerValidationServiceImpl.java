@@ -4,11 +4,10 @@ import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
-import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
 import com.igodating.questionary.service.validation.UserQuestionaryAnswerValidationService;
-import com.igodating.questionary.service.validation.ValueFormatValidationService;
+import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestionaryAnswerValidationService {
 
-    private final ValueFormatValidationService valueFormatValidationService;
+    private final AnswerValueFormatValidationService answerValueFormatValidationService;
 
     private final QuestionRepository questionRepository;
 
@@ -51,7 +50,7 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
             throw new ValidationException(String.format("Wrong template id %d", question.getQuestionaryTemplateId()));
         }
 
-        valueFormatValidationService.validateValueWithType(userQuestionaryAnswer.getValue(), question.getAnswerType());
+        answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryAnswer.getValue(), question);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class UserQuestionaryAnswerValidationServiceImpl implements UserQuestiona
             throw new ValidationException(String.format("Wrong template id %d", question.getQuestionaryTemplateId()));
         }
 
-        valueFormatValidationService.validateValueWithType(userQuestionaryAnswer.getValue(), question.getAnswerType());
+        answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryAnswer.getValue(), question);
     }
 
     private void checkCommonRequiredFieldsForCreateAndUpdateInAnswer(UserQuestionaryAnswer userQuestionaryAnswer) {

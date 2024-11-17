@@ -56,6 +56,22 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Semantic ranging cannot be public");
         }
 
+        if (RuleMatchingType.LIKE.equals(matchingType) && !answerType.equals(QuestionAnswerType.FREE_FORM)) {
+            throw new ValidationException("Like can be applied only to free form");
+        }
+
+        if (RuleMatchingType.IN_RANGE.equals(matchingType) && !answerType.equals(QuestionAnswerType.NUMERIC)) {
+            throw new ValidationException("In range can be applied only to numeric");
+        }
+
+        if (RuleMatchingType.IN_SET.equals(matchingType) && !(answerType.equals(QuestionAnswerType.CHOICE) || answerType.equals(QuestionAnswerType.MULTIPLE_CHOICE))) {
+            throw new ValidationException("In set can be applied only to choice");
+        }
+
+        if (RuleMatchingType.EQUALS.equals(matchingType) && !(answerType.equals(QuestionAnswerType.FREE_FORM) || answerType.equals(QuestionAnswerType.NUMERIC) || answerType.equals(QuestionAnswerType.CHOICE))) {
+            throw new ValidationException("Equals can be applied only to free form, numeric or one-choice");
+        }
+
         if (RuleAccessType.PRIVATE.equals(accessType) && StringUtils.isBlank(matchingRule.getPresetValue())) {
             throw new ValidationException("Private access should have a preset value");
         }

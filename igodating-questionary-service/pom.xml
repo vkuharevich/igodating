@@ -22,6 +22,7 @@
         <schedlock.version>5.16.0</schedlock.version>
         <spring.cloud.version>2023.0.3</spring.cloud.version>
         <openfeign.version>4.1.3</openfeign.version>
+
     </properties>
 
     <dependencies>

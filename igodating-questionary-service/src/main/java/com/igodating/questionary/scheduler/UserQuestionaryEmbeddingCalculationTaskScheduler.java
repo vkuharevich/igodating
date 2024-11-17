@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ExecutionException;
-
 @Component
 @RequiredArgsConstructor
 public class UserQuestionaryEmbeddingCalculationTaskScheduler {
@@ -20,7 +18,7 @@ public class UserQuestionaryEmbeddingCalculationTaskScheduler {
 
     @Scheduled(cron = "${task.user-questionary-embedding-calculation-task.cron}")
     @SchedulerLock(name = "UserQuestionaryEmbeddingCalculationTask")
-    public void scheduledTask() throws ExecutionException, InterruptedException {
+    public void scheduledTask() {
         userQuestionaryEmbeddingCalculationTask.executeEmbeddingCalculation(batchSize);
     }
 }

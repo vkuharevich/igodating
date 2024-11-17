@@ -39,6 +39,28 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     private final UserQuestionaryRepository userQuestionaryRepository;
 
     @Override
+    @Transactional(readOnly = true)
+    public QuestionaryTemplate getById(Long id) {
+        QuestionaryTemplate questionaryTemplate = questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
+
+        loadAnswersForQuestionsWithChoice(questionaryTemplate);
+
+        return questionaryTemplate;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<QuestionaryTemplate> getAll() {
+        List<QuestionaryTemplate> questionaryTemplates = questionaryTemplateRepository.findAll();
+
+        for (QuestionaryTemplate questionaryTemplate : questionaryTemplates) {
+            loadAnswersForQuestionsWithChoice(questionaryTemplate);
+        }
+
+        return questionaryTemplates;
+    }
+
+    @Override
     @Transactional
     public void create(QuestionaryTemplate questionaryTemplate) {
         questionaryTemplateValidationService.validateOnCreate(questionaryTemplate);
@@ -182,6 +204,14 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         if (matchingRule != null) {
             matchingRule.setQuestionId(question.getId());
             matchingRuleRepository.save(matchingRule);
+        }
+    }
+
+    private void loadAnswersForQuestionsWithChoice(QuestionaryTemplate questionaryTemplate) {
+        for (Question question : questionaryTemplate.getQuestions()) {
+            if (question.withChoice()) {
+                question.setAnswerOptions(answerOptionRepository.findAllByQuestionId(question.getId()));
+            }
         }
     }
 }

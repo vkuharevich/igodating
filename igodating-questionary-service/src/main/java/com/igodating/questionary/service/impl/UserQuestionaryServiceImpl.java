@@ -41,6 +41,12 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
     private final UserQuestionaryValidationService userQuestionaryValidationService;
 
     @Override
+    @Transactional(readOnly = true)
+    public UserQuestionary getById(Long id) {
+        return userQuestionaryRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found by id"));
+    }
+
+    @Override
     @Transactional
     public void createDraft(UserQuestionary userQuestionary, String userId) {
         userQuestionary.setUserId(userId);

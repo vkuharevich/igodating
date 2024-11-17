@@ -35,7 +35,8 @@ import java.util.Objects;
 @AllArgsConstructor
 @DynamicInsert
 @NamedEntityGraph(name = "userQuestionary.answers", attributeNodes = {
-        @NamedAttributeNode(value = "answers", subgraph = "userQuestionaryAnswer")
+        @NamedAttributeNode(value = "answers", subgraph = "userQuestionaryAnswer"),
+        @NamedAttributeNode(value = "template")
 }, subgraphs = {
         @NamedSubgraph(name = "userQuestionaryAnswer", attributeNodes = {
                 @NamedAttributeNode(value = "question", subgraph = "question")

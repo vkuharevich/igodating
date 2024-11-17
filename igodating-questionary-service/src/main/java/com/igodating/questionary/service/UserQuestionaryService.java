@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface UserQuestionaryService {
 
+    UserQuestionary getById(Long id);
+
     void createDraft(UserQuestionary userQuestionary, String userId);
 
     void update(UserQuestionary userQuestionary, String userId);

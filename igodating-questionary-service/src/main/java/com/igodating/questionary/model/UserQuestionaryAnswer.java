@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
+import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -47,6 +49,10 @@ public class UserQuestionaryAnswer implements Identifiable<Long> {
     private UserQuestionary questionary;
 
     private String value;
+
+    @Column(name = "ts_vector_value")
+    @Type(PostgreSQLTSVectorType.class)
+    private String tsVectorValue;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 512)

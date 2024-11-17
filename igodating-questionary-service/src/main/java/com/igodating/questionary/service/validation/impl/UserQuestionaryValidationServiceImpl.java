@@ -75,7 +75,7 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
 
         checkCommonFieldsForCreateAndUpdateInQuestionary(userQuestionary);
 
-        List<Question> allQuestions = questionRepository.findAllByQuestionaryTemplateIdAndDeletedAtIsNull(userQuestionary.getQuestionaryTemplateId());
+        List<Question> allQuestions = questionRepository.findAllByQuestionaryTemplateId(userQuestionary.getQuestionaryTemplateId());
         List<Question> mandatoryQuestions = allQuestions.stream().filter(q -> Boolean.TRUE.equals(q.getIsMandatory())).toList();
         Map<Long, Boolean> mandatoryQuestionsPresentMap = mandatoryQuestions.stream().collect(Collectors.toMap(Question::getId, v -> false));
         Set<Long> allQuestionsIdentifiers = allQuestions.stream().map(Question::getId).collect(Collectors.toSet());
@@ -108,7 +108,7 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
             throw new ValidationException(String.format("Questionary with id %d on processing", userQuestionary.getId()));
         }
 
-        List<Question> allQuestions = questionRepository.findAllByQuestionaryTemplateIdAndDeletedAtIsNull(userQuestionary.getQuestionaryTemplateId());
+        List<Question> allQuestions = questionRepository.findAllByQuestionaryTemplateId(userQuestionary.getQuestionaryTemplateId());
         List<Question> mandatoryQuestions = allQuestions.stream().filter(q -> Boolean.TRUE.equals(q.getIsMandatory())).toList();
         Map<Long, Boolean> mandatoryQuestionsPresentMap = mandatoryQuestions.stream().collect(Collectors.toMap(Question::getId, v -> false));
         Set<Long> allQuestionsIdentifiers = allQuestions.stream().map(Question::getId).collect(Collectors.toSet());

@@ -4,6 +4,7 @@ import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
+import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.model.constant.UserQuestionaryStatus;
 import com.igodating.questionary.repository.QuestionRepository;
@@ -49,6 +50,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         userQuestionaryRepository.save(userQuestionary);
 
         for (UserQuestionaryAnswer userQuestionaryAnswer : userQuestionary.getAnswers()) {
+            initTsVectorValueIfNeeded(userQuestionaryAnswer);
             userQuestionaryAnswer.setUserQuestionaryId(userQuestionary.getId());
         }
 
@@ -86,6 +88,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
             }
 
             oldAnswer.setValue(newAnswer.getValue());
+            initTsVectorValueIfNeeded(oldAnswer);
             userQuestionaryAnswerRepository.save(oldAnswer);
         }
 
@@ -94,6 +97,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
                 semanticRankingAnswerWasChanged = true;
             }
 
+            initTsVectorValueIfNeeded(answerToCreate);
             answerToCreate.setUserQuestionaryId(userQuestionary.getId());
             userQuestionaryAnswerRepository.save(answerToCreate);
         }
@@ -182,5 +186,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         }
 
         return RuleMatchingType.SEMANTIC_RANGING.equals(matchingRule.getMatchingType());
+    }
+
+    private void initTsVectorValueIfNeeded(UserQuestionaryAnswer userQuestionaryAnswer) {
+        Question question = questionRepository.getReferenceById(userQuestionaryAnswer.getQuestionId());
+
+        if (question.getAnswerType().equals(QuestionAnswerType.FREE_FORM)) {
+            userQuestionaryAnswer.setTsVectorValue(userQuestionaryAnswer.getValue());
+        }
     }
 }

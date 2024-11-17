@@ -86,4 +86,8 @@ public class Question implements Identifiable<Long> {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    public boolean withChoice() {
+        return QuestionAnswerType.CHOICE.equals(answerType) || QuestionAnswerType.MULTIPLE_CHOICE.equals(answerType);
+    }
 }

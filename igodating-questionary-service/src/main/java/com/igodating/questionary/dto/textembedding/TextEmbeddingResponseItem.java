@@ -1,10 +1,10 @@
-package com.igodating.questionary.dto;
+package com.igodating.questionary.dto.textembedding;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record TextEmbeddingRequestItem(
+public record TextEmbeddingResponseItem(
         @JsonProperty("sentence_id")
         String sentenceId,
-        String value
+        float[] embedding
 ) {
 }

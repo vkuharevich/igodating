@@ -1,8 +1,8 @@
 package com.igodating.questionary.scheduler.impl;
 
-import com.igodating.questionary.dto.TextEmbeddingRequest;
-import com.igodating.questionary.dto.TextEmbeddingRequestItem;
-import com.igodating.questionary.dto.TextEmbeddingResponse;
+import com.igodating.questionary.dto.textembedding.TextEmbeddingRequest;
+import com.igodating.questionary.dto.textembedding.TextEmbeddingRequestItem;
+import com.igodating.questionary.dto.textembedding.TextEmbeddingResponse;
 import com.igodating.questionary.feign.TextEmbeddingService;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;

@@ -1,4 +1,4 @@
-package com.igodating.questionary.dto;
+package com.igodating.questionary.dto.textembedding;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

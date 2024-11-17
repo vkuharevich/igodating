@@ -1,4 +1,4 @@
-package com.igodating.questionary.dto;
+package com.igodating.questionary.dto.textembedding;
 
 import java.util.List;
 

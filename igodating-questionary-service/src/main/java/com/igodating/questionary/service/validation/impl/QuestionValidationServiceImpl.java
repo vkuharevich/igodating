@@ -78,7 +78,7 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
             throw new ValidationException("Cannot set fromVal or toVal for not numeric values");
         }
 
-        boolean withChoice = QuestionAnswerType.CHOICE.equals(question.getAnswerType()) || QuestionAnswerType.MULTIPLE_CHOICE.equals(question.getAnswerType());
+        boolean withChoice = question.withChoice();
 
         if (!withChoice && !CollectionUtils.isEmpty(question.getAnswerOptions())) {
             throw new ValidationException("Answer options are provided for not-choice type");

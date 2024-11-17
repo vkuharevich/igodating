@@ -4,10 +4,10 @@ import com.igodating.questionary.model.Identifiable;
 import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
 
 public class ServiceUtils {
 
@@ -16,7 +16,13 @@ public class ServiceUtils {
         List<Pair<T, T>> toUpdate = new ArrayList<>();
         List<T> toCreate = new ArrayList<>();
 
-        Map<ID, T> actualEntitiesIdMap = actualEntities.stream().collect(Collectors.toMap(Identifiable::getId, v -> v));
+        Map<ID, Boolean> actualEntitiesPresentationMap = new HashMap<>();
+        Map<ID, T> actualEntitiesIdMap = new HashMap<>();
+        actualEntities.forEach(actualEntity -> {
+            actualEntitiesPresentationMap.put(actualEntity.getId(), false);
+            actualEntitiesIdMap.put(actualEntity.getId(), actualEntity);
+        });
+
 
         for (T newEntity : newEntities) {
             ID newEntityId = newEntity.getId();
@@ -27,15 +33,19 @@ public class ServiceUtils {
             }
 
             T actualEntity = actualEntitiesIdMap.get(newEntityId);
-            if (actualEntity == null) {
-                toDelete.add(newEntity);
-                continue;
-            }
-
-            if (!equalsPredicate.test(newEntity, actualEntity)) {
-                toUpdate.add(Pair.of(actualEntity, newEntity));
+            if (actualEntity != null) {
+                actualEntitiesPresentationMap.put(actualEntity.getId(), true);
+                if (!equalsPredicate.test(newEntity, actualEntity)) {
+                    toUpdate.add(Pair.of(actualEntity, newEntity));
+                }
             }
         }
+
+        actualEntitiesPresentationMap.forEach((key, value) -> {
+            if (!actualEntitiesPresentationMap.get(key)) {
+                toDelete.add(actualEntitiesIdMap.get(key));
+            }
+        });
 
         return new EntitiesListChange<>(toDelete, toUpdate, toCreate);
     }

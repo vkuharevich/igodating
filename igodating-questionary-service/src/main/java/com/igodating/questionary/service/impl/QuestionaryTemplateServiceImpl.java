@@ -60,7 +60,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         existedQuestionaryTemplate.setName(questionaryTemplate.getName());
         existedQuestionaryTemplate.setDescription(questionaryTemplate.getDescription());
 
-        EntitiesListChange<Question, Long> changes = ServiceUtils.changes(questionaryTemplate.getQuestions(), existedQuestionaryTemplate.getQuestions(), this::changesInQuestions);
+        EntitiesListChange<Question, Long> changes = ServiceUtils.changes(existedQuestionaryTemplate.getQuestions(), questionaryTemplate.getQuestions(), this::changesInQuestions);
 
         List<Question> questionsToCreate = changes.getToCreate();
         for (Question questionToCreate : questionsToCreate) {

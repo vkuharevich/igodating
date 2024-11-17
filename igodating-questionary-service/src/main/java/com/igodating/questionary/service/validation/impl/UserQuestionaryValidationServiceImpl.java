@@ -83,12 +83,12 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
         Set<Long> allQuestionsIdentifiers = allQuestions.stream().map(Question::getId).collect(Collectors.toSet());
 
         userQuestionary.getAnswers().forEach(answer -> {
-            if (mandatoryQuestionsPresentMap.containsKey(answer.getId())) {
-                mandatoryQuestionsPresentMap.put(answer.getId(), true);
+            if (mandatoryQuestionsPresentMap.containsKey(answer.getQuestionId())) {
+                mandatoryQuestionsPresentMap.put(answer.getQuestionId(), true);
             }
             userQuestionaryAnswerValidationService.validateOnCreate(answer, userQuestionary);
-            if (allQuestionsIdentifiers.contains(answer.getId())) {
-                throw new ValidationException(String.format("Answer on question %d doesn't relate to template", answer.getId()));
+            if (!allQuestionsIdentifiers.contains(answer.getQuestionId())) {
+                throw new ValidationException(String.format("Answer on question %d doesn't relate to template", answer.getQuestionId()));
             }
         });
 
@@ -117,14 +117,14 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
         Set<Long> allQuestionsIdentifiers = allQuestions.stream().map(Question::getId).collect(Collectors.toSet());
 
         userQuestionary.getAnswers().forEach(answer -> {
-            if (mandatoryQuestionsPresentMap.containsKey(answer.getId())) {
-                mandatoryQuestionsPresentMap.put(answer.getId(), true);
+            if (mandatoryQuestionsPresentMap.containsKey(answer.getQuestionId())) {
+                mandatoryQuestionsPresentMap.put(answer.getQuestionId(), true);
             }
             if (!Objects.equals(answer.getUserQuestionaryId(), userQuestionary.getId())) {
                 throw new ValidationException(String.format("Wrong questionary id %d for answer", answer.getUserQuestionaryId()));
             }
-            if (allQuestionsIdentifiers.contains(answer.getId())) {
-                throw new ValidationException(String.format("Answer on question %d doesn't relate to template", answer.getId()));
+            if (!allQuestionsIdentifiers.contains(answer.getQuestionId())) {
+                throw new ValidationException(String.format("Answer on question %d doesn't relate to template", answer.getQuestionId()));
             }
 
             if (answer.getId() != null) {

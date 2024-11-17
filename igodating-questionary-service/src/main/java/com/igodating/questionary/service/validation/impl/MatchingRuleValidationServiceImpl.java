@@ -56,6 +56,10 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Semantic ranging cannot be public");
         }
 
+        if (RuleMatchingType.SEMANTIC_RANGING.equals(matchingType) && StringUtils.isNotEmpty(matchingRule.getPresetValue())) {
+            throw new ValidationException("Cannot provide preset value for Semantic Ranging");
+        }
+
         if (RuleMatchingType.LIKE.equals(matchingType) && !answerType.equals(QuestionAnswerType.FREE_FORM)) {
             throw new ValidationException("Like can be applied only to free form");
         }
@@ -72,8 +76,8 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Equals can be applied only to free form, numeric or one-choice");
         }
 
-        if (RuleAccessType.PRIVATE.equals(accessType) && StringUtils.isBlank(matchingRule.getPresetValue())) {
-            throw new ValidationException("Private access should have a preset value");
+        if (RuleAccessType.PRIVATE.equals(accessType) && !matchingType.equals(RuleMatchingType.SEMANTIC_RANGING) && StringUtils.isBlank(matchingRule.getPresetValue())) {
+            throw new ValidationException("Private access with non-semantoc matching should have a preset value");
         }
 
         if (StringUtils.isNotEmpty(matchingRule.getPresetValue())) {

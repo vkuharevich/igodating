@@ -58,10 +58,6 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
     }
 
     private void checkCommonRequiredFieldsForCreateAndUpdateInQuestion(Question question) {
-        if (question.getQuestionaryTemplateId() == null) {
-            throw new ValidationException("Template is empty for question");
-        }
-
         if (StringUtils.isBlank(question.getTitle())) {
             throw new ValidationException("Title is empty for question");
         }

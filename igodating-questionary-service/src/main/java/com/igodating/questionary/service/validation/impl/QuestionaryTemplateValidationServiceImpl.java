@@ -28,8 +28,6 @@ public class QuestionaryTemplateValidationServiceImpl implements QuestionaryTemp
 
         checkCommonRequiredFieldsForCreateAndUpdateInTemplate(questionaryTemplate);
 
-        checkQuestionaryTemplateOnExistenceAndThrowIfDeleted(questionaryTemplate);
-
         questionaryTemplate.getQuestions().forEach(questionValidationService::validateOnCreate);
     }
 

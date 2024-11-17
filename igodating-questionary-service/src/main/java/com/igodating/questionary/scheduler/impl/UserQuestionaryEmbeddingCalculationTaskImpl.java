@@ -36,6 +36,7 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void executeEmbeddingCalculation(int batchSize, int threadsCount) {
+        //todo здесь херня, отдельный поток - транзакция REPEATABLE_READ ебется
         try (ExecutorService executorService = Executors.newFixedThreadPool(threadsCount)) {
             List<UserQuestionary> questionaries = userQuestionaryService.findUnprocessedWithLimit(batchSize);
 

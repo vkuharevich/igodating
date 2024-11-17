@@ -43,10 +43,11 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
     @Override
     @Transactional
     public void createDraft(UserQuestionary userQuestionary, String userId) {
+        userQuestionary.setUserId(userId);
+
         userQuestionaryValidationService.validateOnCreate(userQuestionary);
 
         userQuestionary.setQuestionaryStatus(UserQuestionaryStatus.DRAFT);
-        userQuestionary.setUserId(userId);
 
         userQuestionaryRepository.save(userQuestionary);
 

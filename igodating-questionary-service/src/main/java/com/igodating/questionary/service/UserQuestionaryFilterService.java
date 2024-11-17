@@ -5,5 +5,5 @@ import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.model.UserQuestionary;
 
 public interface UserQuestionaryFilterService {
-    CursorResponse<UserQuestionary> findByCursor(UserQuestionaryFilter filter);
+    CursorResponse<UserQuestionary> findByCursorForUserId(UserQuestionaryFilter filter, String userId);
 }

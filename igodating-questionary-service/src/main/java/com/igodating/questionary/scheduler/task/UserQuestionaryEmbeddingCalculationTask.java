@@ -1,4 +1,4 @@
-package com.igodating.questionary.scheduler;
+package com.igodating.questionary.scheduler.task;
 
 public interface UserQuestionaryEmbeddingCalculationTask {
 

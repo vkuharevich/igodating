@@ -1,4 +1,4 @@
-package com.igodating.questionary.scheduler.impl;
+package com.igodating.questionary.scheduler.task.impl;
 
 import com.igodating.questionary.dto.textembedding.TextEmbeddingRequest;
 import com.igodating.questionary.dto.textembedding.TextEmbeddingRequestItem;
@@ -9,21 +9,16 @@ import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.RuleMatchingType;
-import com.igodating.questionary.scheduler.UserQuestionaryEmbeddingCalculationTask;
+import com.igodating.questionary.scheduler.task.UserQuestionaryEmbeddingCalculationTask;
 import com.igodating.questionary.service.UserQuestionaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Service
 @RequiredArgsConstructor

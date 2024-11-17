@@ -1,6 +1,6 @@
-package com.igodating.questionary.scheduler.impl;
+package com.igodating.questionary.scheduler.task.impl;
 
-import com.igodating.questionary.scheduler.QuestionaryTemplateCacheReloadingTask;
+import com.igodating.questionary.scheduler.task.QuestionaryTemplateCacheReloadingTask;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

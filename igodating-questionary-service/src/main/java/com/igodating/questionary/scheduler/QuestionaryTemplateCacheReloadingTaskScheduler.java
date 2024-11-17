@@ -1,5 +1,6 @@
 package com.igodating.questionary.scheduler;
 
+import com.igodating.questionary.scheduler.task.QuestionaryTemplateCacheReloadingTask;
 import lombok.RequiredArgsConstructor;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;

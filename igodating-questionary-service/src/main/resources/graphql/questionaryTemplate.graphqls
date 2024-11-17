@@ -1,0 +1,99 @@
+input AnswerOptionCreateDto {
+    value: String!
+}
+
+input AnswerOptionUpdateDto {
+    id: Int
+    value: String!
+}
+
+type AnswerOptionView {
+    id: Int
+    questionId: Int
+    value: String
+}
+
+input MatchingRuleCreateDto {
+    matchingType: RuleMatchingType
+    presetValue: String
+    accessType: RuleAccessType
+}
+
+input MatchingRuleUpdateDto {
+    id: Int
+    matchingType: RuleMatchingType
+    presetValue: String
+    accessType: RuleAccessType
+}
+
+type MatchingRuleView {
+    id: Int
+    questionId: Int
+    matchingType: RuleMatchingType
+    presetValue: String
+    accessType: RuleAccessType
+    createdAt: String
+}
+
+input QuestionaryTemplateCreateRequest {
+    name: String!
+    description: String!
+    questions: [QuestionCreateDto]
+}
+
+input QuestionaryTemplateUpdateRequest {
+    id: Int!
+    name: String!
+    description: String!
+    questions: [QuestionUpdateDto]
+}
+
+type QuestionaryTemplateView {
+    id: Int
+    name: String
+    description: String
+    questions: [QuestionView]
+}
+
+input QuestionCreateDto {
+    matchingRule: MatchingRuleCreateDto
+    title: String!
+    description: String!
+    answerType: QuestionAnswerType!
+    isMandatory: Boolean
+    fromVal: Float
+    toVal: Float
+    answerOptions: [AnswerOptionCreateDto]
+}
+
+input QuestionUpdateDto {
+    id: Int
+    title: String!
+    description: String!
+    answerType: QuestionAnswerType!
+    isMandatory: Boolean
+    fromVal: Float
+    toVal: Float
+    matchingRule: MatchingRuleUpdateDto
+    answerOptions: [AnswerOptionUpdateDto]
+}
+
+type QuestionView {
+    id: Int
+    questionaryTemplateId: Int
+    matchingRule: MatchingRuleView
+    title: String
+    description: String
+    answerType: QuestionAnswerType
+    isMandatory: Boolean
+    fromVal: Float
+    toVal: Float
+    createdAt: String
+    answerOptions: [AnswerOptionView]
+}
+
+extend type Mutation {
+    createTemplate(template: QuestionaryTemplateCreateRequest!): Boolean
+    updateTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
+    deleteTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
+}

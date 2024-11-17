@@ -3,6 +3,7 @@ package com.igodating.questionary.mapper;
 import com.igodating.questionary.dto.template.AnswerOptionCreateDto;
 import com.igodating.questionary.dto.template.AnswerOptionUpdateDto;
 import com.igodating.questionary.dto.template.MatchingRuleCreateDto;
+import com.igodating.questionary.dto.template.MatchingRuleUpdateDto;
 import com.igodating.questionary.dto.template.QuestionCreateDto;
 import com.igodating.questionary.dto.template.QuestionUpdateDto;
 import com.igodating.questionary.model.AnswerOption;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-11-17T13:48:47+0300",
+    date = "2024-11-17T15:03:17+0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21 (Oracle Corporation)"
 )
 @Component
@@ -50,8 +51,13 @@ public class QuestionMapperImpl implements QuestionMapper {
         Question question1 = new Question();
 
         question1.setId( question.id() );
+        question1.setMatchingRule( matchingRuleUpdateDtoToMatchingRule( question.matchingRule() ) );
         question1.setTitle( question.title() );
         question1.setDescription( question.description() );
+        question1.setAnswerType( question.answerType() );
+        question1.setIsMandatory( question.isMandatory() );
+        question1.setFromVal( question.fromVal() );
+        question1.setToVal( question.toVal() );
         question1.setAnswerOptions( answerOptionUpdateDtoListToAnswerOptionList( question.answerOptions() ) );
 
         return question1;
@@ -94,6 +100,21 @@ public class QuestionMapperImpl implements QuestionMapper {
         }
 
         return list1;
+    }
+
+    protected MatchingRule matchingRuleUpdateDtoToMatchingRule(MatchingRuleUpdateDto matchingRuleUpdateDto) {
+        if ( matchingRuleUpdateDto == null ) {
+            return null;
+        }
+
+        MatchingRule matchingRule = new MatchingRule();
+
+        matchingRule.setId( matchingRuleUpdateDto.id() );
+        matchingRule.setMatchingType( matchingRuleUpdateDto.matchingType() );
+        matchingRule.setPresetValue( matchingRuleUpdateDto.presetValue() );
+        matchingRule.setAccessType( matchingRuleUpdateDto.accessType() );
+
+        return matchingRule;
     }
 
     protected AnswerOption answerOptionUpdateDtoToAnswerOption(AnswerOptionUpdateDto answerOptionUpdateDto) {

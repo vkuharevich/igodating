@@ -32,8 +32,8 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
 
     @Override
     @Transactional(readOnly = true)
-    public void validateOnDelete(UserQuestionary userQuestionary) {
-        checkQuestionaryOnExistenceAndThrowIfDeleted(userQuestionary);
+    public void validateOnDelete(UserQuestionary userQuestionary, String userId) {
+        checkUserId(checkQuestionaryOnExistenceAndThrowIfDeletedOrWrongUserId(userQuestionary), userId);
     }
 
     @Override
@@ -43,13 +43,15 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
             throw new ValidationException("Object is null");
         }
 
-        checkQuestionaryOnExistenceAndThrowIfDeleted(userQuestionary);
+        checkQuestionaryOnExistenceAndThrowIfDeletedOrWrongUserId(userQuestionary);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public void validateOnMoveFromDraft(UserQuestionary userQuestionary) {
-        UserQuestionary existedQuestionary = checkQuestionaryOnExistenceAndThrowIfDeleted(userQuestionary);
+    public void validateOnMoveFromDraft(UserQuestionary userQuestionary, String userId) {
+        UserQuestionary existedQuestionary = checkQuestionaryOnExistenceAndThrowIfDeletedOrWrongUserId(userQuestionary);
+
+        checkUserId(existedQuestionary, userId);
 
         if (!UserQuestionaryStatus.DRAFT.equals(existedQuestionary.getQuestionaryStatus())) {
             throw new ValidationException("Questionary is not Draft");
@@ -99,10 +101,11 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
 
     @Override
     @Transactional(readOnly = true)
-    public void validateOnUpdate(UserQuestionary userQuestionary) {
+    public void validateOnUpdate(UserQuestionary userQuestionary, String userId) {
         checkCommonFieldsForCreateAndUpdateInQuestionary(userQuestionary);
 
-        UserQuestionary actualQuestionary = checkQuestionaryOnExistenceAndThrowIfDeleted(userQuestionary);
+        UserQuestionary actualQuestionary = checkQuestionaryOnExistenceAndThrowIfDeletedOrWrongUserId(userQuestionary);
+        checkUserId(actualQuestionary, userId);
 
         if (UserQuestionaryStatus.ON_PROCESSING.equals(actualQuestionary.getQuestionaryStatus())) {
             throw new ValidationException(String.format("Questionary with id %d on processing", userQuestionary.getId()));
@@ -164,7 +167,7 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
         }
     }
 
-    private UserQuestionary checkQuestionaryOnExistenceAndThrowIfDeleted(UserQuestionary userQuestionary) {
+    private UserQuestionary checkQuestionaryOnExistenceAndThrowIfDeletedOrWrongUserId(UserQuestionary userQuestionary) {
         Long id = userQuestionary.getId();
         if (id == null) {
             throw new ValidationException("Id is required for questionary updating");
@@ -177,5 +180,11 @@ public class UserQuestionaryValidationServiceImpl implements UserQuestionaryVali
         }
 
         return existedQuestionary;
+    }
+
+    private void checkUserId(UserQuestionary userQuestionary, String userId) {
+        if (!Objects.equals(userId, userQuestionary.getUserId())) {
+            throw new ValidationException("Wrong user id");
+        }
     }
 }

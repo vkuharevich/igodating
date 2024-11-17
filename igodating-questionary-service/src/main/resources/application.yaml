@@ -2,6 +2,12 @@ server:
   port: 8081
 
 spring:
+  graphql:
+    schema:
+      locations: classpath*:graphql/**/
+    graphiql:
+      enabled: true
+
   security:
     oauth2:
       resourceserver:

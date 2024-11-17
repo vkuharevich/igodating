@@ -1,0 +1,34 @@
+enum QuestionAnswerType {
+    FREE_FORM,
+    CHOICE,
+    MULTIPLE_CHOICE,
+    NUMERIC
+}
+
+enum RuleAccessType {
+    PUBLIC,
+    PRIVATE
+}
+
+enum RuleMatchingType {
+    EQUALS,
+    LIKE,
+    IN_RANGE,
+    IN_SET,
+    SEMANTIC_RANGING
+}
+
+enum UserQuestionaryStatus {
+    DRAFT,
+    ON_PROCESSING,
+    PUBLISHED,
+    NEEDS_CHANGES,
+    DELETED
+}
+
+type Query {
+    answerTypes: [QuestionAnswerType]
+}
+
+type Mutation {
+}

@@ -42,10 +42,11 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional
-    public void createDraft(UserQuestionary userQuestionary) {
+    public void createDraft(UserQuestionary userQuestionary, String userId) {
         userQuestionaryValidationService.validateOnCreate(userQuestionary);
 
         userQuestionary.setQuestionaryStatus(UserQuestionaryStatus.DRAFT);
+        userQuestionary.setUserId(userId);
 
         userQuestionaryRepository.save(userQuestionary);
 
@@ -59,8 +60,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void update(UserQuestionary userQuestionary) {
-        userQuestionaryValidationService.validateOnUpdate(userQuestionary);
+    public void update(UserQuestionary userQuestionary, String userId) {
+        userQuestionaryValidationService.validateOnUpdate(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
         existedQuestionary.setQuestionaryStatus(userQuestionary.getQuestionaryStatus());
@@ -123,8 +124,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void moveFromDraft(UserQuestionary userQuestionary) {
-        userQuestionaryValidationService.validateOnMoveFromDraft(userQuestionary);
+    public void moveFromDraft(UserQuestionary userQuestionary, String userId) {
+        userQuestionaryValidationService.validateOnMoveFromDraft(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
 
@@ -138,8 +139,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void delete(UserQuestionary userQuestionary) {
-        userQuestionaryValidationService.validateOnDelete(userQuestionary);
+    public void delete(UserQuestionary userQuestionary, String userId) {
+        userQuestionaryValidationService.validateOnDelete(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
         existedQuestionary.setToDelete();

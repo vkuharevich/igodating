@@ -1,0 +1,52 @@
+input UserQuestionaryAnswerCreateDto {
+    questionId: Int!
+    value: String!
+}
+
+input UserQuestionaryAnswerUpdateDto {
+    id: Int
+    questionId: Int!
+    value: String!
+}
+
+type UserQuestionaryAnswerView {
+    id: Int
+    questionId: Int
+    userQuestionaryId: Int
+    question: QuestionView
+    value: String
+    createdAt: String
+}
+
+input UserQuestionaryCreateRequest {
+    title: String!
+    description: String!
+    questionaryTemplateId: Int!
+    answers: [UserQuestionaryAnswerCreateDto]
+}
+
+input UserQuestionaryUpdateRequest {
+    id: Int!
+    title: String!
+    description: String!
+    answers: [UserQuestionaryAnswerUpdateDto]
+}
+
+type UserQuestionaryView {
+    id: Int
+    title: String
+    description: String
+    userId: String
+    questionaryTemplateId: Int
+    questionaryStatus: UserQuestionaryStatus
+    createdAt: String
+    deletedAt: String
+    answers: [UserQuestionaryAnswerView]
+}
+
+extend type Mutation {
+    createQuestionary(questionary: UserQuestionaryCreateRequest!): Boolean
+    updateQuestionary(questionary: UserQuestionaryUpdateRequest!): Boolean
+    deleteQuestionary(questionary: UserQuestionaryUpdateRequest!): Boolean
+    moveFromDraft(questionary: UserQuestionaryUpdateRequest!): Boolean
+}

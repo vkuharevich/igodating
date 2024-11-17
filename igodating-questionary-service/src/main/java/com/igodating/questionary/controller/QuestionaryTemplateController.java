@@ -23,28 +23,28 @@ public class QuestionaryTemplateController {
     private final QuestionaryTemplateMapper questionaryTemplateMapper;
 
     @MutationMapping
-    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
+//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
     public Boolean createTemplate(@Argument QuestionaryTemplateCreateRequest template) {
         questionaryTemplateService.create(questionaryTemplateMapper.createRequestToModel(template));
         return true;
     }
 
     @MutationMapping
-    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
+//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
     public Boolean updateTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
         questionaryTemplateService.update(questionaryTemplateMapper.updateRequestToModel(template));
         return true;
     }
 
     @MutationMapping
-    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
+//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
     public Boolean deleteTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
         questionaryTemplateService.delete(questionaryTemplateMapper.updateRequestToModel(template));
         return true;
     }
 
     @QueryMapping
-    @Secured("ROLE_VIEW_QUESTIONARY_TEMPLATE")
+//    @Secured("ROLE_VIEW_QUESTIONARY_TEMPLATE")
     public QuestionAnswerType[] answerTypes() {
         return QuestionAnswerType.values();
     }

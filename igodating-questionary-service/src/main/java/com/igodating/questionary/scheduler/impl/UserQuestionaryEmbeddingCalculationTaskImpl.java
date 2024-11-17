@@ -35,23 +35,13 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void executeEmbeddingCalculation(int batchSize, int threadsCount) {
-        //todo здесь херня, отдельный поток - транзакция REPEATABLE_READ ебется
-        try (ExecutorService executorService = Executors.newFixedThreadPool(threadsCount)) {
-            List<UserQuestionary> questionaries = userQuestionaryService.findUnprocessedWithLimit(batchSize);
+    public void executeEmbeddingCalculation(int batchSize) {
+        //todo пока синхронная обработка
 
-            List<Future<?>> futures = new ArrayList<>();
-            for (UserQuestionary userQuestionary : questionaries) {
-                futures.add(executorService.submit(() -> handleQuestionary(userQuestionary)));
-            }
+        List<UserQuestionary> questionaries = userQuestionaryService.findUnprocessedWithLimit(batchSize);
 
-            for (Future<?> future : futures) {
-                try {
-                    future.get();
-                }  catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        for (UserQuestionary userQuestionary : questionaries) {
+            handleQuestionary(userQuestionary);
         }
     }
 

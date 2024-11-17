@@ -52,4 +52,3 @@ task:
   user-questionary-embedding-calculation-task:
     cron: 0 0/1 * * * ?
     batch-size: 100
-    threads-count: 5

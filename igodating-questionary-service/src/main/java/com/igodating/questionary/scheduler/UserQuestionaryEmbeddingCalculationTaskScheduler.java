@@ -17,13 +17,10 @@ public class UserQuestionaryEmbeddingCalculationTaskScheduler {
     @Value("${task.user-questionary-embedding-calculation-task.batch-size}")
     private Integer batchSize;
 
-    @Value("${task.user-questionary-embedding-calculation-task.threads-count}")
-    private Integer threadsCount;
-
 
     @Scheduled(cron = "${task.user-questionary-embedding-calculation-task.cron}")
     @SchedulerLock(name = "UserQuestionaryEmbeddingCalculationTask")
     public void scheduledTask() throws ExecutionException, InterruptedException {
-        userQuestionaryEmbeddingCalculationTask.executeEmbeddingCalculation(batchSize, threadsCount);
+        userQuestionaryEmbeddingCalculationTask.executeEmbeddingCalculation(batchSize);
     }
 }

@@ -2,5 +2,5 @@ package com.igodating.questionary.scheduler;
 
 public interface UserQuestionaryEmbeddingCalculationTask {
 
-    void executeEmbeddingCalculation(int batchSize, int threadsCount);
+    void executeEmbeddingCalculation(int batchSize);
 }

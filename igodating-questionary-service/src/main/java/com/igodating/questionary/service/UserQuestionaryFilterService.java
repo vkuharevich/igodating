@@ -2,8 +2,8 @@ package com.igodating.questionary.service;
 
 import com.igodating.questionary.dto.CursorResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
-import com.igodating.questionary.model.UserQuestionary;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
 
 public interface UserQuestionaryFilterService {
-    CursorResponse<UserQuestionary> findByCursorForUserId(UserQuestionaryFilter filter, String userId);
+    CursorResponse<UserQuestionaryShortView> findByCursorForUserId(UserQuestionaryFilter filter, String userId);
 }

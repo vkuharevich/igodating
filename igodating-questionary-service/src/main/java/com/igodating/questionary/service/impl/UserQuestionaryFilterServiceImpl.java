@@ -2,6 +2,7 @@ package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.dto.CursorResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;
@@ -24,7 +25,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
     @Override
     @Transactional(readOnly = true)
-    public CursorResponse<UserQuestionary> findByCursorForUserId(UserQuestionaryFilter filter, String userId) {
+    public CursorResponse<UserQuestionaryShortView> findByCursorForUserId(UserQuestionaryFilter filter, String userId) {
         userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
 
         return null;

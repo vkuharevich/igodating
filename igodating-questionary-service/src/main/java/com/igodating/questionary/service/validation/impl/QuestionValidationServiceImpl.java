@@ -4,11 +4,11 @@ import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.repository.QuestionRepository;
-import com.igodating.questionary.service.validation.AnswerOptionValidationService;
 import com.igodating.questionary.service.validation.MatchingRuleValidationService;
 import com.igodating.questionary.service.validation.QuestionValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -18,8 +18,6 @@ import org.springframework.util.CollectionUtils;
 public class QuestionValidationServiceImpl implements QuestionValidationService {
 
     private final QuestionRepository questionRepository;
-
-    private final AnswerOptionValidationService answerOptionValidationService;
 
     private final MatchingRuleValidationService matchingRuleValidationService;
 
@@ -32,10 +30,6 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
 
         checkCommonRequiredFieldsForCreateAndUpdateInQuestion(question);
 
-        if (!CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            question.getAnswerOptions().forEach(answerOptionValidationService::validateOnCreate);
-        }
-
         if (question.getMatchingRule() != null) {
             matchingRuleValidationService.validateOnCreate(question.getMatchingRule(), question);
         }
@@ -47,10 +41,6 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
         checkCommonRequiredFieldsForCreateAndUpdateInQuestion(question);
 
         checkQuestionOnExistenceAndThrowIfDeleted(question);
-
-        if (!CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            question.getAnswerOptions().forEach(answerOptionValidationService::validateOnUpdate);
-        }
 
         if (question.getMatchingRule() != null) {
             matchingRuleValidationService.validateOnUpdate(question.getMatchingRule(), question);
@@ -76,12 +66,12 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
 
         boolean withChoice = question.withChoice();
 
-        if (!withChoice && !CollectionUtils.isEmpty(question.getAnswerOptions())) {
+        if (!withChoice && !ArrayUtils.isEmpty(question.getAnswerOptions())) {
             throw new ValidationException("Answer options are provided for not-choice type");
         }
 
-        if (withChoice && CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            throw new ValidationException("Answer options are not provided for choice type");
+        if (withChoice && ArrayUtils.isEmpty(question.getAnswerOptions()) || question.getAnswerOptions().length < 2) {
+            throw new ValidationException("Answer options (minimum 2) are not provided for choice type");
         }
     }
 

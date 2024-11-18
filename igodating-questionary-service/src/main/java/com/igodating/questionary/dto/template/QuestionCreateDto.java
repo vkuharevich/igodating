@@ -13,6 +13,6 @@ public record QuestionCreateDto(
         Boolean isMandatory,
         BigDecimal fromVal,
         BigDecimal toVal,
-        List<AnswerOptionCreateDto> answerOptions
+        List<String> answerOptions
 ) {
 }

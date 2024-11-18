@@ -17,6 +17,6 @@ public record QuestionView(
         BigDecimal fromVal,
         BigDecimal toVal,
         LocalDateTime createdAt,
-        List<AnswerOptionView> answerOptions
+        List<String> answerOptions
 ) {
 }

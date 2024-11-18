@@ -1,18 +1,3 @@
-input AnswerOptionCreateDto {
-    value: String!
-}
-
-input AnswerOptionUpdateDto {
-    id: Int
-    value: String!
-}
-
-type AnswerOptionView {
-    id: Int
-    questionId: Int
-    value: String
-}
-
 input MatchingRuleCreateDto {
     matchingType: RuleMatchingType
     presetValue: String
@@ -63,7 +48,7 @@ input QuestionCreateDto {
     isMandatory: Boolean
     fromVal: Float
     toVal: Float
-    answerOptions: [AnswerOptionCreateDto]
+    answerOptions: [String]
 }
 
 input QuestionUpdateDto {
@@ -75,7 +60,7 @@ input QuestionUpdateDto {
     fromVal: Float
     toVal: Float
     matchingRule: MatchingRuleUpdateDto
-    answerOptions: [AnswerOptionUpdateDto]
+    answerOptions: [String]
 }
 
 type QuestionView {
@@ -89,7 +74,7 @@ type QuestionView {
     fromVal: Float
     toVal: Float
     createdAt: String
-    answerOptions: [AnswerOptionView]
+    answerOptions: [String]
 }
 
 extend type Mutation {

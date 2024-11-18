@@ -14,6 +14,6 @@ public record QuestionUpdateDto(
         BigDecimal fromVal,
         BigDecimal toVal,
         MatchingRuleUpdateDto matchingRule,
-        List<AnswerOptionUpdateDto> answerOptions
+        List<String> answerOptions
 ) {
 }

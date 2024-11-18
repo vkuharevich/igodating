@@ -1,10 +1,8 @@
 package com.igodating.questionary.service.impl;
 
-import com.igodating.questionary.model.AnswerOption;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
-import com.igodating.questionary.repository.AnswerOptionRepository;
 import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.QuestionaryTemplateRepository;
@@ -17,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,30 +31,21 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     private final MatchingRuleRepository matchingRuleRepository;
 
-    private final AnswerOptionRepository answerOptionRepository;
-
     private final UserQuestionaryRepository userQuestionaryRepository;
 
     @Override
     @Transactional(readOnly = true)
     public QuestionaryTemplate getById(Long id) {
-        QuestionaryTemplate questionaryTemplate = questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
 
-        loadAnswersForQuestionsWithChoice(questionaryTemplate);
-
-        return questionaryTemplate;
+        return questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<QuestionaryTemplate> getAll() {
-        List<QuestionaryTemplate> questionaryTemplates = questionaryTemplateRepository.findAll();
 
-        for (QuestionaryTemplate questionaryTemplate : questionaryTemplates) {
-            loadAnswersForQuestionsWithChoice(questionaryTemplate);
-        }
 
-        return questionaryTemplates;
+        return questionaryTemplateRepository.findAll();
     }
 
     @Override
@@ -127,23 +115,17 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
             updateMatchingRule(oldMatchingRule, newMatchingRule, oldQuestion);
         }
 
-        List<AnswerOption> oldAnswerOptions = oldQuestion.getAnswerOptions();
-        List<AnswerOption> newAnswerOptions = newQuestion.getAnswerOptions();
-        if (!CollectionUtils.isEmpty(oldAnswerOptions) || !CollectionUtils.isEmpty(newAnswerOptions)) {
-            mergeAnswerOptions(oldAnswerOptions, newAnswerOptions);
+        if (oldQuestion.withChoice()) {
+            String[] newAnswerOptions = newQuestion.getAnswerOptions();
+
+            if (oldQuestion.getAnswerOptions().length > newAnswerOptions.length) {
+                throw new RuntimeException("Answer option delete is not supported");
+            }
+
+            oldQuestion.setAnswerOptions(newAnswerOptions);
         }
-    }
 
-    private void mergeAnswerOptions(List<AnswerOption> oldAnswerOptions, List<AnswerOption> newAnswerOptions) {
-        List<Pair<AnswerOption, AnswerOption>> oldNewAnswerOptionsPairs = ServiceUtils.changes(oldAnswerOptions, newAnswerOptions, (oldAnswerOption, newAnswerOption) -> Objects.equals(oldAnswerOption.getValue(), newAnswerOption.getValue())).getOldNewPairToUpdate();
-        for (Pair<AnswerOption, AnswerOption> oldNewAnswerOptionsPair : oldNewAnswerOptionsPairs) {
-            AnswerOption oldAnswerOption = oldNewAnswerOptionsPair.getFirst();
-            AnswerOption newAnswerOption = oldNewAnswerOptionsPair.getSecond();
-
-            oldAnswerOption.setValue(newAnswerOption.getValue());
-
-            answerOptionRepository.save(oldAnswerOption);
-        }
+        questionRepository.save(oldQuestion);
     }
 
     private void updateMatchingRule(MatchingRule oldMatchingRule, MatchingRule newMatchingRule, Question oldQuestion) {
@@ -193,25 +175,10 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         question.setQuestionaryTemplateId(questionaryTemplateId);
         questionRepository.save(question);
 
-        if (!CollectionUtils.isEmpty(question.getAnswerOptions())) {
-            question.getAnswerOptions().forEach(answerOption -> {
-                answerOption.setQuestionId(question.getId());
-                answerOptionRepository.save(answerOption);
-            });
-        }
-
         MatchingRule matchingRule = question.getMatchingRule();
         if (matchingRule != null) {
             matchingRule.setQuestionId(question.getId());
             matchingRuleRepository.save(matchingRule);
-        }
-    }
-
-    private void loadAnswersForQuestionsWithChoice(QuestionaryTemplate questionaryTemplate) {
-        for (Question question : questionaryTemplate.getQuestions()) {
-            if (question.withChoice()) {
-                question.setAnswerOptions(answerOptionRepository.findAllByQuestionId(question.getId()));
-            }
         }
     }
 }

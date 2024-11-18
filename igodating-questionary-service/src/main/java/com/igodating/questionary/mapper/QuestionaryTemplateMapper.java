@@ -6,7 +6,7 @@ import com.igodating.questionary.dto.template.QuestionaryTemplateView;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = { QuestionMapper.class })
+@Mapper(componentModel = "spring")
 public interface QuestionaryTemplateMapper {
 
     QuestionaryTemplate createRequestToModel(QuestionaryTemplateCreateRequest questionaryTemplate);

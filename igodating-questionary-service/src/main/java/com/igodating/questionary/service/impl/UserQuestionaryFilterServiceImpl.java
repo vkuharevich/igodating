@@ -9,6 +9,7 @@ import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.constant.RuleAccessType;
+import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
@@ -48,6 +49,14 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         }
 
         List<MatchingRule> privateMatchingRules = matchingRuleQuestionIdMap.values().stream().filter(mr -> RuleAccessType.PRIVATE.equals(mr.getAccessType())).toList();
+        List<MatchingRule> userMatchingRules = filter.userFilters().stream().map(questionFilter -> matchingRuleQuestionIdMap.get(questionFilter.questionId())).toList();
+        boolean privateMatchingRulesContainsNonSemanticType = privateMatchingRules.stream().anyMatch(mr -> !RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
+
+        if (userMatchingRules.isEmpty() && !privateMatchingRulesContainsNonSemanticType) {
+            // можем идти, не залезая в ответы
+        } else {
+            // придется лезть в ответы
+        }
 
         return null;
     }

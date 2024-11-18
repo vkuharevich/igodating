@@ -3,6 +3,10 @@ package com.igodating.questionary.service.impl;
 import com.igodating.questionary.dto.CursorResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
+import com.igodating.questionary.exception.ValidationException;
+import com.igodating.questionary.model.MatchingRule;
+import com.igodating.questionary.model.Question;
+import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;
@@ -11,6 +15,8 @@ import com.igodating.questionary.service.validation.UserQuestionaryFilterValidat
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,16 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
     @Transactional(readOnly = true)
     public CursorResponse<UserQuestionaryShortView> findByCursorForUserId(UserQuestionaryFilter filter, String userId) {
         userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
+
+        UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));
+
+        QuestionaryTemplate questionaryTemplate = questionaryTemplateCacheService.getById(forQuestionary.getQuestionaryTemplateId());
+
+        List<MatchingRule> matchingRules = questionaryTemplate.getQuestions().stream().map(Question::getMatchingRule).toList();
+
+        if (matchingRules.isEmpty()) {
+            throw new RuntimeException("Matching rules don't exist for template");
+        }
 
         return null;
     }

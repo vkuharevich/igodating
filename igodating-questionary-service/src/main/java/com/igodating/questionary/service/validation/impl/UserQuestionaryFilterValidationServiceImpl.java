@@ -45,6 +45,10 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
             throw new ValidationException("Template is not in template");
         }
 
+        if (questionaryTemplate.isDeleted()) {
+            throw new ValidationException("Attempt to filter by deleted template");
+        }
+
         Map<Long, Question> questionFromTemplate = questionaryTemplate.getQuestions().stream().collect(Collectors.toMap(Question::getId, v -> v));
 
         for (UserQuestionaryFilterItem userQuestionaryFilterItem : filter.userFilters()) {

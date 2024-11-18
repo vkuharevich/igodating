@@ -8,6 +8,7 @@ import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
+import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +41,13 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
         QuestionaryTemplate questionaryTemplate = questionaryTemplateCacheService.getById(forQuestionary.getQuestionaryTemplateId());
 
-        List<MatchingRule> matchingRules = questionaryTemplate.getQuestions().stream().map(Question::getMatchingRule).toList();
+        Map<Long, MatchingRule> matchingRuleQuestionIdMap = questionaryTemplate.getQuestions().stream().map(Question::getMatchingRule).collect(Collectors.toMap(MatchingRule::getQuestionId, v -> v));
 
-        if (matchingRules.isEmpty()) {
+        if (matchingRuleQuestionIdMap.isEmpty()) {
             throw new RuntimeException("Matching rules don't exist for template");
         }
+
+        List<MatchingRule> privateMatchingRules = matchingRuleQuestionIdMap.values().stream().filter(mr -> RuleAccessType.PRIVATE.equals(mr.getAccessType())).toList();
 
         return null;
     }

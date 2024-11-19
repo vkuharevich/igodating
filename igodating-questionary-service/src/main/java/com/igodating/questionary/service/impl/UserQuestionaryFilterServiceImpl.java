@@ -1,5 +1,6 @@
 package com.igodating.questionary.service.impl;
 
+import com.igodating.questionary.constant.CommonConstants;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
@@ -217,14 +218,14 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             }
 
             case IN_RANGE -> {
-                String[] fromToStringValues = value.split(";");
+                String[] fromToStringValues = value.split(CommonConstants.VALUE_SPLITTER);
                 predicate = String.format(ANSWER_VALUE_NUMERIC_IN_RANGE_FORMAT, questionId, questionId);
                 params.put(String.format("rangeFrom_%d", questionId), new BigDecimal(fromToStringValues[0]));
                 params.put(String.format("rangeTo_%d", questionId), new BigDecimal(fromToStringValues[1]));
             }
 
             case IN_SET -> {
-                String[] stringArray = value.split(";");
+                String[] stringArray = value.split(CommonConstants.VALUE_SPLITTER);
                 predicate = String.format(ANSWER_VALUE_ARRAY_IN_SET_FORMAT, questionId);
                 params.put(String.format("arrayValue_%d", questionId), stringArray);
             }

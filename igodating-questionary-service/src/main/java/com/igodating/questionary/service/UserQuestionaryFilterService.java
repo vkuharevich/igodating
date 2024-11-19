@@ -5,5 +5,5 @@ import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
 import org.springframework.data.domain.Slice;
 
 public interface UserQuestionaryFilterService {
-    Slice<UserQuestionaryShortView> findByCursorForUserId(UserQuestionaryFilter filter, String userId);
+    Slice<UserQuestionaryShortView> findByFilter(UserQuestionaryFilter filter, String userId);
 }

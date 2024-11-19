@@ -87,7 +87,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
     @Override
     @Transactional(readOnly = true)
-    public Slice<UserQuestionaryShortView> findByCursorForUserId(UserQuestionaryFilter filter, String userId) {
+    public Slice<UserQuestionaryShortView> findByFilter(UserQuestionaryFilter filter, String userId) {
         userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
 
         UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));

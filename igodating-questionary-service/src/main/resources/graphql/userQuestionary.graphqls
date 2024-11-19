@@ -44,6 +44,33 @@ type UserQuestionaryView {
     answers: [UserQuestionaryAnswerView]
 }
 
+type UserQuestionaryShortView {
+    id: Int
+    userId: String
+}
+
+input UserQuestionaryFilterItem {
+    questionId: Int!
+    filterValue: String!
+}
+
+input UserQuestionaryFilter {
+    forUserQuestionaryId: Int!
+    userFilters: [UserQuestionaryFilterItem]
+    limit: Int!
+    offset: Int!
+}
+
+type QuestionariesSliceResponse {
+    content: [UserQuestionaryShortView]
+    size: Int
+    hasNext: Boolean
+}
+
+extend type Query {
+    filterQuestionaries(request: UserQuestionaryFilter!): QuestionariesSliceResponse
+}
+
 extend type Mutation {
     createQuestionary(questionary: UserQuestionaryCreateRequest!): Boolean
     updateQuestionary(questionary: UserQuestionaryUpdateRequest!): Boolean

@@ -15,6 +15,7 @@ import com.igodating.questionary.service.validation.AnswerValueFormatValidationS
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -51,24 +52,26 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
 
         Map<Long, Question> questionFromTemplate = questionaryTemplate.getQuestions().stream().collect(Collectors.toMap(Question::getId, v -> v));
 
-        for (UserQuestionaryFilterItem userQuestionaryFilterItem : filter.userFilters()) {
-            Question matchedQuestionFromTemplate = questionFromTemplate.get(userQuestionaryFilterItem.questionId());
+        if (!CollectionUtils.isEmpty(filter.userFilters())) {
+            for (UserQuestionaryFilterItem userQuestionaryFilterItem : filter.userFilters()) {
+                Question matchedQuestionFromTemplate = questionFromTemplate.get(userQuestionaryFilterItem.questionId());
 
-            if (matchedQuestionFromTemplate == null) {
-                throw new ValidationException("Question not in template");
+                if (matchedQuestionFromTemplate == null) {
+                    throw new ValidationException("Question not in template");
+                }
+
+                MatchingRule matchingRule = matchedQuestionFromTemplate.getMatchingRule();
+
+                if (matchingRule == null) {
+                    throw new ValidationException("Matching rule doesn't exist");
+                }
+
+                if (RuleAccessType.PRIVATE.equals(matchingRule.getAccessType())) {
+                    throw new ValidationException("Private access");
+                }
+
+                answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryFilterItem.filterValue(), matchedQuestionFromTemplate);
             }
-
-            MatchingRule matchingRule = matchedQuestionFromTemplate.getMatchingRule();
-
-            if (matchingRule == null) {
-                throw new ValidationException("Matching rule doesn't exist");
-            }
-
-            if (RuleAccessType.PRIVATE.equals(matchingRule.getAccessType())) {
-                throw new ValidationException("Private access");
-            }
-
-            answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryFilterItem.filterValue(), matchedQuestionFromTemplate);
         }
     }
 }

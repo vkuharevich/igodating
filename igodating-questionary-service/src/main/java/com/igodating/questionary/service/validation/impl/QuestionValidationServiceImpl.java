@@ -70,8 +70,10 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
             throw new ValidationException("Answer options are provided for not-choice type");
         }
 
-        if (withChoice && ArrayUtils.isEmpty(question.getAnswerOptions()) || question.getAnswerOptions().length < 2) {
-            throw new ValidationException("Answer options (minimum 2) are not provided for choice type");
+        if (withChoice) {
+            if (ArrayUtils.isEmpty(question.getAnswerOptions()) || question.getAnswerOptions().length < 2) {
+                throw new ValidationException("Answer options (minimum 2) are not provided for choice type");
+            }
         }
     }
 

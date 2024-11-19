@@ -1,8 +1,12 @@
 package com.igodating.questionary.controller;
 
+import com.igodating.questionary.dto.SliceResponse;
+import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
 import com.igodating.questionary.mapper.UserQuestionaryMapper;
+import com.igodating.questionary.service.UserQuestionaryFilterService;
 import com.igodating.questionary.service.UserQuestionaryService;
 import com.igodating.questionary.util.CurrentUserInfo;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,8 @@ public class UserQuestionaryController {
     private final UserQuestionaryService userQuestionaryService;
 
     private final UserQuestionaryMapper userQuestionaryMapper;
+
+    private final UserQuestionaryFilterService userQuestionaryFilterService;
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
@@ -48,5 +54,10 @@ public class UserQuestionaryController {
     public Boolean moveFromDraft(@Argument UserQuestionaryUpdateRequest questionary) {
         userQuestionaryService.moveFromDraft(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
         return true;
+    }
+
+    @QueryMapping
+    public SliceResponse<UserQuestionaryShortView> filterQuestionaries(@Argument UserQuestionaryFilter request) {
+        return new SliceResponse<>(userQuestionaryFilterService.findByCursorForUserId(request, CurrentUserInfo.getUserId()));
     }
 }

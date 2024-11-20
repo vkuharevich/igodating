@@ -151,7 +151,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
         if (!predicates.isEmpty()) {
             sql.append(" where ");
-            sql.append(String.join(" and ", predicates));
+            sql.append(String.join(" and ", predicates.stream().map(p -> " (" + p + ") ").collect(Collectors.toSet())));
         }
 
         sql.append(groupBy);

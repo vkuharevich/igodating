@@ -59,9 +59,9 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             uqa.value::numeric between :rangeFrom_%d and :rangeTo_%d
             """;
 
-    private static final String ANSWER_VALUE_ARRAY_IN_SET_FORMAT = """
-            string_to_array(uqa.value, ';') @> :arrayValue_%d
-            """;
+    private static final String ANSWER_VALUE_ARRAY_IN_SET_FORMAT =
+            "string_to_array(uqa.value, '" + CommonConstants.VALUE_SPLITTER + "') @> :arrayValue_%d"
+            ;
 
     private static final String TS_QUERY_ANSWER_VALUE_LIKING_FORMAT = """
             uqa.ts_vector_value @@ to_tsquery(:tsQuery_%d)

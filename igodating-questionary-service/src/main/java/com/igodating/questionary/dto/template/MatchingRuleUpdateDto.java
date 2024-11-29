@@ -7,6 +7,7 @@ public record MatchingRuleUpdateDto(
         Long id,
         RuleMatchingType matchingType,
         String presetValue,
-        RuleAccessType accessType
+        RuleAccessType accessType,
+        Boolean isMandatoryForMatching
 ) {
 }

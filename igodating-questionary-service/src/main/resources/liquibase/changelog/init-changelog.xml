@@ -90,6 +90,7 @@
                 matching_type rule_matching_type NOT NULL,
                 preset_value text,
                 access_type rule_access_type NOT NULL,
+                is_mandatory_for_matching boolean,
                 created_at timestamp default current_timestamp,
 
                 UNIQUE (question_id)

@@ -11,6 +11,7 @@ public record MatchingRuleView(
         RuleMatchingType matchingType,
         String presetValue,
         RuleAccessType accessType,
+        Boolean isMandatoryForMatching,
         LocalDateTime createdAt
 ) {
 }

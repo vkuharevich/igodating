@@ -51,6 +51,9 @@ public class MatchingRule implements Identifiable<Long> {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private RuleAccessType accessType;
 
+    @Column(name = "is_mandatory_for_matching")
+    private Boolean isMandatoryForMatching;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

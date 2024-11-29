@@ -9,6 +9,7 @@ import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
+import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
@@ -28,8 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +49,10 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
     private static final String ANSWER_VALUE_EQUALITY_FORMAT = """
             uqa.value = :value_%d
+            """;
+
+    private static final String ANSWER_VALUE_NOT_EQUALITY_FORMAT = """
+            uqa.value <> :value_%d
             """;
 
     private static final String ANSWER_VALUE_NUMERIC_IN_RANGE_FORMAT = """
@@ -100,10 +107,10 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             throw new RuntimeException("Matching rules don't exist for template");
         }
 
-        List<MatchingRule> privateMatchingRules = matchingRuleQuestionIdMap.values().stream().filter(mr -> RuleAccessType.PRIVATE.equals(mr.getAccessType())).toList();
+        List<MatchingRule> mandatoryMatchingRules = matchingRuleQuestionIdMap.values().stream().filter(mr -> Boolean.TRUE.equals(mr.getIsMandatoryForMatching())).toList();
         List<MatchingRule> userMatchingRules = filter.userFilters() == null ? new ArrayList<>() : filter.userFilters().stream().map(questionFilter -> matchingRuleQuestionIdMap.get(questionFilter.questionId())).toList();
-        boolean semanticIsPresent = privateMatchingRules.stream().anyMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
-        boolean privateMatchingRulesAreSemanticOnly = privateMatchingRules.stream().allMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
+        boolean semanticIsPresent = mandatoryMatchingRules.stream().anyMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
+        boolean mandatoryMatchingRulesAreSemanticOnly = mandatoryMatchingRules.stream().allMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
 
         StringBuilder sql = new StringBuilder(SELECT_ROOT);
 
@@ -114,7 +121,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         String groupBy = "";
         String orderBy = "";
 
-        if (userMatchingRules.isEmpty() && privateMatchingRulesAreSemanticOnly) {
+        if (userMatchingRules.isEmpty() && mandatoryMatchingRulesAreSemanticOnly) {
             // можем идти, не залезая в ответы
             orderBy = ORDER_BY_QUESTIONARY_EMBEDDING;
             params.put("targetEmbedding", forQuestionary.getEmbedding());
@@ -132,9 +139,9 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
                 params.put("targetEmbedding", forQuestionary.getEmbedding());
             }
 
-            List<MatchingRule> allRules = new ArrayList<>(privateMatchingRules);
+            Set<MatchingRule> allRules = new HashSet<>(mandatoryMatchingRules);
             allRules.addAll(userMatchingRules);
-            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, filter.userFilters());
+            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, filter.userFilters(), forQuestionary);
 
             if (!questionsOrPredicateAndParamMap.getFirst().isEmpty()) {
                 predicates.add(questionsOrPredicateAndParamMap.getFirst());
@@ -177,17 +184,24 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         return new SliceImpl<>(resultList, Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
     }
 
-    private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(List<MatchingRule> matchingRules, List<UserQuestionaryFilterItem> userFilters) {
+    private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(Set<MatchingRule> matchingRules, List<UserQuestionaryFilterItem> userFilters, UserQuestionary forQuestionary) {
         List<String> predicates = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
         Map<Long, String> userFilterValuesByQuestionId = userFilters.stream().collect(Collectors.toMap(UserQuestionaryFilterItem::questionId, UserQuestionaryFilterItem::filterValue));
+        Map<Long, String> userAnswersByQuestionId = forQuestionary.getAnswers().stream().collect(Collectors.toMap(UserQuestionaryAnswer::getQuestionId, UserQuestionaryAnswer::getValue));
 
         for (MatchingRule matchingRule : matchingRules) {
             if (RuleMatchingType.SEMANTIC_RANGING.equals(matchingRule.getMatchingType())) {
                 continue;
             }
+
             Long questionId = matchingRule.getQuestionId();
-            Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userFilterValuesByQuestionId.get(questionId));
+            String userValue = userFilterValuesByQuestionId.get(questionId);
+            if (userValue == null) {
+                userValue = userAnswersByQuestionId.get(questionId);
+            }
+
+            Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userValue);
             predicates.add(String.format(QUESTION_PREDICATE_FORMAT, questionPredicateAndParamMap.getFirst(), questionId));
             params.putAll(questionPredicateAndParamMap.getSecond());
         }
@@ -209,6 +223,11 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         switch (matchingRule.getMatchingType()) {
             case EQUALS -> {
                 predicate = String.format(ANSWER_VALUE_EQUALITY_FORMAT, questionId);
+                params.put(String.format("value_%d", questionId), value);
+            }
+
+            case NOT_EQUALS -> {
+                predicate = String.format(ANSWER_VALUE_NOT_EQUALITY_FORMAT, questionId);
                 params.put(String.format("value_%d", questionId), value);
             }
 

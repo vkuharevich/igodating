@@ -2,6 +2,7 @@ input MatchingRuleCreateDto {
     matchingType: RuleMatchingType
     presetValue: String
     accessType: RuleAccessType
+    isMandatoryForMatching: Boolean
 }
 
 input MatchingRuleUpdateDto {
@@ -9,6 +10,7 @@ input MatchingRuleUpdateDto {
     matchingType: RuleMatchingType
     presetValue: String
     accessType: RuleAccessType
+    isMandatoryForMatching: Boolean
 }
 
 type MatchingRuleView {
@@ -17,6 +19,7 @@ type MatchingRuleView {
     matchingType: RuleMatchingType
     presetValue: String
     accessType: RuleAccessType
+    isMandatoryForMatching: Boolean
     createdAt: String
 }
 

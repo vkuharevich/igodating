@@ -77,8 +77,12 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Equals can be applied only to free form, numeric or one-choice");
         }
 
-        if (RuleAccessType.PRIVATE.equals(accessType) && !matchingType.equals(RuleMatchingType.SEMANTIC_RANGING) && StringUtils.isBlank(matchingRule.getPresetValue())) {
-            throw new ValidationException("Private access with non-semantoc matching should have a preset value");
+//        if (RuleAccessType.PRIVATE.equals(accessType) && !matchingType.equals(RuleMatchingType.SEMANTIC_RANGING) && StringUtils.isBlank(matchingRule.getPresetValue())) {
+//            throw new ValidationException("Private access with non-semantic matching should have a preset value");
+//        }
+
+        if (RuleAccessType.PRIVATE.equals(accessType) && !Boolean.TRUE.equals(matchingRule.getIsMandatoryForMatching())) {
+            throw new ValidationException("Private access should be mandatory for matching");
         }
 
         if (StringUtils.isNotEmpty(matchingRule.getPresetValue())) {

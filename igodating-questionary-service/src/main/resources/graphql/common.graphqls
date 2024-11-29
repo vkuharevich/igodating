@@ -12,6 +12,7 @@ enum RuleAccessType {
 
 enum RuleMatchingType {
     EQUALS,
+    NOT_EQUALS,
     LIKE,
     IN_RANGE,
     IN_SET,

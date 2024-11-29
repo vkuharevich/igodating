@@ -77,6 +77,10 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Equals can be applied only to free form, numeric or one-choice");
         }
 
+        if (RuleMatchingType.NOT_EQUALS.equals(matchingType) && !(answerType.equals(QuestionAnswerType.FREE_FORM) || answerType.equals(QuestionAnswerType.NUMERIC) || answerType.equals(QuestionAnswerType.CHOICE))) {
+            throw new ValidationException("Not equals can be applied only to free form, numeric or one-choice");
+        }
+
 //        if (RuleAccessType.PRIVATE.equals(accessType) && !matchingType.equals(RuleMatchingType.SEMANTIC_RANGING) && StringUtils.isBlank(matchingRule.getPresetValue())) {
 //            throw new ValidationException("Private access with non-semantic matching should have a preset value");
 //        }

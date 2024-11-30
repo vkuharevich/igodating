@@ -54,7 +54,9 @@
                 name varchar(100) NOT NULL,
                 description text NOT NULL,
                 created_at timestamp default current_timestamp,
-                deleted_at timestamp
+                deleted_at timestamp,
+
+                UNIQUE (name, deleted_at)
             );
 
             CREATE INDEX questionary_template_name_idx ON questionary_template("name");
@@ -73,7 +75,9 @@
                 from_val numeric,
                 to_val numeric,
                 created_at timestamp default current_timestamp,
-                answer_options varchar[]
+                answer_options varchar[],
+
+                UNIQUE (questionary_template_id, title)
             );
 
             CREATE INDEX question_template_idx ON question(questionary_template_id);

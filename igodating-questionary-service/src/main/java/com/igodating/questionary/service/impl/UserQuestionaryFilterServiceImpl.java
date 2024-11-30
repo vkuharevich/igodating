@@ -1,7 +1,6 @@
 package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
-import com.igodating.questionary.dto.filter.FullTextSearchSettings;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
@@ -84,6 +83,10 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             uq.id <> :targetQuestionaryId
             """;
 
+    private static final String QUESTIONARY_IS_NOT_DELETED = """
+            uq.deleted_at is null
+            """;
+
     private static final String ORDER_BY_QUESTIONARY_EMBEDDING = """
             order by uq.embedding <-> (:targetEmbedding)::vector DESC
             """;
@@ -139,6 +142,8 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
             predicates.add(QUESTIONARY_ID_NOT_EQUALS);
             params.put("targetQuestionaryId", forQuestionary.getId());
+
+            predicates.add(QUESTIONARY_IS_NOT_DELETED);
         } else {
             // придется лезть в ответы
             joins.add(JOIN_TO_ANSWERS);
@@ -161,6 +166,8 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
             havingPredicates.add(QUESTIONARY_ID_NOT_EQUALS);
             params.put("targetQuestionaryId", forQuestionary.getId());
+
+            havingPredicates.add(QUESTIONARY_IS_NOT_DELETED);
         }
 
         for (String join : joins) {

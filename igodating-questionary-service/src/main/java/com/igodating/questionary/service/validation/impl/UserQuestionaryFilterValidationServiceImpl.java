@@ -1,5 +1,6 @@
 package com.igodating.questionary.service.validation.impl;
 
+import com.igodating.questionary.dto.filter.FullTextSearchSettings;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
 import com.igodating.questionary.exception.ValidationException;
@@ -7,6 +8,7 @@ import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
+import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
@@ -54,6 +56,10 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
 
         if (!CollectionUtils.isEmpty(filter.userFilters())) {
             for (UserQuestionaryFilterItem userQuestionaryFilterItem : filter.userFilters()) {
+                if (userQuestionaryFilterItem.isEmpty()) {
+                    throw new ValidationException("Filter item is empty");
+                }
+
                 Question matchedQuestionFromTemplate = questionFromTemplate.get(userQuestionaryFilterItem.questionId());
 
                 if (matchedQuestionFromTemplate == null) {
@@ -70,7 +76,24 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
                     throw new ValidationException("Private access");
                 }
 
-                answerValueFormatValidationService.validateValueWithQuestion(userQuestionaryFilterItem.filterValue(), matchedQuestionFromTemplate);
+                FullTextSearchSettings fullTextSearchSettings = userQuestionaryFilterItem.fullTextSearchSettings();
+                String value = userQuestionaryFilterItem.filterValue();
+
+                if (value != null && fullTextSearchSettings != null) {
+                    throw new ValidationException("Can provide only one search type: by single value or by keywords");
+                }
+
+                if (fullTextSearchSettings != null) {
+                    if (CollectionUtils.isEmpty(fullTextSearchSettings.keywords())) {
+                        throw new ValidationException("Fulltext search is provided but keywords are missed");
+                    }
+
+                    if (!QuestionAnswerType.FREE_FORM.equals(matchedQuestionFromTemplate.getAnswerType())) {
+                        throw new ValidationException("Fulltext search is acceptable only for free form");
+                    }
+                }
+
+                answerValueFormatValidationService.validateValueWithQuestion(value, matchedQuestionFromTemplate);
             }
         }
     }

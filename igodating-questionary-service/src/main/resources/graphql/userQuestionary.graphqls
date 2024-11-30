@@ -49,9 +49,12 @@ type UserQuestionaryShortView {
     userId: String
 }
 
+
+
 input UserQuestionaryFilterItem {
     questionId: Int!
-    filterValue: String!
+    filterValue: String
+    fullTextSearchSettings: FullTextSearchSettings
 }
 
 input UserQuestionaryFilter {

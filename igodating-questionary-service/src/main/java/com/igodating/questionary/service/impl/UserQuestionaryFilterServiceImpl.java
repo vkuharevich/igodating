@@ -1,6 +1,7 @@
 package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
+import com.igodating.questionary.dto.filter.FullTextSearchSettings;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
@@ -15,6 +16,7 @@ import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
 import com.igodating.questionary.service.validation.UserQuestionaryFilterValidationService;
+import com.igodating.questionary.util.tsquery.TsQueryConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,15 +50,23 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             """;
 
     private static final String ANSWER_VALUE_EQUALITY_FORMAT = """
-            uqa.value = :value_%d
+            uqa.value = :eqValue_%d
             """;
 
     private static final String ANSWER_VALUE_NOT_EQUALITY_FORMAT = """
-            uqa.value <> :value_%d
+            uqa.value <> :notEqValue_%d
             """;
 
     private static final String ANSWER_VALUE_NUMERIC_IN_RANGE_FORMAT = """
             uqa.value::numeric between :rangeFrom_%d and :rangeTo_%d
+            """;
+
+    private static final String ANSWER_VALUE_NUMERIC_MORE_THEN_FORMAT = """
+            uqa.value::numeric > :moreThenValue_%d
+            """;
+
+    private static final String ANSWER_VALUE_NUMERIC_LESS_THEN_FORMAT = """
+            uqa.value::numeric < :lessThenValue_%d
             """;
 
     private static final String ANSWER_VALUE_ARRAY_IN_SET_FORMAT =
@@ -86,6 +97,8 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
     private final QuestionaryTemplateCacheService questionaryTemplateCacheService;
 
     private final UserQuestionaryFilterValidationService userQuestionaryFilterValidationService;
+
+    private final TsQueryConverter tsQueryConverter;
 
     @PersistenceContext
     private EntityManager em;
@@ -185,7 +198,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
     private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(Set<MatchingRule> matchingRules, List<UserQuestionaryFilterItem> userFilters, UserQuestionary forQuestionary) {
         List<String> predicates = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
-        Map<Long, String> userFilterValuesByQuestionId = userFilters.stream().collect(Collectors.toMap(UserQuestionaryFilterItem::questionId, UserQuestionaryFilterItem::filterValue));
+        Map<Long, UserQuestionaryFilterItem> userFilterValuesByQuestionId = userFilters.stream().collect(Collectors.toMap(UserQuestionaryFilterItem::questionId, Function.identity()));
         Map<Long, String> userAnswersByQuestionId = forQuestionary.getAnswers().stream().collect(Collectors.toMap(UserQuestionaryAnswer::getQuestionId, UserQuestionaryAnswer::getValue));
 
         for (MatchingRule matchingRule : matchingRules) {
@@ -193,10 +206,18 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
                 continue;
             }
 
+            String userValue;
+
             Long questionId = matchingRule.getQuestionId();
-            String userValue = userFilterValuesByQuestionId.get(questionId);
-            if (userValue == null) {
+            UserQuestionaryFilterItem filterItem = userFilterValuesByQuestionId.get(questionId);
+            if (filterItem == null) {
                 userValue = userAnswersByQuestionId.get(questionId);
+            } else {
+                if (filterItem.fullTextSearchSettings() != null) {
+                    userValue = tsQueryConverter.fullTextSearchSettingsToTsQuery(filterItem.fullTextSearchSettings());
+                } else {
+                    userValue = filterItem.filterValue();
+                }
             }
 
             Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userValue);
@@ -229,12 +250,12 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         switch (matchingRule.getMatchingType()) {
             case EQUALS -> {
                 predicate = String.format(ANSWER_VALUE_EQUALITY_FORMAT, questionId);
-                params.put(String.format("value_%d", questionId), value);
+                params.put(String.format("eqValue_%d", questionId), value);
             }
 
             case NOT_EQUALS -> {
                 predicate = String.format(ANSWER_VALUE_NOT_EQUALITY_FORMAT, questionId);
-                params.put(String.format("value_%d", questionId), value);
+                params.put(String.format("notEqValue_%d", questionId), value);
             }
 
             case LIKE -> {
@@ -247,6 +268,16 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
                 predicate = String.format(ANSWER_VALUE_NUMERIC_IN_RANGE_FORMAT, questionId, questionId);
                 params.put(String.format("rangeFrom_%d", questionId), new BigDecimal(fromToStringValues[0]));
                 params.put(String.format("rangeTo_%d", questionId), new BigDecimal(fromToStringValues[1]));
+            }
+
+            case MORE_THEN -> {
+                predicate = String.format(ANSWER_VALUE_NUMERIC_MORE_THEN_FORMAT, questionId);
+                params.put(String.format("moreThenValue_%d", questionId), new BigDecimal(value));
+            }
+
+            case LESS_THEN -> {
+                predicate = String.format(ANSWER_VALUE_NUMERIC_LESS_THEN_FORMAT, questionId);
+                params.put(String.format("lessThenValue_%d", questionId), new BigDecimal(value));
             }
 
             case IN_SET -> {

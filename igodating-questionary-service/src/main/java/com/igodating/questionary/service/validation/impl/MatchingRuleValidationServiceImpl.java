@@ -73,6 +73,14 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("In set can be applied only to choice");
         }
 
+        if (RuleMatchingType.MORE_THEN.equals(matchingType) && !answerType.equals(QuestionAnswerType.NUMERIC)) {
+            throw new ValidationException("More then can be applied only to numeric");
+        }
+
+        if (RuleMatchingType.LESS_THEN.equals(matchingType) && !answerType.equals(QuestionAnswerType.NUMERIC)) {
+            throw new ValidationException("Less then can be applied only to numeric");
+        }
+
         boolean answerTypeIsAcceptableForEquals = !(answerType.equals(QuestionAnswerType.FREE_FORM) || answerType.equals(QuestionAnswerType.NUMERIC) || answerType.equals(QuestionAnswerType.CHOICE));
         if (RuleMatchingType.EQUALS.equals(matchingType) && answerTypeIsAcceptableForEquals) {
             throw new ValidationException("Equals can be applied only to free form, numeric or one-choice");

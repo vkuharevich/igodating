@@ -1,6 +1,7 @@
 input MatchingRuleCreateDto {
     matchingType: RuleMatchingType
     presetValue: String
+    presetValueFullTextSearchSettings: FullTextSearchSettings
     accessType: RuleAccessType
     isMandatoryForMatching: Boolean
 }
@@ -9,6 +10,7 @@ input MatchingRuleUpdateDto {
     id: Int
     matchingType: RuleMatchingType
     presetValue: String
+    presetValueFullTextSearchSettings: FullTextSearchSettings
     accessType: RuleAccessType
     isMandatoryForMatching: Boolean
 }
@@ -18,6 +20,7 @@ type MatchingRuleView {
     questionId: Int
     matchingType: RuleMatchingType
     presetValue: String
+    presetValueFullTextSearchSettings: FullTextSearchSettingsView
     accessType: RuleAccessType
     isMandatoryForMatching: Boolean
     createdAt: String

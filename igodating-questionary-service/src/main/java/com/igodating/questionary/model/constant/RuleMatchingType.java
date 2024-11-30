@@ -5,6 +5,8 @@ public enum RuleMatchingType {
     NOT_EQUALS,
     LIKE,
     IN_RANGE,
+    MORE_THEN,
+    LESS_THEN,
     IN_SET,
     SEMANTIC_RANGING
 }

@@ -80,7 +80,7 @@
         </sql>
 
         <sql>
-            CREATE TYPE rule_matching_type as enum('EQUALS', 'LIKE', 'IN_RANGE', 'IN_SET', 'SEMANTIC_RANGING');
+            CREATE TYPE rule_matching_type as enum('EQUALS', 'LIKE', 'IN_RANGE', 'MORE_THEN', 'LESS_THEN', 'IN_SET', 'SEMANTIC_RANGING');
 
             CREATE TYPE rule_access_type as enum('PUBLIC', 'PRIVATE');
 

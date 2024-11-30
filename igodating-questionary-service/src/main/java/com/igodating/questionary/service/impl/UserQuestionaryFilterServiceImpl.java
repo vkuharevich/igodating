@@ -59,8 +59,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             """;
 
     private static final String ANSWER_VALUE_ARRAY_IN_SET_FORMAT =
-            "string_to_array(uqa.value, '" + CommonConstants.VALUE_SPLITTER + "') @> :arrayValue_%d"
-            ;
+            "string_to_array(uqa.value, '" + CommonConstants.VALUE_SPLITTER + "') @> :arrayValue_%d";
 
     private static final String TS_QUERY_ANSWER_VALUE_LIKING_FORMAT = """
             uqa.ts_vector_value @@ to_tsquery(:tsQuery_%d)

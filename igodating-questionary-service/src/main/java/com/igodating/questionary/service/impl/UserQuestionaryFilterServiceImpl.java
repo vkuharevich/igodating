@@ -10,7 +10,6 @@ import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
-import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryFilterService;

@@ -202,6 +202,10 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             }
 
             Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userValue);
+            if (questionPredicateAndParamMap == null) {
+                continue;
+            }
+
             predicates.add(String.format(QUESTION_PREDICATE_FORMAT, questionPredicateAndParamMap.getFirst(), questionId));
             params.putAll(questionPredicateAndParamMap.getSecond());
         }
@@ -217,6 +221,10 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         assert matchingRule.getMatchingType() != RuleMatchingType.SEMANTIC_RANGING;
         Long questionId = matchingRule.getQuestionId();
         String value = userValue == null ? matchingRule.getPresetValue() : userValue;
+        if (value == null) {
+            return null;
+        }
+
         String predicate = "";
         Map<String, Object> params = new HashMap<>();
 

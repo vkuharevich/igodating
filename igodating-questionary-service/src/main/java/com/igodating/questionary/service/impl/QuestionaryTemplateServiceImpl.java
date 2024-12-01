@@ -2,12 +2,15 @@ package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
+import com.igodating.questionary.model.QuestionBlock;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.repository.MatchingRuleRepository;
+import com.igodating.questionary.repository.QuestionBlockRepository;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.QuestionaryTemplateRepository;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.QuestionaryTemplateService;
+import com.igodating.questionary.service.validation.QuestionBlockValidationService;
 import com.igodating.questionary.service.validation.QuestionaryTemplateValidationService;
 import com.igodating.questionary.util.EntitiesListChange;
 import com.igodating.questionary.util.ServiceUtils;
@@ -16,7 +19,10 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -24,6 +30,8 @@ import java.util.Objects;
 public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateService {
 
     private final QuestionaryTemplateValidationService questionaryTemplateValidationService;
+
+    private final QuestionBlockValidationService questionBlockValidationService;
 
     private final QuestionaryTemplateRepository questionaryTemplateRepository;
 
@@ -33,18 +41,17 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     private final UserQuestionaryRepository userQuestionaryRepository;
 
+    private final QuestionBlockRepository questionBlockRepository;
+
     @Override
     @Transactional(readOnly = true)
     public QuestionaryTemplate getById(Long id) {
-
         return questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<QuestionaryTemplate> getAll() {
-
-
         return questionaryTemplateRepository.findAll();
     }
 
@@ -54,6 +61,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         questionaryTemplateValidationService.validateOnCreate(questionaryTemplate);
 
         questionaryTemplateRepository.save(questionaryTemplate);
+
+        createQuestionBlocks(questionaryTemplate);
 
         for (Question question : questionaryTemplate.getQuestions()) {
             createQuestion(question, questionaryTemplate.getId());
@@ -69,6 +78,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
         existedQuestionaryTemplate.setName(questionaryTemplate.getName());
         existedQuestionaryTemplate.setDescription(questionaryTemplate.getDescription());
+
+        createQuestionBlocks(questionaryTemplate);
 
         EntitiesListChange<Question, Long> changes = ServiceUtils.changes(existedQuestionaryTemplate.getQuestions(), questionaryTemplate.getQuestions(), this::changesInQuestions);
 
@@ -97,12 +108,51 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
+    public void updateQuestionBlock(QuestionBlock questionBlock) {
+        questionBlockValidationService.validateOnUpdate(questionBlock);
+
+        QuestionBlock existedQuestionBlock = questionBlockRepository.getReferenceById(questionBlock.getId());
+
+        existedQuestionBlock.setName(questionBlock.getName());
+
+        questionBlockRepository.save(existedQuestionBlock);
+    }
+
+    @Override
+    @Transactional
     public void delete(QuestionaryTemplate questionaryTemplate) {
         questionaryTemplateValidationService.validateOnDelete(questionaryTemplate);
         questionaryTemplate.setToDelete();
         questionaryTemplateRepository.save(questionaryTemplate);
         questionRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
+        questionBlockRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
         userQuestionaryRepository.setDeletedForAllByQuestionaryTemplateId(questionaryTemplate.getId());
+    }
+
+    private void createQuestionBlocks(QuestionaryTemplate questionaryTemplate) {
+        Map<String, List<Question>> questionBlocksNamesIdsWithQuestionsMap = new HashMap<>();
+
+        questionaryTemplate.getQuestions().forEach(q -> {
+            QuestionBlock questionBlock = q.getQuestionBlock();
+            if (questionBlock != null && questionBlock.getId() == null) {
+                List<Question> questionsForBlock = questionBlocksNamesIdsWithQuestionsMap.computeIfAbsent(questionBlock.getName(), k -> new ArrayList<>());
+                questionsForBlock.add(q);
+            }
+        });
+
+        questionBlocksNamesIdsWithQuestionsMap.forEach((key, value) -> {
+            QuestionBlock questionBlock = new QuestionBlock();
+            questionBlock.setQuestionaryTemplateId(questionaryTemplate.getId());
+            questionBlock.setName(key);
+
+            questionBlockRepository.save(questionBlock);
+
+            value.forEach(question -> {
+                question.setQuestionBlockId(questionBlock.getId());
+                question.setQuestionBlock(questionBlock);
+            });
+        });
+
     }
 
     private void updateQuestion(Question oldQuestion, Question newQuestion) {
@@ -148,6 +198,9 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
             return false;
         }
         if (!Objects.equals(oldQuestion.getDescription(), newQuestion.getDescription())) {
+            return false;
+        }
+        if (!Objects.equals(oldQuestion.getQuestionBlockId(), newQuestion.getQuestionBlockId())) {
             return false;
         }
 

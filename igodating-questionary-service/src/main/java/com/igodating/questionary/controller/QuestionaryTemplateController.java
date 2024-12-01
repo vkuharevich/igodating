@@ -1,7 +1,9 @@
 package com.igodating.questionary.controller;
 
+import com.igodating.questionary.dto.template.QuestionBlockUpdateDto;
 import com.igodating.questionary.dto.template.QuestionaryTemplateCreateRequest;
 import com.igodating.questionary.dto.template.QuestionaryTemplateUpdateRequest;
+import com.igodating.questionary.mapper.QuestionBlockMapper;
 import com.igodating.questionary.mapper.QuestionaryTemplateMapper;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.service.QuestionaryTemplateService;
@@ -22,6 +24,8 @@ public class QuestionaryTemplateController {
 
     private final QuestionaryTemplateMapper questionaryTemplateMapper;
 
+    private final QuestionBlockMapper questionBlockMapper;
+
     @MutationMapping
 //    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
     public Boolean createTemplate(@Argument QuestionaryTemplateCreateRequest template) {
@@ -40,6 +44,12 @@ public class QuestionaryTemplateController {
 //    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
     public Boolean deleteTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
         questionaryTemplateService.delete(questionaryTemplateMapper.updateRequestToModel(template));
+        return true;
+    }
+
+    @MutationMapping
+    public Boolean updateQuestionBlock(@Argument QuestionBlockUpdateDto questionBlock) {
+        questionaryTemplateService.updateQuestionBlock(questionBlockMapper.updateRequestToModel(questionBlock));
         return true;
     }
 

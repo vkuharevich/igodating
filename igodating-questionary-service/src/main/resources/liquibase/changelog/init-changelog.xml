@@ -63,11 +63,24 @@
         </sql>
 
         <sql>
+            CREATE TABLE question_block(
+                id bigserial PRIMARY KEY,
+                name varchar(500) NOT NULL,
+                questionary_template_id bigint NOT NULL REFERENCES questionary_template(id) ON DELETE CASCADE,
+
+                UNIQUE (name, questionary_template_id)
+            );
+
+            CREATE INDEX question_block_template_id_idx ON question_block(questionary_template_id);
+        </sql>
+
+        <sql>
             CREATE TYPE question_answer_type as enum('FREE_FORM', 'CHOICE', 'MULTIPLE_CHOICE', 'NUMERIC');
 
             CREATE TABLE question(
                 id bigserial PRIMARY KEY,
                 questionary_template_id bigint NOT NULL REFERENCES questionary_template(id) ON DELETE CASCADE,
+                question_block_id bigint REFERENCES question_block(id),
                 title varchar(500) NOT NULL,
                 description text NOT NULL,
                 answer_type question_answer_type NOT NULL,
@@ -81,6 +94,7 @@
             );
 
             CREATE INDEX question_template_idx ON question(questionary_template_id);
+            CREATE INDEX question_block_idx ON question(question_block_id);
         </sql>
 
         <sql>

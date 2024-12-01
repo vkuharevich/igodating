@@ -35,6 +35,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @DynamicInsert
 @NamedEntityGraph(name = "question", attributeNodes = {
+        @NamedAttributeNode("questionBlock"),
         @NamedAttributeNode("questionaryTemplate"),
         @NamedAttributeNode("matchingRule")
 })
@@ -50,6 +51,13 @@ public class Question implements Identifiable<Long> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "questionary_template_id", referencedColumnName = "id", insertable = false, updatable = false)
     private QuestionaryTemplate questionaryTemplate;
+
+    @Column(name = "question_block_id")
+    private Long questionBlockId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_block_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private QuestionBlock questionBlock;
 
     @OneToOne(mappedBy = "question", fetch = FetchType.LAZY)
     private MatchingRule matchingRule;

@@ -6,7 +6,7 @@ import com.igodating.questionary.dto.userquestionary.UserQuestionaryView;
 import com.igodating.questionary.model.UserQuestionary;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = { MatchingRuleMapper.class })
+@Mapper(componentModel = "spring", uses = { MatchingRuleMapper.class, QuestionBlockMapper.class })
 public interface UserQuestionaryMapper {
 
     UserQuestionary createRequestToModel(UserQuestionaryCreateRequest userQuestionary);

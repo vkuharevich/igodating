@@ -10,6 +10,8 @@ public record QuestionView(
         Long id,
         Long questionaryTemplateId,
         MatchingRuleView matchingRule,
+        Long questionBlockId,
+        QuestionBlockView questionBlock,
         String title,
         String description,
         QuestionAnswerType answerType,

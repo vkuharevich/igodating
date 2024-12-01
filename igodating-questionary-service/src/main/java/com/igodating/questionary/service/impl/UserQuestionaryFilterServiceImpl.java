@@ -87,8 +87,9 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             uq.deleted_at is null
             """;
 
+    //todo ASC или DESC???
     private static final String ORDER_BY_QUESTIONARY_EMBEDDING = """
-            order by uq.embedding <-> (:targetEmbedding)::vector DESC
+            order by uq.embedding <-> (:targetEmbedding)::vector ASC
             """;
 
     private static final String GROUP_BY_QUESTIONARY_ID = """

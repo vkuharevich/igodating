@@ -1,10 +1,15 @@
 package com.igodating.questionary.service.validation.impl;
 
 import com.igodating.questionary.exception.ValidationException;
+import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
+import com.igodating.questionary.model.QuestionBlock;
+import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
+import com.igodating.questionary.repository.QuestionBlockRepository;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.service.validation.MatchingRuleValidationService;
+import com.igodating.questionary.service.validation.QuestionBlockValidationService;
 import com.igodating.questionary.service.validation.QuestionValidationService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class QuestionValidationServiceImpl implements QuestionValidationService {
@@ -20,6 +27,10 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
     private final QuestionRepository questionRepository;
 
     private final MatchingRuleValidationService matchingRuleValidationService;
+
+    private final QuestionBlockRepository questionBlockRepository;
+
+    private final QuestionBlockValidationService questionBlockValidationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -30,6 +41,14 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
 
         checkCommonRequiredFieldsForCreateAndUpdateInQuestion(question);
 
+        if (question.getQuestionBlockId() != null) {
+            throw new ValidationException("Cannot provide block id on create");
+        }
+
+        if (question.getQuestionBlock() != null) {
+            questionBlockValidationService.validateOnCreate(question.getQuestionBlock());
+        }
+
         if (question.getMatchingRule() != null) {
             matchingRuleValidationService.validateOnCreate(question.getMatchingRule(), question);
         }
@@ -37,13 +56,30 @@ public class QuestionValidationServiceImpl implements QuestionValidationService 
 
     @Override
     @Transactional(readOnly = true)
-    public void validateOnUpdate(Question question) {
+    public void validateOnUpdateWithQuestionaryTemplate(Question question, QuestionaryTemplate questionaryTemplate) {
         checkCommonRequiredFieldsForCreateAndUpdateInQuestion(question);
 
         checkQuestionOnExistenceAndThrowIfDeleted(question);
 
-        if (question.getMatchingRule() != null) {
-            matchingRuleValidationService.validateOnUpdate(question.getMatchingRule(), question);
+        Long questionBlockId = question.getQuestionBlockId();
+        if (questionBlockId != null) {
+            QuestionBlock questionBlock = questionBlockRepository.findById(questionBlockId).orElseThrow(() -> new ValidationException(String.format("Block does'nt exist by such id %d", questionBlockId)));
+            if (!Objects.equals(questionBlock.getQuestionaryTemplateId(), questionaryTemplate.getId())) {
+                throw new ValidationException(String.format("Attempt to create a relation to wrong block (which related to template with id %d)", questionBlock.getQuestionaryTemplateId()));
+            }
+        }
+
+        if (question.getQuestionBlock() != null) {
+            questionBlockValidationService.validateOnCreate(question.getQuestionBlock());
+        }
+
+        MatchingRule matchingRule = question.getMatchingRule();
+        if (matchingRule != null) {
+            if (matchingRule.getId() == null) {
+                matchingRuleValidationService.validateOnCreate(matchingRule, question);
+            } else {
+                matchingRuleValidationService.validateOnUpdate(matchingRule, question);
+            }
         }
     }
 

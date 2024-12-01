@@ -42,7 +42,7 @@ public class QuestionaryTemplateValidationServiceImpl implements QuestionaryTemp
             if (question.getId() == null) {
                 questionValidationService.validateOnCreate(question);
             } else {
-                questionValidationService.validateOnUpdate(question);
+                questionValidationService.validateOnUpdateWithQuestionaryTemplate(question, questionaryTemplate);
             }
         });
     }

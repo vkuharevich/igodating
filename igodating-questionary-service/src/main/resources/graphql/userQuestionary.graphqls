@@ -48,6 +48,7 @@ type UserQuestionaryRecommendation {
     id: Int
     userId: String
     similarity: Float
+    similarityInPercentage: Int
 }
 
 input UserQuestionaryFilterItem {

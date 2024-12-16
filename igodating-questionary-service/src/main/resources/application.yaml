@@ -56,4 +56,4 @@ task:
     cron: 0 0/10 * * * ?
 
 recommendation:
-  similarity-calculating-operator: SCALAR
+  similarity-calculating-operator: EUCLID

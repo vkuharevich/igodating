@@ -46,8 +46,6 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
             select uq.id, uq.user_id, %s as calculated_similarity from user_questionary uq
             """;
 
-    private static final String DEFAULT_SIMILARITY_VALUE = "1";
-
     private static final String JOIN_TO_ANSWERS = """
             inner join user_questionary_answer uqa on uq.id = uqa.user_questionary_id
             """;
@@ -163,7 +161,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
             orderBy = getOrderBySimilarityCalculatingOperator();
             params.put("targetEmbedding", forQuestionary.getEmbedding());
         } else {
-            sql.append(String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, DEFAULT_SIMILARITY_VALUE));
+            sql.append(String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, getDefaultSimilarityValueBySimilarityCalculatingOperator()));
         }
 
         if (userMatchingRules.isEmpty() && mandatoryMatchingRulesAreSemanticOnly) {
@@ -224,6 +222,21 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         List<UserQuestionaryRecommendation> resultList = query.getResultStream().map(rs -> build((Object[]) rs)).toList();
 
         return new SliceImpl<>(resultList, Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
+    }
+
+    private String getDefaultSimilarityValueBySimilarityCalculatingOperator() {
+        switch (similarityCalculatingOperator) {
+            case EUCLID -> {
+                return "0";
+            }
+            case COSINE -> {
+                return "1";
+            }
+            case SCALAR -> {
+                return "-1";
+            }
+            default -> throw new RuntimeException(String.format("Cannot perform operator %s", similarityCalculatingOperator));
+        }
     }
 
     private String getSelectClauseBySimilarityCalculatingOperator() {
@@ -345,6 +358,11 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
     }
 
     private UserQuestionaryRecommendation build(Object[] result) {
-        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], (Double) result[2]);
+        Double similarity = (Double) result[2];
+        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity));
+    }
+
+    private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity) {
+        return 100;
     }
 }

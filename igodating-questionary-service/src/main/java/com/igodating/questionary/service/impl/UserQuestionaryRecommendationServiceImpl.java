@@ -1,9 +1,10 @@
 package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
+import com.igodating.questionary.constant.SimilarityCalculatingOperator;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
-import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
@@ -12,13 +13,14 @@ import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
-import com.igodating.questionary.service.UserQuestionaryFilterService;
+import com.igodating.questionary.service.UserQuestionaryRecommendationService;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
 import com.igodating.questionary.service.validation.UserQuestionaryFilterValidationService;
 import com.igodating.questionary.util.tsquery.TsQueryConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -38,11 +40,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterService {
+public class UserQuestionaryRecommendationServiceImpl implements UserQuestionaryRecommendationService {
 
-    private static final String SELECT_ROOT = """
-            select uq.id, uq.user_id from user_questionary uq
+    private static final String SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT = """
+            select uq.id, uq.user_id, %s as calculated_similarity from user_questionary uq
             """;
+
+    private static final String DEFAULT_SIMILARITY_VALUE = "1";
 
     private static final String JOIN_TO_ANSWERS = """
             inner join user_questionary_answer uqa on uq.id = uqa.user_questionary_id
@@ -87,9 +91,24 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             uq.deleted_at is null
             """;
 
-    //todo ASC или DESC???
-    private static final String ORDER_BY_QUESTIONARY_EMBEDDING = """
-            order by uq.embedding <-> (:targetEmbedding)::vector ASC
+    private static final String EUCLID_SIMILARITY = """
+            uq.embedding <-> (:targetEmbedding)::vector
+            """;
+
+    private static final String COSINE_SIMILARITY = """
+            uq.embedding <=> (:targetEmbedding)::vector
+            """;
+
+    private static final String SCALAR_SIMILARITY = """
+            uq.embedding <#> (:targetEmbedding)::vector
+            """;
+
+    private static final String ORDER_BY_SIMILARITY_ASC = """
+            order by calculated_similarity ASC
+            """;
+
+    private static final String ORDER_BY_SIMILARITY_DESC = """
+            order by calculated_similarity DESC
             """;
 
     private static final String GROUP_BY_QUESTIONARY_ID = """
@@ -104,12 +123,15 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
 
     private final TsQueryConverter tsQueryConverter;
 
+    @Value("${recommendation.similarity-calculating-operator}")
+    private SimilarityCalculatingOperator similarityCalculatingOperator;
+
     @PersistenceContext
     private EntityManager em;
 
     @Override
     @Transactional(readOnly = true)
-    public Slice<UserQuestionaryShortView> findByFilter(UserQuestionaryFilter filter, String userId) {
+    public Slice<UserQuestionaryRecommendation> findRecommendations(UserQuestionaryFilter filter, String userId) {
         userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
 
         UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));
@@ -127,8 +149,6 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         boolean semanticIsPresent = mandatoryMatchingRules.stream().anyMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
         boolean mandatoryMatchingRulesAreSemanticOnly = mandatoryMatchingRules.stream().allMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
 
-        StringBuilder sql = new StringBuilder(SELECT_ROOT);
-
         List<String> joins = new ArrayList<>();
         List<String> predicates = new ArrayList<>();
         List<String> havingPredicates = new ArrayList<>();
@@ -136,10 +156,18 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         String groupBy = "";
         String orderBy = "";
 
+        StringBuilder sql = new StringBuilder();
+
+        if (semanticIsPresent) {
+            sql.append(getSelectClauseBySimilarityCalculatingOperator());
+            orderBy = getOrderBySimilarityCalculatingOperator();
+            params.put("targetEmbedding", forQuestionary.getEmbedding());
+        } else {
+            sql.append(String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, DEFAULT_SIMILARITY_VALUE));
+        }
+
         if (userMatchingRules.isEmpty() && mandatoryMatchingRulesAreSemanticOnly) {
             // можем идти, не залезая в ответы
-            orderBy = ORDER_BY_QUESTIONARY_EMBEDDING;
-            params.put("targetEmbedding", forQuestionary.getEmbedding());
 
             predicates.add(QUESTIONARY_ID_NOT_EQUALS);
             params.put("targetQuestionaryId", forQuestionary.getId());
@@ -150,11 +178,6 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
             joins.add(JOIN_TO_ANSWERS);
 
             groupBy = GROUP_BY_QUESTIONARY_ID;
-
-            if (semanticIsPresent) {
-                orderBy = ORDER_BY_QUESTIONARY_EMBEDDING;
-                params.put("targetEmbedding", forQuestionary.getEmbedding());
-            }
 
             Set<MatchingRule> allRules = new HashSet<>(mandatoryMatchingRules);
             allRules.addAll(userMatchingRules);
@@ -198,9 +221,32 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         query.setFirstResult(filter.offset());
         query.setMaxResults(limitWithExtra);
 
-        List<UserQuestionaryShortView> resultList = query.getResultStream().map(rs -> build((Object[]) rs)).toList();
+        List<UserQuestionaryRecommendation> resultList = query.getResultStream().map(rs -> build((Object[]) rs)).toList();
 
         return new SliceImpl<>(resultList, Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
+    }
+
+    private String getSelectClauseBySimilarityCalculatingOperator() {
+        switch (similarityCalculatingOperator) {
+            case EUCLID -> {
+                return String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, EUCLID_SIMILARITY);
+            }
+            case COSINE -> {
+                return String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, COSINE_SIMILARITY);
+            }
+            case SCALAR -> {
+                return String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, SCALAR_SIMILARITY);
+            }
+            default -> throw new RuntimeException(String.format("Cannot perform operator %s", similarityCalculatingOperator));
+        }
+    }
+
+    private String getOrderBySimilarityCalculatingOperator() {
+        if (SimilarityCalculatingOperator.COSINE.equals(similarityCalculatingOperator)) {
+            return ORDER_BY_SIMILARITY_DESC;
+        }
+
+        return ORDER_BY_SIMILARITY_ASC;
     }
 
     private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(Set<MatchingRule> matchingRules, List<UserQuestionaryFilterItem> userFilters, UserQuestionary forQuestionary) {
@@ -298,7 +344,7 @@ public class UserQuestionaryFilterServiceImpl implements UserQuestionaryFilterSe
         return Pair.of(predicate, params);
     }
 
-    private UserQuestionaryShortView build(Object[] result) {
-        return new UserQuestionaryShortView((Long) result[0], (String) result[1]);
+    private UserQuestionaryRecommendation build(Object[] result) {
+        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], (Double) result[2]);
     }
 }

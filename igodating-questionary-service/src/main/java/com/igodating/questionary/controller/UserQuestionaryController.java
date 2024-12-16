@@ -3,10 +3,10 @@ package com.igodating.questionary.controller;
 import com.igodating.questionary.dto.SliceResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
-import com.igodating.questionary.dto.userquestionary.UserQuestionaryShortView;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
 import com.igodating.questionary.mapper.UserQuestionaryMapper;
-import com.igodating.questionary.service.UserQuestionaryFilterService;
+import com.igodating.questionary.service.UserQuestionaryRecommendationService;
 import com.igodating.questionary.service.UserQuestionaryService;
 import com.igodating.questionary.util.CurrentUserInfo;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class UserQuestionaryController {
 
     private final UserQuestionaryMapper userQuestionaryMapper;
 
-    private final UserQuestionaryFilterService userQuestionaryFilterService;
+    private final UserQuestionaryRecommendationService userQuestionaryRecommendationService;
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
@@ -56,7 +56,7 @@ public class UserQuestionaryController {
     }
 
     @QueryMapping
-    public SliceResponse<UserQuestionaryShortView> filterQuestionaries(@Argument UserQuestionaryFilter request) {
-        return new SliceResponse<>(userQuestionaryFilterService.findByFilter(request, CurrentUserInfo.getUserId()));
+    public SliceResponse<UserQuestionaryRecommendation> getRecommendations(@Argument UserQuestionaryFilter request) {
+        return new SliceResponse<>(userQuestionaryRecommendationService.findRecommendations(request, CurrentUserInfo.getUserId()));
     }
 }

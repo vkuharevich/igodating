@@ -44,12 +44,11 @@ type UserQuestionaryView {
     answers: [UserQuestionaryAnswerView]
 }
 
-type UserQuestionaryShortView {
+type UserQuestionaryRecommendation {
     id: Int
     userId: String
+    similarity: Float
 }
-
-
 
 input UserQuestionaryFilterItem {
     questionId: Int!
@@ -64,14 +63,14 @@ input UserQuestionaryFilter {
     offset: Int!
 }
 
-type QuestionariesSliceResponse {
-    content: [UserQuestionaryShortView]
+type RecommendationsSliceResponse {
+    content: [UserQuestionaryRecommendation]
     size: Int
     hasNext: Boolean
 }
 
 extend type Query {
-    filterQuestionaries(request: UserQuestionaryFilter!): QuestionariesSliceResponse
+    getRecommendations(request: UserQuestionaryFilter!): RecommendationsSliceResponse
 }
 
 extend type Mutation {

@@ -363,6 +363,18 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
     }
 
     private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity) {
+        switch (similarityCalculatingOperator) {
+            case EUCLID -> {
+                return (int) ((1/(1 + similarity)) * 100);
+            }
+            case COSINE -> {
+                return (int) (((Math.PI - Math.acos(similarity)) * 100) / Math.PI);
+            }
+            case SCALAR -> {
+                //todo ???
+                return -1 * (int) ((1/(1 + similarity)) * 100);
+            }
+        }
         return 100;
     }
 }

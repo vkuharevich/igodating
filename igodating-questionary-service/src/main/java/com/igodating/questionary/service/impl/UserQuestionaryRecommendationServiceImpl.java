@@ -372,8 +372,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
                 return (int) (((Math.PI - Math.acos(similarity)) * 100) / Math.PI);
             }
             case SCALAR -> {
-                double score = 1 - (-1 * similarity);
-                return score > 0 ? (int) (score * 100) : 0;
+                return (int) (similarity * -1 * 100);
             }
         }
         return 100;

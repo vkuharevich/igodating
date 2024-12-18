@@ -157,11 +157,11 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         StringBuilder sql = new StringBuilder();
 
         if (semanticIsPresent) {
-            sql.append(getSelectClauseBySimilarityCalculatingOperator());
-            orderBy = getOrderBySimilarityCalculatingOperator();
+            sql.append(getSelectClauseBySimilarityCalculatingOperator(similarityCalculatingOperator));
+            orderBy = getOrderBySimilarityCalculatingOperator(similarityCalculatingOperator);
             params.put("targetEmbedding", forQuestionary.getEmbedding());
         } else {
-            sql.append(String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, getDefaultSimilarityValueBySimilarityCalculatingOperator()));
+            sql.append(String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, getDefaultSimilarityValueBySimilarityCalculatingOperator(similarityCalculatingOperator)));
         }
 
         if (userMatchingRules.isEmpty() && mandatoryMatchingRulesAreSemanticOnly) {
@@ -219,12 +219,14 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         query.setFirstResult(filter.offset());
         query.setMaxResults(limitWithExtra);
 
-        List<UserQuestionaryRecommendation> resultList = query.getResultStream().map(rs -> build((Object[]) rs)).toList();
+        List<UserQuestionaryRecommendation> resultList = query.getResultStream().map(
+                rs -> build((Object[]) rs, similarityCalculatingOperator)
+        ).toList();
 
         return new SliceImpl<>(resultList, Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
     }
 
-    private String getDefaultSimilarityValueBySimilarityCalculatingOperator() {
+    private String getDefaultSimilarityValueBySimilarityCalculatingOperator(SimilarityCalculatingOperator similarityCalculatingOperator) {
         switch (similarityCalculatingOperator) {
             case EUCLID -> {
                 return "0";
@@ -239,7 +241,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         }
     }
 
-    private String getSelectClauseBySimilarityCalculatingOperator() {
+    private String getSelectClauseBySimilarityCalculatingOperator(SimilarityCalculatingOperator similarityCalculatingOperator) {
         switch (similarityCalculatingOperator) {
             case EUCLID -> {
                 return String.format(SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT, EUCLID_SIMILARITY);
@@ -254,7 +256,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         }
     }
 
-    private String getOrderBySimilarityCalculatingOperator() {
+    private String getOrderBySimilarityCalculatingOperator(SimilarityCalculatingOperator similarityCalculatingOperator) {
         if (SimilarityCalculatingOperator.COSINE.equals(similarityCalculatingOperator)) {
             return ORDER_BY_SIMILARITY_DESC;
         }
@@ -357,12 +359,12 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         return Pair.of(predicate, params);
     }
 
-    private UserQuestionaryRecommendation build(Object[] result) {
+    private UserQuestionaryRecommendation build(Object[] result, SimilarityCalculatingOperator similarityCalculatingOperator) {
         Double similarity = (Double) result[2];
-        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity));
+        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity, similarityCalculatingOperator));
     }
 
-    private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity) {
+    private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity, SimilarityCalculatingOperator similarityCalculatingOperator) {
         switch (similarityCalculatingOperator) {
             case EUCLID -> {
                 double score = 1 - similarity;

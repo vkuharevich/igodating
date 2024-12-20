@@ -3,7 +3,6 @@ package com.igodating.questionary.service.validation.impl;
 import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.MatchingRuleDefaultValues;
-import com.igodating.questionary.model.MatchingRuleDefaultValuesCase;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleAccessType;
@@ -11,7 +10,7 @@ import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.service.validation.MatchingRuleValidationService;
 import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
-import com.igodating.questionary.util.val.ValuesEqualityChecker;
+import com.igodating.questionary.util.val.ValuesMatchingChecker;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
 
     private final AnswerValueFormatValidationService answerValueFormatValidationService;
 
-    private final ValuesEqualityChecker valuesEqualityChecker;
+    private final ValuesMatchingChecker valuesMatchingChecker;
 
     @Override
     @Transactional(readOnly = true)
@@ -131,7 +130,7 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
                 answerValueFormatValidationService.validateValueWithQuestion(then, question);
 
                 alreadyTouchedCases.forEach(alreadyTouchedKey -> {
-                    if (valuesEqualityChecker.equals(alreadyTouchedKey, when, question)) {
+                    if (valuesMatchingChecker.match(alreadyTouchedKey, when, question)) {
                         throw new ValidationException(String.format("When clause %s already defined", when));
                     }
                 });

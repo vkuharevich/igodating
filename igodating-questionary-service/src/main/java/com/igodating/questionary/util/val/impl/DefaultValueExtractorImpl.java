@@ -4,7 +4,7 @@ import com.igodating.questionary.model.MatchingRuleDefaultValues;
 import com.igodating.questionary.model.MatchingRuleDefaultValuesCase;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.util.val.DefaultValueExtractor;
-import com.igodating.questionary.util.val.ValuesEqualityChecker;
+import com.igodating.questionary.util.val.ValuesMatchingChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DefaultValueExtractorImpl implements DefaultValueExtractor {
 
-    private final ValuesEqualityChecker valuesEqualityChecker;
+    private final ValuesMatchingChecker valuesMatchingChecker;
 
     @Override
     public String extractDefaultValueForMatchingByAnswer(String answer, Question question) {
@@ -28,7 +28,7 @@ public class DefaultValueExtractorImpl implements DefaultValueExtractor {
     private Optional<String> findInCaseBlock(String answer, Question question) {
         MatchingRuleDefaultValues defaultValues = question.getMatchingRule().getDefaultValues();
         return defaultValues.getCases().stream()
-                .filter(defaultValCase -> valuesEqualityChecker.equals(defaultValCase.getWhen(), answer, question))
+                .filter(defaultValCase -> valuesMatchingChecker.match(answer, defaultValCase.getWhen(), question))
                 .map(MatchingRuleDefaultValuesCase::getThen)
                 .findFirst();
     }

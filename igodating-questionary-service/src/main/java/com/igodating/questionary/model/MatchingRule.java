@@ -16,7 +16,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -44,8 +46,9 @@ public class MatchingRule implements Identifiable<Long> {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private RuleMatchingType matchingType;
 
-    @Column(name = "preset_value")
-    private String presetValue;
+    @Column(name = "default_values")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private MatchingRuleDefaultValues defaultValues;
 
     @Column(name = "access_type")
     @JdbcType(PostgreSQLEnumJdbcType.class)

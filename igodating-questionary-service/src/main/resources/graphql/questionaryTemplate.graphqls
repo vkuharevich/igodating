@@ -1,17 +1,45 @@
+input MatchingRuleDefaultValueDto {
+    value: String
+    fullTextSearchSettings: FullTextSearchSettings
+}
+
+input MatchingRuleDefaultValuesCaseDto {
+    when: String!
+    then: MatchingRuleDefaultValueDto!
+}
+
+input MatchingRuleDefaultValuesDto {
+    cases: [MatchingRuleDefaultValuesCaseDto]
+    defaultValue: MatchingRuleDefaultValueDto
+}
+
+type MatchingRuleDefaultValuesView {
+    value: String
+    fullTextSearchSettings: FullTextSearchSettingsView
+}
+
+type MatchingRuleDefaultValueCaseView {
+    when: String!
+    then: MatchingRuleDefaultValuesView
+}
+
+type MatchingRuleDefaultValuesCaseView {
+    cases: [MatchingRuleDefaultValueCaseView]
+    defaultValue: MatchingRuleDefaultValuesView
+}
+
 input MatchingRuleCreateDto {
     matchingType: RuleMatchingType
-    presetValue: String
-    presetValueFullTextSearchSettings: FullTextSearchSettings
-    accessType: RuleAccessType
+    defaultValues: MatchingRuleDefaultValuesDto
+    accessType: RuleAccessType!
     isMandatoryForMatching: Boolean
 }
 
 input MatchingRuleUpdateDto {
     id: Int
     matchingType: RuleMatchingType
-    presetValue: String
-    presetValueFullTextSearchSettings: FullTextSearchSettings
-    accessType: RuleAccessType
+    defaultValues: MatchingRuleDefaultValuesDto
+    accessType: RuleAccessType!
     isMandatoryForMatching: Boolean
 }
 
@@ -19,8 +47,7 @@ type MatchingRuleView {
     id: Int
     questionId: Int
     matchingType: RuleMatchingType
-    presetValue: String
-    presetValueFullTextSearchSettings: FullTextSearchSettingsView
+    defaultValues: MatchingRuleDefaultValuesCaseView
     accessType: RuleAccessType
     isMandatoryForMatching: Boolean
     createdAt: String

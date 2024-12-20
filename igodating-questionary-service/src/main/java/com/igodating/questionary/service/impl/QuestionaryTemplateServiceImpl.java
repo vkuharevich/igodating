@@ -186,7 +186,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
             matchingRuleRepository.save(newMatchingRule);
         } else {
             oldMatchingRule.setAccessType(newMatchingRule.getAccessType());
-            oldMatchingRule.setPresetValue(newMatchingRule.getPresetValue());
+            oldMatchingRule.setDefaultValues(newMatchingRule.getDefaultValues());
             oldMatchingRule.setMatchingType(newMatchingRule.getMatchingType());
 
             matchingRuleRepository.save(oldMatchingRule);
@@ -217,7 +217,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         if (!Objects.equals(oldMatchingRule.getMatchingType(), newMatchingRule.getMatchingType())) {
             return false;
         }
-        if (!Objects.equals(oldMatchingRule.getPresetValue(), newMatchingRule.getPresetValue())) {
+        if (!Objects.equals(oldMatchingRule.getDefaultValues(), newMatchingRule.getDefaultValues())) {
             return false;
         }
 

@@ -2,6 +2,8 @@ package com.igodating.questionary.service.validation.impl;
 
 import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.MatchingRule;
+import com.igodating.questionary.model.MatchingRuleDefaultValues;
+import com.igodating.questionary.model.MatchingRuleDefaultValuesCase;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleAccessType;
@@ -9,10 +11,15 @@ import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.service.validation.MatchingRuleValidationService;
 import com.igodating.questionary.service.validation.AnswerValueFormatValidationService;
-import io.micrometer.common.util.StringUtils;
+import com.igodating.questionary.util.val.ValuesEqualityChecker;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +28,8 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
     private final MatchingRuleRepository matchingRuleRepository;
 
     private final AnswerValueFormatValidationService answerValueFormatValidationService;
+
+    private final ValuesEqualityChecker valuesEqualityChecker;
 
     @Override
     @Transactional(readOnly = true)
@@ -57,8 +66,8 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Semantic ranging cannot be public");
         }
 
-        if (RuleMatchingType.SEMANTIC_RANGING.equals(matchingType) && StringUtils.isNotEmpty(matchingRule.getPresetValue())) {
-            throw new ValidationException("Cannot provide preset value for Semantic Ranging");
+        if (RuleMatchingType.SEMANTIC_RANGING.equals(matchingType) && matchingRule.getDefaultValues() != null) {
+            throw new ValidationException("Cannot provide default value for Semantic Ranging");
         }
 
         if (RuleMatchingType.LIKE.equals(matchingType) && !answerType.equals(QuestionAnswerType.FREE_FORM)) {
@@ -93,8 +102,12 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
             throw new ValidationException("Private access should be mandatory for matching");
         }
 
-        if (StringUtils.isNotEmpty(matchingRule.getPresetValue())) {
-            answerValueFormatValidationService.validateValueWithQuestion(matchingRule.getPresetValue(), question);
+        if (Boolean.TRUE.equals(matchingRule.getIsMandatoryForMatching()) && matchingRule.getDefaultValues() == null) {
+            throw new ValidationException("Default values should be set if rule is mandatory for match");
+        }
+
+        if (matchingRule.getDefaultValues() != null) {
+            checkDefaultValues(matchingRule.getDefaultValues(), question);
         }
     }
 
@@ -105,5 +118,32 @@ public class MatchingRuleValidationServiceImpl implements MatchingRuleValidation
         }
 
         matchingRuleRepository.findById(id).orElseThrow(() -> new ValidationException(String.format("Matching rule doesn't exist by id %d", id)));
+    }
+
+    private void checkDefaultValues(MatchingRuleDefaultValues defaultValues, Question question) {
+        if (!CollectionUtils.isEmpty(defaultValues.getCases())) {
+            Set<String> alreadyTouchedCases = new HashSet<>();
+            defaultValues.getCases().forEach((defaultValCase) -> {
+                String when = defaultValCase.getWhen();
+                String then = defaultValCase.getThen();
+
+                answerValueFormatValidationService.validateValueWithQuestion(when, question);
+                answerValueFormatValidationService.validateValueWithQuestion(then, question);
+
+                alreadyTouchedCases.forEach(alreadyTouchedKey -> {
+                    if (valuesEqualityChecker.equals(alreadyTouchedKey, when, question)) {
+                        throw new ValidationException(String.format("When clause %s already defined", when));
+                    }
+                });
+
+                alreadyTouchedCases.add(when);
+            });
+        }
+
+        if (StringUtils.isBlank(defaultValues.getDefaultValue())) {
+            throw new ValidationException("Default value is necessary for default values block");
+        }
+
+        answerValueFormatValidationService.validateValueWithQuestion(defaultValues.getDefaultValue(), question);
     }
 }

@@ -45,7 +45,7 @@ public class UserQuestionaryFilterValidationServiceImpl implements UserQuestiona
         QuestionaryTemplate questionaryTemplate = questionaryTemplateCacheService.getById(forQuestionary.getQuestionaryTemplateId());
 
         if (questionaryTemplate == null) {
-            throw new ValidationException("Template is not in template");
+            throw new ValidationException("Template is not in cache");
         }
 
         if (questionaryTemplate.isDeleted()) {

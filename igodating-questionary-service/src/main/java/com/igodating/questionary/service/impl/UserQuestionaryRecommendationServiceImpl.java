@@ -17,6 +17,7 @@ import com.igodating.questionary.service.UserQuestionaryRecommendationService;
 import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
 import com.igodating.questionary.service.validation.UserQuestionaryFilterValidationService;
 import com.igodating.questionary.util.tsquery.TsQueryConverter;
+import com.igodating.questionary.util.val.DefaultValueExtractor;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ import java.util.stream.Collectors;
 public class UserQuestionaryRecommendationServiceImpl implements UserQuestionaryRecommendationService {
 
     private static final String SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT = """
-            select uq.id, uq.user_id, %s as calculated_similarity from user_questionary uq
+            select uq.id, uq.user_id, cast(%s as float) as calculated_similarity from user_questionary uq
             """;
 
     private static final String JOIN_TO_ANSWERS = """
@@ -121,6 +123,8 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
 
     private final TsQueryConverter tsQueryConverter;
 
+    private final DefaultValueExtractor defaultValueExtractor;
+
     @Value("${recommendation.similarity-calculating-operator}")
     private SimilarityCalculatingOperator similarityCalculatingOperator;
 
@@ -135,8 +139,9 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));
 
         QuestionaryTemplate questionaryTemplate = questionaryTemplateCacheService.getById(forQuestionary.getQuestionaryTemplateId());
+        List<Question> questionsFromTemplate = questionaryTemplate.getQuestions();
 
-        Map<Long, MatchingRule> matchingRuleQuestionIdMap = questionaryTemplate.getQuestions().stream().map(Question::getMatchingRule).collect(Collectors.toMap(MatchingRule::getQuestionId, v -> v));
+        Map<Long, MatchingRule> matchingRuleQuestionIdMap = questionsFromTemplate.stream().map(Question::getMatchingRule).collect(Collectors.toMap(MatchingRule::getQuestionId, v -> v));
 
         if (matchingRuleQuestionIdMap.isEmpty()) {
             throw new RuntimeException("Matching rules don't exist for template");
@@ -179,7 +184,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
 
             Set<MatchingRule> allRules = new HashSet<>(mandatoryMatchingRules);
             allRules.addAll(userMatchingRules);
-            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, filter.userFilters(), forQuestionary);
+            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, filter.userFilters(), questionsFromTemplate, forQuestionary);
 
             if (!questionsOrPredicateAndParamMap.getFirst().isEmpty()) {
                 predicates.add(questionsOrPredicateAndParamMap.getFirst());
@@ -205,9 +210,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
 
         if (!havingPredicates.isEmpty()) {
             sql.append(" having ");
-            for (String havingPredicate : havingPredicates) {
-                sql.append(havingPredicate);
-            }
+            sql.append(String.join(" and ", havingPredicates.stream().map(p -> " (" + p + ") ").collect(Collectors.toSet())));
         }
 
         sql.append(orderBy);
@@ -264,24 +267,29 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         return ORDER_BY_SIMILARITY_ASC;
     }
 
-    private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(Set<MatchingRule> matchingRules, List<UserQuestionaryFilterItem> userFilters, UserQuestionary forQuestionary) {
+    private Pair<String, Map<String, Object>> toQuestionsOrPredicateAndParamMap(Set<MatchingRule> matchingRules,
+                                                                                List<UserQuestionaryFilterItem> userFilters,
+                                                                                List<Question> questionsFromTemplate,
+                                                                                UserQuestionary forQuestionary) {
         List<String> predicates = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
-        Map<Long, UserQuestionaryFilterItem> userFilterValuesByQuestionId = userFilters.stream().collect(Collectors.toMap(UserQuestionaryFilterItem::questionId, Function.identity()));
-        Map<Long, String> userAnswersByQuestionId = forQuestionary.getAnswers().stream().collect(Collectors.toMap(UserQuestionaryAnswer::getQuestionId, UserQuestionaryAnswer::getValue));
+        Map<Long, UserQuestionaryFilterItem> userFilterValuesByQuestionId = CollectionUtils.isEmpty(userFilters) ? new HashMap<>() :userFilters.stream()
+                .collect(Collectors.toMap(UserQuestionaryFilterItem::questionId, Function.identity()));
+        Map<Long, String> userAnswersByQuestionId = forQuestionary.getAnswers()
+                .stream()
+                .collect(Collectors.toMap(UserQuestionaryAnswer::getQuestionId, UserQuestionaryAnswer::getValue));
+        Map<Long, Question> questionFromTemplateMap = questionsFromTemplate.stream().collect(Collectors.toMap(Question::getId, v -> v));
 
         for (MatchingRule matchingRule : matchingRules) {
             if (RuleMatchingType.SEMANTIC_RANGING.equals(matchingRule.getMatchingType())) {
                 continue;
             }
 
-            String userValue;
+            String userValue = null;
 
             Long questionId = matchingRule.getQuestionId();
             UserQuestionaryFilterItem filterItem = userFilterValuesByQuestionId.get(questionId);
-            if (filterItem == null) {
-                userValue = userAnswersByQuestionId.get(questionId);
-            } else {
+            if (filterItem != null) {
                 if (filterItem.fullTextSearchSettings() != null) {
                     userValue = tsQueryConverter.fullTextSearchSettingsToTsQuery(filterItem.fullTextSearchSettings());
                 } else {
@@ -289,7 +297,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
                 }
             }
 
-            Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userValue);
+            Pair<String, Map<String, Object>> questionPredicateAndParamMap = toQuestionPredicateAndParamMap(matchingRule, userValue, questionFromTemplateMap.get(questionId), userAnswersByQuestionId.get(questionId));
             if (questionPredicateAndParamMap == null) {
                 continue;
             }
@@ -302,15 +310,21 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
             return Pair.of("", new HashMap<>());
         }
 
-        return Pair.of(predicates.stream().map(p -> new StringBuilder().append("(").append(p).append(")")).collect(Collectors.joining(" or ")), params);
+        return Pair.of(predicates.stream().map(p -> new StringBuilder().append("(").append(p).append(")"))
+                .collect(Collectors.joining(" or ")), params);
     }
 
-    private Pair<String, Map<String, Object>> toQuestionPredicateAndParamMap(MatchingRule matchingRule, String userValue) {
+    private Pair<String, Map<String, Object>> toQuestionPredicateAndParamMap(MatchingRule matchingRule, String userValue, Question question, String answer) {
         assert matchingRule.getMatchingType() != RuleMatchingType.SEMANTIC_RANGING;
         Long questionId = matchingRule.getQuestionId();
-        String value = userValue == null ? matchingRule.getPresetValue() : userValue;
+
+        String value = userValue == null ? defaultValueExtractor.extractDefaultValueForMatchingByAnswer(answer, question) : userValue;
         if (value == null) {
-            return null;
+            if (answer == null) {
+                return null;
+            }
+
+            value = answer;
         }
 
         String predicate = "";

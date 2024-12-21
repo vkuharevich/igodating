@@ -15,6 +15,8 @@ public interface QuestionaryTemplateService {
 
     void update(QuestionaryTemplate questionaryTemplate);
 
+    void createQuestionBlock(QuestionBlock questionBlock);
+
     void updateQuestionBlock(QuestionBlock questionBlock);
 
     void delete(QuestionaryTemplate questionaryTemplate);

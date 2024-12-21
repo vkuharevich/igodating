@@ -4,6 +4,6 @@ import java.util.List;
 
 public record MatchingRuleDefaultValuesDto(
         List<MatchingRuleDefaultValuesCaseDto> cases,
-        MatchingRuleDefaultValueDto defaultValue
+        String defaultValue
 ) {
 }

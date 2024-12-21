@@ -1,31 +1,21 @@
-input MatchingRuleDefaultValueDto {
-    value: String
-    fullTextSearchSettings: FullTextSearchSettings
-}
-
 input MatchingRuleDefaultValuesCaseDto {
     when: String!
-    then: MatchingRuleDefaultValueDto!
+    then: String!
 }
 
 input MatchingRuleDefaultValuesDto {
     cases: [MatchingRuleDefaultValuesCaseDto]
-    defaultValue: MatchingRuleDefaultValueDto
-}
-
-type MatchingRuleDefaultValuesView {
-    value: String
-    fullTextSearchSettings: FullTextSearchSettingsView
+    defaultValue: String
 }
 
 type MatchingRuleDefaultValueCaseView {
     when: String!
-    then: MatchingRuleDefaultValuesView
+    then: String!
 }
 
 type MatchingRuleDefaultValuesCaseView {
     cases: [MatchingRuleDefaultValueCaseView]
-    defaultValue: MatchingRuleDefaultValuesView
+    defaultValue: String!
 }
 
 input MatchingRuleCreateDto {
@@ -55,11 +45,13 @@ type MatchingRuleView {
 
 input QuestionBlockCreateDto {
     name: String!
+    description: String
 }
 
 input QuestionBlockUpdateDto {
     id: Int!
     name: String!
+    description: String
 }
 
 type QuestionBlockView {
@@ -89,7 +81,7 @@ type QuestionaryTemplateView {
 
 input QuestionCreateDto {
     matchingRule: MatchingRuleCreateDto
-    questionBlock: QuestionBlockCreateDto
+    questionBlockId: Int
     title: String!
     description: String!
     answerType: QuestionAnswerType!
@@ -133,5 +125,6 @@ extend type Mutation {
     createTemplate(template: QuestionaryTemplateCreateRequest!): Boolean
     updateTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
     deleteTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
+    createQuestionBlock(questionBlock: QuestionBlockCreateDto!): Boolean
     updateQuestionBlock(questionBlock: QuestionBlockUpdateDto!): Boolean
 }

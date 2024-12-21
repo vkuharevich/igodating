@@ -62,8 +62,6 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
         questionaryTemplateRepository.save(questionaryTemplate);
 
-        createQuestionBlocks(questionaryTemplate);
-
         for (Question question : questionaryTemplate.getQuestions()) {
             createQuestion(question, questionaryTemplate.getId());
         }
@@ -78,8 +76,6 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
         existedQuestionaryTemplate.setName(questionaryTemplate.getName());
         existedQuestionaryTemplate.setDescription(questionaryTemplate.getDescription());
-
-        createQuestionBlocks(questionaryTemplate);
 
         EntitiesListChange<Question, Long> changes = ServiceUtils.changes(existedQuestionaryTemplate.getQuestions(), questionaryTemplate.getQuestions(), this::changesInQuestions);
 
@@ -108,12 +104,21 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
+    public void createQuestionBlock(QuestionBlock questionBlock) {
+        questionBlockValidationService.validateOnCreate(questionBlock);
+
+        questionBlockRepository.save(questionBlock);
+    }
+
+    @Override
+    @Transactional
     public void updateQuestionBlock(QuestionBlock questionBlock) {
         questionBlockValidationService.validateOnUpdate(questionBlock);
 
         QuestionBlock existedQuestionBlock = questionBlockRepository.getReferenceById(questionBlock.getId());
 
         existedQuestionBlock.setName(questionBlock.getName());
+        existedQuestionBlock.setDescription(questionBlock.getDescription());
 
         questionBlockRepository.save(existedQuestionBlock);
     }
@@ -127,32 +132,6 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         questionRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
         questionBlockRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
         userQuestionaryRepository.setDeletedForAllByQuestionaryTemplateId(questionaryTemplate.getId());
-    }
-
-    private void createQuestionBlocks(QuestionaryTemplate questionaryTemplate) {
-        Map<String, List<Question>> questionBlocksNamesIdsWithQuestionsMap = new HashMap<>();
-
-        questionaryTemplate.getQuestions().forEach(q -> {
-            QuestionBlock questionBlock = q.getQuestionBlock();
-            if (questionBlock != null && questionBlock.getId() == null) {
-                List<Question> questionsForBlock = questionBlocksNamesIdsWithQuestionsMap.computeIfAbsent(questionBlock.getName(), k -> new ArrayList<>());
-                questionsForBlock.add(q);
-            }
-        });
-
-        questionBlocksNamesIdsWithQuestionsMap.forEach((key, value) -> {
-            QuestionBlock questionBlock = new QuestionBlock();
-            questionBlock.setQuestionaryTemplateId(questionaryTemplate.getId());
-            questionBlock.setName(key);
-
-            questionBlockRepository.save(questionBlock);
-
-            value.forEach(question -> {
-                question.setQuestionBlockId(questionBlock.getId());
-                question.setQuestionBlock(questionBlock);
-            });
-        });
-
     }
 
     private void updateQuestion(Question oldQuestion, Question newQuestion) {

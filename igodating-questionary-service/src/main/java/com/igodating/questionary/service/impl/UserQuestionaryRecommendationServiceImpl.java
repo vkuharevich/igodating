@@ -2,7 +2,7 @@ package com.igodating.questionary.service.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
 import com.igodating.questionary.constant.SimilarityCalculatingOperator;
-import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.exception.ValidationException;
@@ -133,7 +133,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
 
     @Override
     @Transactional(readOnly = true)
-    public Slice<UserQuestionaryRecommendation> findRecommendations(UserQuestionaryFilter filter, String userId) {
+    public Slice<UserQuestionaryRecommendation> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId) {
         userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
 
         UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));
@@ -290,8 +290,8 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
             Long questionId = matchingRule.getQuestionId();
             UserQuestionaryFilterItem filterItem = userFilterValuesByQuestionId.get(questionId);
             if (filterItem != null) {
-                if (filterItem.fullTextSearchSettings() != null) {
-                    userValue = tsQueryConverter.fullTextSearchSettingsToTsQuery(filterItem.fullTextSearchSettings());
+                if (RuleMatchingType.LIKE.equals(matchingRule.getMatchingType())) {
+                    userValue = tsQueryConverter.strToTsQuery(filterItem.filterValue());
                 } else {
                     userValue = filterItem.filterValue();
                 }

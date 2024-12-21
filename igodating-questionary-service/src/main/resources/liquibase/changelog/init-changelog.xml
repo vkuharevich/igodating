@@ -66,6 +66,7 @@
             CREATE TABLE question_block(
                 id bigserial PRIMARY KEY,
                 name varchar(500) NOT NULL,
+                description varchar(500),
                 questionary_template_id bigint NOT NULL REFERENCES questionary_template(id) ON DELETE CASCADE,
 
                 UNIQUE (name, questionary_template_id)

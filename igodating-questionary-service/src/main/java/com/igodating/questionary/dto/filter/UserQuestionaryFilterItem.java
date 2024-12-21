@@ -1,12 +1,13 @@
 package com.igodating.questionary.dto.filter;
 
+import org.apache.commons.lang3.StringUtils;
+
 public record UserQuestionaryFilterItem(
     Long questionId,
-    String filterValue,
-    FullTextSearchSettings fullTextSearchSettings
+    String filterValue
 ) {
 
     public boolean isEmpty() {
-        return filterValue == null && fullTextSearchSettings == null;
+        return StringUtils.isEmpty(filterValue);
     }
 }

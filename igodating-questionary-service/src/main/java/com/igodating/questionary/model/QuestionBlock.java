@@ -27,6 +27,8 @@ public class QuestionBlock implements Identifiable<Long> {
 
     private String name;
 
+    private String description;
+
     @Column(name = "questionary_template_id")
     private Long questionaryTemplateId;
 

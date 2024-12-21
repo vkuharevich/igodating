@@ -1,10 +1,8 @@
 package com.igodating.questionary.util.tsquery;
 
-import com.igodating.questionary.dto.filter.FullTextSearchSettings;
-
 public interface TsQueryConverter {
 
-    String fullTextSearchSettingsToTsQuery(FullTextSearchSettings fullTextSearchSettings);
+    String strToTsQuery(String value);
 
-    FullTextSearchSettings tsQueryToFullTextSearchSettings(String tsQuery);
+    String tsQueryToStr(String tsQuery);
 }

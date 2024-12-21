@@ -54,7 +54,6 @@ type UserQuestionaryRecommendation {
 input UserQuestionaryFilterItem {
     questionId: Int!
     filterValue: String
-    fullTextSearchSettings: FullTextSearchSettings
 }
 
 input UserQuestionaryFilter {
@@ -71,7 +70,7 @@ type RecommendationsSliceResponse {
 }
 
 extend type Query {
-    getRecommendations(request: UserQuestionaryFilter!): RecommendationsSliceResponse
+    recommendations(request: UserQuestionaryFilter!): RecommendationsSliceResponse
 }
 
 extend type Mutation {

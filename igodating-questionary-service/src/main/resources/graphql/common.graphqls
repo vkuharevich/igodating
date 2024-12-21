@@ -29,14 +29,6 @@ enum UserQuestionaryStatus {
     DELETED
 }
 
-input FullTextSearchSettings {
-    keywords: [String]
-}
-
-type FullTextSearchSettingsView {
-    keywords: [String]
-}
-
 type Query {
     answerTypes: [QuestionAnswerType]
 }

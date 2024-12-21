@@ -1,10 +1,11 @@
 package com.igodating.questionary.util.tsquery.impl;
 
-import com.igodating.questionary.dto.filter.FullTextSearchSettings;
+import com.igodating.questionary.constant.CommonConstants;
 import com.igodating.questionary.util.tsquery.TsQueryConverter;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Component
 public class TsQueryConverterImpl implements TsQueryConverter {
@@ -12,12 +13,12 @@ public class TsQueryConverterImpl implements TsQueryConverter {
     private static final String AND_OPERATOR = " & ";
 
     @Override
-    public String fullTextSearchSettingsToTsQuery(FullTextSearchSettings fullTextSearchSettings) {
-        return String.join(AND_OPERATOR, fullTextSearchSettings.keywords());
+    public String strToTsQuery(String value) {
+        return String.join(AND_OPERATOR, value.split(CommonConstants.VALUE_SPLITTER));
     }
 
     @Override
-    public FullTextSearchSettings tsQueryToFullTextSearchSettings(String tsQuery) {
-        return new FullTextSearchSettings(Arrays.stream(tsQuery.split(AND_OPERATOR)).toList());
+    public String tsQueryToStr(String tsQuery) {
+        return Arrays.stream(tsQuery.split(AND_OPERATOR)).collect(Collectors.joining(CommonConstants.VALUE_SPLITTER));
     }
 }

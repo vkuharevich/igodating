@@ -7,7 +7,7 @@ import java.util.List;
 
 public record QuestionCreateDto(
         MatchingRuleCreateDto matchingRule,
-        QuestionBlockCreateDto questionBlock,
+        Long questionBlockId,
         String title,
         String description,
         QuestionAnswerType answerType,

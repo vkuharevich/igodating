@@ -1,7 +1,7 @@
 package com.igodating.questionary.controller;
 
 import com.igodating.questionary.dto.SliceResponse;
-import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
@@ -56,7 +56,7 @@ public class UserQuestionaryController {
     }
 
     @QueryMapping
-    public SliceResponse<UserQuestionaryRecommendation> getRecommendations(@Argument UserQuestionaryFilter request) {
+    public SliceResponse<UserQuestionaryRecommendation> recommendations(@Argument UserQuestionaryRecommendationRequest request) {
         return new SliceResponse<>(userQuestionaryRecommendationService.findRecommendations(request, CurrentUserInfo.getUserId()));
     }
 }

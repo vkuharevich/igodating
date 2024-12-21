@@ -1,8 +1,8 @@
 package com.igodating.questionary.service.validation;
 
-import com.igodating.questionary.dto.filter.UserQuestionaryFilter;
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 
 public interface UserQuestionaryFilterValidationService {
 
-    void validateUserQuestionaryFilter(UserQuestionaryFilter filter, String userId);
+    void validateUserQuestionaryFilter(UserQuestionaryRecommendationRequest filter, String userId);
 }

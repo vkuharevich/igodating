@@ -374,8 +374,11 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
     }
 
     private UserQuestionaryRecommendation build(Object[] result, SimilarityCalculatingOperator similarityCalculatingOperator) {
+        Long userQuestionaryId = (Long) result[0];
+        String userId = (String) result[1];
         Double similarity = (Double) result[2];
-        return new UserQuestionaryRecommendation((Long) result[0], (String) result[1], similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity, similarityCalculatingOperator));
+
+        return new UserQuestionaryRecommendation(userQuestionaryId, userId, similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity, similarityCalculatingOperator));
     }
 
     private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity, SimilarityCalculatingOperator similarityCalculatingOperator) {

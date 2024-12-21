@@ -22,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -226,7 +227,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
                 rs -> build((Object[]) rs, similarityCalculatingOperator)
         ).toList();
 
-        return new SliceImpl<>(resultList, Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
+        return new SliceImpl<>(resultList, resultList.isEmpty() ? Pageable.unpaged() : Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
     }
 
     private String getDefaultSimilarityValueBySimilarityCalculatingOperator(SimilarityCalculatingOperator similarityCalculatingOperator) {

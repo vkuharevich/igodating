@@ -8,7 +8,6 @@ import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.model.constant.UserQuestionaryStatus;
-import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
 import com.igodating.questionary.repository.UserQuestionaryRepository;

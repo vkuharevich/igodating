@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +30,10 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
+@NamedEntityGraph(name = "userQuestionaryAnswer", attributeNodes = {
+        @NamedAttributeNode("question"),
+        @NamedAttributeNode("questionary")
+})
 public class UserQuestionaryAnswer implements Identifiable<Long> {
 
     @Id

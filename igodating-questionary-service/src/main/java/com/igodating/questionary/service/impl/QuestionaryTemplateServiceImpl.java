@@ -19,10 +19,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -47,6 +44,12 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Transactional(readOnly = true)
     public QuestionaryTemplate getById(Long id) {
         return questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Question> getAllQuestionsFromBlock(Long questionBlockId) {
+        return questionRepository.findAllByQuestionBlockId(questionBlockId);
     }
 
     @Override

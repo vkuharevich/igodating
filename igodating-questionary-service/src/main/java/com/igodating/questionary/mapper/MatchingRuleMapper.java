@@ -10,6 +10,7 @@ import com.igodating.questionary.model.MatchingRuleDefaultValues;
 import com.igodating.questionary.model.MatchingRuleDefaultValuesCase;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.util.tsquery.TsQueryConverter;
+import com.igodating.questionary.util.val.DefaultValueExtractor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -24,12 +25,16 @@ public abstract class MatchingRuleMapper {
     @Autowired
     private TsQueryConverter tsQueryConverter;
 
+    @Autowired
+    private DefaultValueExtractor defaultValueExtractor;
+
     public abstract MatchingRule createRequestToModel(MatchingRuleCreateDto matchingRule);
 
     public abstract MatchingRule updateRequestToModel(MatchingRuleUpdateDto matchingRule);
 
     @Mapping(source = "matchingRule", target = "defaultValues", qualifiedByName = "mapDefaultValuesFromModel")
     public abstract MatchingRuleView modelToView(MatchingRule matchingRule);
+
 
     @Named(value = "mapDefaultValuesFromDto")
     public MatchingRuleDefaultValues mapDefaultValuesFromDto(MatchingRule matchingRule) {

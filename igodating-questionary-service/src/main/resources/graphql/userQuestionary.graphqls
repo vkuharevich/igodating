@@ -51,6 +51,15 @@ type UserQuestionaryRecommendation {
     similarityInPercentage: Int
 }
 
+type PublicFilterDescriptorDto {
+    ruleId: Int
+    questionId: Int
+    matchingType: RuleMatchingType
+    defaultValue: String
+    answerType: QuestionAnswerType
+    questionBlockName: String
+}
+
 input UserQuestionaryFilterItem {
     questionId: Int!
     filterValue: String
@@ -71,6 +80,7 @@ type RecommendationsSliceResponse {
 
 extend type Query {
     recommendations(request: UserQuestionaryFilter!): RecommendationsSliceResponse
+    publicFilters(questionaryTemplateId: Int!): [PublicFilterDescriptorDto]
 }
 
 extend type Mutation {

@@ -1,5 +1,6 @@
 package com.igodating.questionary.service;
 
+import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionBlock;
 import com.igodating.questionary.model.QuestionaryTemplate;
 
@@ -8,6 +9,8 @@ import java.util.List;
 public interface QuestionaryTemplateService {
 
     QuestionaryTemplate getById(Long id);
+
+    List<Question> getAllQuestionsFromBlock(Long questionBlockId);
 
     List<QuestionaryTemplate> getAll();
 

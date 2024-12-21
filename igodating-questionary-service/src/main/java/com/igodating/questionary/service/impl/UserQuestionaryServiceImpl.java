@@ -5,8 +5,10 @@ import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
+import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.model.constant.UserQuestionaryStatus;
+import com.igodating.questionary.repository.MatchingRuleRepository;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
@@ -44,6 +46,12 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
     @Transactional(readOnly = true)
     public UserQuestionary getById(Long id) {
         return userQuestionaryRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found by id"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserQuestionaryAnswer> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId) {
+        return userQuestionaryAnswerRepository.findAllNotDeletedByQuestionaryTemplateIdAndUserIdAndRuleAccessType(templateId, userId, RuleAccessType.PUBLIC);
     }
 
     @Override

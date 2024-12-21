@@ -6,7 +6,6 @@ import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.util.val.ValuesMatchingChecker;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -16,26 +15,40 @@ import java.util.stream.Collectors;
 public class ValuesMatchingCheckerImpl implements ValuesMatchingChecker {
 
     @Override
-    public boolean match(String firstVal, String secondVal, Question question) {
-        if (Objects.equals(firstVal, secondVal)) {
+    public boolean match(String when, String then, Question question) {
+        if (Objects.equals(when, then)) {
             return true;
         }
 
         if (question.withChoice()) {
-            Set<String> firstSet = Arrays.stream(firstVal.split(CommonConstants.VALUE_SPLITTER)).collect(Collectors.toSet());
-            Set<String> secondSet = Arrays.stream(secondVal.split(CommonConstants.VALUE_SPLITTER)).collect(Collectors.toSet());
+            Set<String> firstSet = Arrays.stream(when.split(CommonConstants.VALUE_SPLITTER)).collect(Collectors.toSet());
+            Set<String> secondSet = Arrays.stream(then.split(CommonConstants.VALUE_SPLITTER)).collect(Collectors.toSet());
 
             return firstSet.containsAll(secondSet);
         }
 
         if (RuleMatchingType.IN_RANGE.equals(question.getMatchingRule().getMatchingType())) {
-            Double[] firstRange = Arrays.stream(firstVal.split(CommonConstants.VALUE_SPLITTER)).map(Double::parseDouble).toArray(Double[]::new);
-            Double[] secondRange = Arrays.stream(secondVal.split(CommonConstants.VALUE_SPLITTER)).map(Double::parseDouble).toArray(Double[]::new);
+            if (then.contains(CommonConstants.VALUE_SPLITTER)) {
+                Double[] firstRange = Arrays.stream(when.split(CommonConstants.VALUE_SPLITTER)).map(Double::parseDouble).toArray(Double[]::new);
+                Double[] secondRange = Arrays.stream(then.split(CommonConstants.VALUE_SPLITTER)).map(Double::parseDouble).toArray(Double[]::new);
 
-            return checkRangesOverlap(firstRange, secondRange);
+                return checkRangesOverlap(firstRange, secondRange);
+            }
+
+            Double[] range = Arrays.stream(when.split(CommonConstants.VALUE_SPLITTER)).map(Double::parseDouble).toArray(Double[]::new);
+            Double num = Double.parseDouble(then);
+
+            return checkInRange(range, num);
         }
 
         return false;
+    }
+
+    private boolean checkInRange(Double[] range, Double num) {
+        Double low = range[0];
+        Double up = range[1];
+
+        return low <= num && up >= num;
     }
 
     private boolean checkRangesOverlap(Double[] firstRange, Double[] secondRange) {

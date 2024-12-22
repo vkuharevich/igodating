@@ -63,8 +63,8 @@ public class QuestionaryTemplateController {
     }
 
     @QueryMapping
-    public QuestionaryTemplateView questionaryTemplate(@Argument Long id) {
-        return questionaryTemplateService.getById(id, questionaryTemplateMapper::modelToView);
+    public QuestionaryTemplateView questionaryTemplate(@Argument Long templateId) {
+        return questionaryTemplateService.getById(templateId, questionaryTemplateMapper::modelToView);
     }
 
     @QueryMapping

@@ -17,13 +17,13 @@ public interface QuestionaryTemplateService {
 
     <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc);
 
-    void create(QuestionaryTemplate questionaryTemplate);
+    Long create(QuestionaryTemplate questionaryTemplate);
 
-    void update(QuestionaryTemplate questionaryTemplate);
+    Long update(QuestionaryTemplate questionaryTemplate);
 
-    void createQuestionBlock(QuestionBlock questionBlock);
+    Long createQuestionBlock(QuestionBlock questionBlock);
 
-    void updateQuestionBlock(QuestionBlock questionBlock);
+    Long updateQuestionBlock(QuestionBlock questionBlock);
 
-    void delete(QuestionaryTemplate questionaryTemplate);
+    Long delete(QuestionaryTemplate questionaryTemplate);
 }

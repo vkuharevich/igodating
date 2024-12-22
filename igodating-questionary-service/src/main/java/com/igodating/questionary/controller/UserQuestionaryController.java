@@ -33,30 +33,26 @@ public class UserQuestionaryController {
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Boolean createQuestionary(@Argument UserQuestionaryCreateRequest questionary) {
-        userQuestionaryService.createDraft(userQuestionaryMapper.createRequestToModel(questionary), CurrentUserInfo.getUserId());
-        return true;
+    public Long createQuestionary(@Argument UserQuestionaryCreateRequest questionary) {
+        return userQuestionaryService.createDraft(userQuestionaryMapper.createRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Boolean updateQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
-        userQuestionaryService.update(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
-        return true;
+    public Long updateQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
+        return userQuestionaryService.update(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Boolean deleteQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
-        userQuestionaryService.delete(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
-        return true;
+    public Long deleteQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
+        return userQuestionaryService.delete(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Boolean moveFromDraft(@Argument UserQuestionaryUpdateRequest questionary) {
-        userQuestionaryService.moveFromDraft(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
-        return true;
+    public Long moveFromDraft(@Argument UserQuestionaryUpdateRequest questionary) {
+        return userQuestionaryService.moveFromDraft(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @QueryMapping

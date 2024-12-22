@@ -29,35 +29,30 @@ public class QuestionaryTemplateController {
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Boolean createTemplate(@Argument QuestionaryTemplateCreateRequest template) {
-        questionaryTemplateService.create(questionaryTemplateMapper.createRequestToModel(template));
-        return true;
+    public Long createTemplate(@Argument QuestionaryTemplateCreateRequest template) {
+        return questionaryTemplateService.create(questionaryTemplateMapper.createRequestToModel(template));
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Boolean updateTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
-        questionaryTemplateService.update(questionaryTemplateMapper.updateRequestToModel(template));
-        return true;
+    public Long updateTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
+        return questionaryTemplateService.update(questionaryTemplateMapper.updateRequestToModel(template));
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Boolean deleteTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
-        questionaryTemplateService.delete(questionaryTemplateMapper.updateRequestToModel(template));
-        return true;
+    public Long deleteTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
+        return questionaryTemplateService.delete(questionaryTemplateMapper.updateRequestToModel(template));
     }
 
     @MutationMapping
-    public Boolean createQuestionBlock(@Argument QuestionBlockCreateDto questionBlock) {
-        questionaryTemplateService.createQuestionBlock(questionBlockMapper.createRequestToModel(questionBlock));
-        return true;
+    public Long createQuestionBlock(@Argument QuestionBlockCreateDto questionBlock) {
+        return questionaryTemplateService.createQuestionBlock(questionBlockMapper.createRequestToModel(questionBlock));
     }
 
     @MutationMapping
-    public Boolean updateQuestionBlock(@Argument QuestionBlockUpdateDto questionBlock) {
-        questionaryTemplateService.updateQuestionBlock(questionBlockMapper.updateRequestToModel(questionBlock));
-        return true;
+    public Long updateQuestionBlock(@Argument QuestionBlockUpdateDto questionBlock) {
+        return questionaryTemplateService.updateQuestionBlock(questionBlockMapper.updateRequestToModel(questionBlock));
     }
 
     @QueryMapping

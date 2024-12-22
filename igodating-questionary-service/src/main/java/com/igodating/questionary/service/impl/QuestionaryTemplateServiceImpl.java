@@ -67,7 +67,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public void create(QuestionaryTemplate questionaryTemplate) {
+    public Long create(QuestionaryTemplate questionaryTemplate) {
         questionaryTemplateValidationService.validateOnCreate(questionaryTemplate);
 
         questionaryTemplateRepository.save(questionaryTemplate);
@@ -75,11 +75,13 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         for (Question question : questionaryTemplate.getQuestions()) {
             createQuestion(question, questionaryTemplate.getId());
         }
+
+        return questionaryTemplate.getId();
     }
 
     @Override
     @Transactional
-    public void update(QuestionaryTemplate questionaryTemplate) {
+    public Long update(QuestionaryTemplate questionaryTemplate) {
         questionaryTemplateValidationService.validateOnUpdate(questionaryTemplate);
 
         QuestionaryTemplate existedQuestionaryTemplate = questionaryTemplateRepository.getReferenceById(questionaryTemplate.getId());
@@ -110,19 +112,23 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
             updateQuestion(oldQuestion, newQuestion);
         }
+
+        return questionaryTemplate.getId();
     }
 
     @Override
     @Transactional
-    public void createQuestionBlock(QuestionBlock questionBlock) {
+    public Long createQuestionBlock(QuestionBlock questionBlock) {
         questionBlockValidationService.validateOnCreate(questionBlock);
 
         questionBlockRepository.save(questionBlock);
+
+        return questionBlock.getId();
     }
 
     @Override
     @Transactional
-    public void updateQuestionBlock(QuestionBlock questionBlock) {
+    public Long updateQuestionBlock(QuestionBlock questionBlock) {
         questionBlockValidationService.validateOnUpdate(questionBlock);
 
         QuestionBlock existedQuestionBlock = questionBlockRepository.getReferenceById(questionBlock.getId());
@@ -131,17 +137,21 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
         existedQuestionBlock.setDescription(questionBlock.getDescription());
 
         questionBlockRepository.save(existedQuestionBlock);
+
+        return questionBlock.getId();
     }
 
     @Override
     @Transactional
-    public void delete(QuestionaryTemplate questionaryTemplate) {
+    public Long delete(QuestionaryTemplate questionaryTemplate) {
         questionaryTemplateValidationService.validateOnDelete(questionaryTemplate);
         questionaryTemplate.setToDelete();
         questionaryTemplateRepository.save(questionaryTemplate);
         questionRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
         questionBlockRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());
         userQuestionaryRepository.setDeletedForAllByQuestionaryTemplateId(questionaryTemplate.getId());
+
+        return questionaryTemplate.getId();
     }
 
     private void updateQuestion(Question oldQuestion, Question newQuestion) {

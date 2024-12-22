@@ -77,7 +77,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional
-    public void createDraft(UserQuestionary userQuestionary, String userId) {
+    public Long createDraft(UserQuestionary userQuestionary, String userId) {
         userQuestionary.setUserId(userId);
 
         userQuestionaryValidationService.validateOnCreate(userQuestionary);
@@ -92,11 +92,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         }
 
         userQuestionaryAnswerRepository.saveAll(userQuestionary.getAnswers());
+
+        return userQuestionary.getId();
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void update(UserQuestionary userQuestionary, String userId) {
+    public Long update(UserQuestionary userQuestionary, String userId) {
         userQuestionaryValidationService.validateOnUpdate(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -144,11 +146,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         }
 
         userQuestionaryRepository.save(existedQuestionary);
+
+        return existedQuestionary.getId();
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void setStatusToPublished(UserQuestionary userQuestionary) {
+    public Long setStatusToPublished(UserQuestionary userQuestionary) {
         userQuestionaryValidationService.validateOnSetStatusToPublished(userQuestionary);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -156,11 +160,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         existedQuestionary.setQuestionaryStatus(UserQuestionaryStatus.PUBLISHED);
 
         userQuestionaryRepository.save(existedQuestionary);
+
+        return existedQuestionary.getId();
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void moveFromDraft(UserQuestionary userQuestionary, String userId) {
+    public Long moveFromDraft(UserQuestionary userQuestionary, String userId) {
         userQuestionaryValidationService.validateOnMoveFromDraft(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -171,11 +177,13 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
         existedQuestionary.setQuestionaryStatus(answerWithSemanticRangingDoesExist ? UserQuestionaryStatus.ON_PROCESSING : UserQuestionaryStatus.PUBLISHED);
         userQuestionaryRepository.save(existedQuestionary);
+
+        return existedQuestionary.getId();
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void delete(UserQuestionary userQuestionary, String userId) {
+    public Long delete(UserQuestionary userQuestionary, String userId) {
         userQuestionaryValidationService.validateOnDelete(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -184,6 +192,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         userQuestionaryRepository.save(existedQuestionary);
 
         userQuestionaryAnswerRepository.deleteAllByUserQuestionaryId(existedQuestionary.getId());
+
+        return existedQuestionary.getId();
     }
 
     @Override

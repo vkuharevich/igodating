@@ -122,9 +122,9 @@ type QuestionView {
 }
 
 extend type Mutation {
-    createTemplate(template: QuestionaryTemplateCreateRequest!): Boolean
-    updateTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
-    deleteTemplate(template: QuestionaryTemplateUpdateRequest!): Boolean
-    createQuestionBlock(questionBlock: QuestionBlockCreateDto!): Boolean
-    updateQuestionBlock(questionBlock: QuestionBlockUpdateDto!): Boolean
+    createTemplate(template: QuestionaryTemplateCreateRequest!): Int
+    updateTemplate(template: QuestionaryTemplateUpdateRequest!): Int
+    deleteTemplate(template: QuestionaryTemplateUpdateRequest!): Int
+    createQuestionBlock(questionBlock: QuestionBlockCreateDto!): Int
+    updateQuestionBlock(questionBlock: QuestionBlockUpdateDto!): Int
 }

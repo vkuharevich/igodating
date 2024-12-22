@@ -1,16 +1,23 @@
 package com.igodating.questionary.service;
 
+import com.igodating.questionary.constant.SimilarityCalculatingOperator;
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
-import org.springframework.data.util.Pair;
+import com.igodating.questionary.model.view.UserQuestionaryRecommendationView;
+import org.springframework.data.domain.Slice;
 
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public interface UserQuestionaryService {
 
-    UserQuestionary getById(Long id);
+    <T> T getById(Long id, Function<UserQuestionary, T> mappingFunc);
 
-    List<UserQuestionaryAnswer> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId);
+    <T> List<T> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId, Function<UserQuestionaryAnswer, T> mappingFunc);
+
+    <T> Slice<T> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId, BiFunction<UserQuestionaryRecommendationView, SimilarityCalculatingOperator, T> mappingFunc);
 
     void createDraft(UserQuestionary userQuestionary, String userId);
 

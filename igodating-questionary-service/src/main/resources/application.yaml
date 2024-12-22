@@ -52,8 +52,6 @@ task:
   user-questionary-embedding-calculation-task:
     cron: 0 0/1 * * * ?
     batch-size: 100
-  questionary-template-cache-reloading-task:
-    cron: 0 0/10 * * * ?
 
 recommendation:
   similarity-calculating-operator: EUCLID

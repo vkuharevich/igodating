@@ -1,5 +1,7 @@
 package com.igodating.questionary.service.impl;
 
+import com.igodating.questionary.constant.SimilarityCalculatingOperator;
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
@@ -8,6 +10,7 @@ import com.igodating.questionary.model.constant.QuestionAnswerType;
 import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.model.constant.UserQuestionaryStatus;
+import com.igodating.questionary.model.view.UserQuestionaryRecommendationView;
 import com.igodating.questionary.repository.QuestionRepository;
 import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
@@ -16,7 +19,10 @@ import com.igodating.questionary.service.validation.UserQuestionaryValidationSer
 import com.igodating.questionary.util.EntitiesListChange;
 import com.igodating.questionary.util.ServiceUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -26,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,16 +48,31 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     private final UserQuestionaryValidationService userQuestionaryValidationService;
 
+    @Value("${recommendation.similarity-calculating-operator}")
+    private SimilarityCalculatingOperator similarityCalculatingOperator;
+
     @Override
     @Transactional(readOnly = true)
-    public UserQuestionary getById(Long id) {
-        return userQuestionaryRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found by id"));
+    public <T> T getById(Long id, Function<UserQuestionary, T> mappingFunc) {
+        return userQuestionaryRepository.findById(id).map(mappingFunc).orElseThrow(() -> new RuntimeException("Entity not found by id"));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserQuestionaryAnswer> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId) {
-        return userQuestionaryAnswerRepository.findAllNotDeletedByQuestionaryTemplateIdAndUserIdAndRuleAccessType(templateId, userId, RuleAccessType.PUBLIC);
+    public <T> List<T> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId, Function<UserQuestionaryAnswer, T> mappingFunc) {
+        return userQuestionaryAnswerRepository.findAllNotDeletedByQuestionaryTemplateIdAndUserIdAndRuleAccessType(templateId, userId, RuleAccessType.PUBLIC).stream().map(mappingFunc).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <T> Slice<T> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId, BiFunction<UserQuestionaryRecommendationView, SimilarityCalculatingOperator, T> mappingFunc) {
+        userQuestionaryValidationService.validateUserQuestionaryFilter(filter, userId);
+
+        UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new RuntimeException("Entity not found by id"));
+
+        Slice<UserQuestionaryRecommendationView> recommendations = userQuestionaryRepository.findRecommendations(forQuestionary, filter.userFilters(), similarityCalculatingOperator, filter.limit(), filter.offset());
+
+        return new SliceImpl<>(recommendations.getContent().stream().map((r) -> mappingFunc.apply(r, similarityCalculatingOperator)).toList(), recommendations.getPageable(), recommendations.hasNext());
     }
 
     @Override
@@ -174,14 +196,6 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         existedQuestionary.setQuestionaryStatus(UserQuestionaryStatus.PUBLISHED);
 
         userQuestionaryRepository.save(existedQuestionary);
-
-        Map<Long, UserQuestionaryAnswer> existedAnswersIdMap = existedQuestionary.getAnswers().stream().collect(Collectors.toMap(UserQuestionaryAnswer::getId, Function.identity()));
-        for (UserQuestionaryAnswer userQuestionaryAnswer : userQuestionary.getAnswers()) {
-            UserQuestionaryAnswer existedAnswer = existedAnswersIdMap.get(userQuestionaryAnswer.getId());
-            existedAnswer.setEmbedding(userQuestionaryAnswer.getEmbedding());
-        }
-
-        userQuestionaryAnswerRepository.saveAll(existedQuestionary.getAnswers());
     }
 
     @Override

@@ -1,34 +1,26 @@
-package com.igodating.questionary.service.impl;
+package com.igodating.questionary.repository.impl;
 
 import com.igodating.questionary.constant.CommonConstants;
 import com.igodating.questionary.constant.SimilarityCalculatingOperator;
-import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.dto.filter.UserQuestionaryFilterItem;
-import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
-import com.igodating.questionary.exception.ValidationException;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.RuleMatchingType;
-import com.igodating.questionary.repository.UserQuestionaryRepository;
-import com.igodating.questionary.service.UserQuestionaryRecommendationService;
-import com.igodating.questionary.service.cache.QuestionaryTemplateCacheService;
-import com.igodating.questionary.service.validation.UserQuestionaryFilterValidationService;
+import com.igodating.questionary.model.view.UserQuestionaryRecommendationView;
+import com.igodating.questionary.repository.ExtendedUserQuestionaryRepository;
+import com.igodating.questionary.repository.QuestionaryTemplateRepository;
 import com.igodating.questionary.util.tsquery.TsQueryConverter;
 import com.igodating.questionary.util.val.DefaultValueExtractor;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
@@ -41,9 +33,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Service
 @RequiredArgsConstructor
-public class UserQuestionaryRecommendationServiceImpl implements UserQuestionaryRecommendationService {
+public class ExtendedUserQuestionaryRepositoryImpl implements ExtendedUserQuestionaryRepository {
 
     private static final String SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT = """
             select uq.id, uq.user_id, cast(%s as float) as calculated_similarity from user_questionary uq
@@ -116,30 +107,18 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
             group by uq.id
             """;
 
-    private final UserQuestionaryRepository userQuestionaryRepository;
-
-    private final QuestionaryTemplateCacheService questionaryTemplateCacheService;
-
-    private final UserQuestionaryFilterValidationService userQuestionaryFilterValidationService;
+    private final QuestionaryTemplateRepository questionaryTemplateRepository;
 
     private final TsQueryConverter tsQueryConverter;
 
     private final DefaultValueExtractor defaultValueExtractor;
 
-    @Value("${recommendation.similarity-calculating-operator}")
-    private SimilarityCalculatingOperator similarityCalculatingOperator;
-
     @PersistenceContext
     private EntityManager em;
 
     @Override
-    @Transactional(readOnly = true)
-    public Slice<UserQuestionaryRecommendation> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId) {
-        userQuestionaryFilterValidationService.validateUserQuestionaryFilter(filter, userId);
-
-        UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new ValidationException("Entity not found by id"));
-
-        QuestionaryTemplate questionaryTemplate = questionaryTemplateCacheService.getById(forQuestionary.getQuestionaryTemplateId());
+    public Slice<UserQuestionaryRecommendationView> findRecommendations(UserQuestionary forQuestionary, List<UserQuestionaryFilterItem> userFilters, SimilarityCalculatingOperator similarityCalculatingOperator, int limit, int offset) {
+        QuestionaryTemplate questionaryTemplate = em.find(QuestionaryTemplate.class, forQuestionary.getQuestionaryTemplateId(), Map.of(CommonConstants.FETCH_GRAPH_PROPERTY_KEY, em.getEntityGraph("questionaryTemplate")));
         List<Question> questionsFromTemplate = questionaryTemplate.getQuestions();
 
         Map<Long, MatchingRule> matchingRuleQuestionIdMap = questionsFromTemplate.stream().map(Question::getMatchingRule).collect(Collectors.toMap(MatchingRule::getQuestionId, v -> v));
@@ -149,7 +128,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         }
 
         List<MatchingRule> mandatoryMatchingRules = matchingRuleQuestionIdMap.values().stream().filter(mr -> Boolean.TRUE.equals(mr.getIsMandatoryForMatching())).toList();
-        List<MatchingRule> userMatchingRules = filter.userFilters() == null ? new ArrayList<>() : filter.userFilters().stream().map(questionFilter -> matchingRuleQuestionIdMap.get(questionFilter.questionId())).toList();
+        List<MatchingRule> userMatchingRules = userFilters == null ? new ArrayList<>() : userFilters.stream().map(questionFilter -> matchingRuleQuestionIdMap.get(questionFilter.questionId())).toList();
         boolean semanticIsPresent = mandatoryMatchingRules.stream().anyMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
         boolean mandatoryMatchingRulesAreSemanticOnly = mandatoryMatchingRules.stream().allMatch(mr -> RuleMatchingType.SEMANTIC_RANGING.equals(mr.getMatchingType()));
 
@@ -185,7 +164,7 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
 
             Set<MatchingRule> allRules = new HashSet<>(mandatoryMatchingRules);
             allRules.addAll(userMatchingRules);
-            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, filter.userFilters(), questionsFromTemplate, forQuestionary);
+            Pair<String, Map<String, Object>> questionsOrPredicateAndParamMap = toQuestionsOrPredicateAndParamMap(allRules, userFilters, questionsFromTemplate, forQuestionary);
 
             if (!questionsOrPredicateAndParamMap.getFirst().isEmpty()) {
                 predicates.add(questionsOrPredicateAndParamMap.getFirst());
@@ -219,12 +198,12 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         var query = em.createNativeQuery(sql.toString(), Object[].class);
         params.forEach(query::setParameter);
 
-        int limitWithExtra = filter.limit() + 1;
-        query.setFirstResult(filter.offset());
+        int limitWithExtra = limit + 1;
+        query.setFirstResult(offset);
         query.setMaxResults(limitWithExtra);
 
-        List<UserQuestionaryRecommendation> resultList = query.getResultStream().map(
-                rs -> build((Object[]) rs, similarityCalculatingOperator)
+        List<UserQuestionaryRecommendationView> resultList = query.getResultStream().map(
+                rs -> build((Object[]) rs)
         ).toList();
 
         return new SliceImpl<>(resultList, resultList.isEmpty() ? Pageable.unpaged() : Pageable.ofSize(resultList.size()), limitWithExtra == resultList.size());
@@ -374,27 +353,11 @@ public class UserQuestionaryRecommendationServiceImpl implements UserQuestionary
         return Pair.of(predicate, params);
     }
 
-    private UserQuestionaryRecommendation build(Object[] result, SimilarityCalculatingOperator similarityCalculatingOperator) {
+    private UserQuestionaryRecommendationView build(Object[] result) {
         Long userQuestionaryId = (Long) result[0];
         String userId = (String) result[1];
         Double similarity = (Double) result[2];
 
-        return new UserQuestionaryRecommendation(userQuestionaryId, userId, similarity, getSimilarityPercentageBySimilarityCalculatingOperator(similarity, similarityCalculatingOperator));
-    }
-
-    private Integer getSimilarityPercentageBySimilarityCalculatingOperator(Double similarity, SimilarityCalculatingOperator similarityCalculatingOperator) {
-        switch (similarityCalculatingOperator) {
-            case EUCLID -> {
-                double score = 1 - similarity;
-                return score > 0 ? (int) (score * 100) : 0;
-            }
-            case COSINE -> {
-                return (int) (((Math.PI - Math.acos(similarity)) * 100) / Math.PI);
-            }
-            case SCALAR -> {
-                return (int) (similarity * -1 * 100);
-            }
-        }
-        return 100;
+        return new UserQuestionaryRecommendationView(userQuestionaryId, userId, similarity);
     }
 }

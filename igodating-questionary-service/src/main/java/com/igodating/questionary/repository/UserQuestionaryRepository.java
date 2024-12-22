@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserQuestionaryRepository extends JpaRepository<UserQuestionary, Long> {
+public interface UserQuestionaryRepository extends JpaRepository<UserQuestionary, Long>, ExtendedUserQuestionaryRepository {
 
     @EntityGraph("userQuestionary.answers")
     @NonNull

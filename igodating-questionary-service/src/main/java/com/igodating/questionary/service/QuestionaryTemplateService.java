@@ -5,14 +5,17 @@ import com.igodating.questionary.model.QuestionBlock;
 import com.igodating.questionary.model.QuestionaryTemplate;
 
 import java.util.List;
+import java.util.function.Function;
 
 public interface QuestionaryTemplateService {
 
-    QuestionaryTemplate getById(Long id);
+    <T> T getById(Long id, Function<QuestionaryTemplate, T> mappingFunc);
 
-    List<Question> getAllQuestionsFromBlock(Long questionBlockId);
+    <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc);
 
-    List<QuestionaryTemplate> getAll();
+    <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc);
+
+    <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc);
 
     void create(QuestionaryTemplate questionaryTemplate);
 

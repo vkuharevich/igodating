@@ -8,7 +8,6 @@ import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendati
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
 import com.igodating.questionary.mapper.UserQuestionaryAnswerMapper;
 import com.igodating.questionary.mapper.UserQuestionaryMapper;
-import com.igodating.questionary.service.UserQuestionaryRecommendationService;
 import com.igodating.questionary.service.UserQuestionaryService;
 import com.igodating.questionary.util.CurrentUserInfo;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ public class UserQuestionaryController {
 
     private final UserQuestionaryAnswerMapper userQuestionaryAnswerMapper;
 
-    private final UserQuestionaryRecommendationService userQuestionaryRecommendationService;
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
@@ -63,14 +61,11 @@ public class UserQuestionaryController {
 
     @QueryMapping
     public SliceResponse<UserQuestionaryRecommendation> recommendations(@Argument UserQuestionaryRecommendationRequest request) {
-        return new SliceResponse<>(userQuestionaryRecommendationService.findRecommendations(request, CurrentUserInfo.getUserId()));
+        return new SliceResponse<>(userQuestionaryService.findRecommendations(request, CurrentUserInfo.getUserId(), userQuestionaryMapper::recommendationViewToDto));
     }
 
     @QueryMapping
     public List<PublicFilterDescriptorDto> publicFilters(@Argument Long questionaryTemplateId) {
-        return userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId())
-                .stream()
-                .map(userQuestionaryAnswerMapper::modelToPublicDescriptorDto)
-                .toList();
+        return userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId(), userQuestionaryAnswerMapper::modelToPublicDescriptorDto);
     }
 }

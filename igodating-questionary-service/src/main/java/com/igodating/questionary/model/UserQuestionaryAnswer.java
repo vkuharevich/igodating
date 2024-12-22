@@ -60,10 +60,6 @@ public class UserQuestionaryAnswer implements Identifiable<Long> {
     @Type(PostgreSQLTSVectorType.class)
     private String tsVectorValue;
 
-    @JdbcTypeCode(SqlTypes.VECTOR)
-    @Array(length = 512)
-    private float[] embedding;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -41,12 +41,9 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
     }
 
     private void handleQuestionary(UserQuestionary questionary) {
-        Map<Long, UserQuestionaryAnswer> answersIdMap = new HashMap<>();
-
         List<UserQuestionaryAnswer> answersInFreeFormAndSemanticMatchingRule = questionary.getAnswers()
                 .stream()
                 .filter(answer -> {
-                    answersIdMap.put(answer.getId(), answer);
                     Question question = answer.getQuestion();
                     MatchingRule matchingRule = question.getMatchingRule();
                     return matchingRule != null && RuleMatchingType.SEMANTIC_RANGING.equals(matchingRule.getMatchingType());
@@ -66,10 +63,6 @@ public class UserQuestionaryEmbeddingCalculationTaskImpl implements UserQuestion
         TextEmbeddingResponse response = textEmbeddingService.getEmbeddings(new TextEmbeddingRequest(requestItems));
 
         questionary.setEmbedding(response.globalEmbedding());
-        response.sentences().forEach(resultItem -> {
-            UserQuestionaryAnswer answer = answersIdMap.get(Long.parseLong(resultItem.sentenceId()));
-            answer.setEmbedding(resultItem.embedding());
-        });
 
         userQuestionaryService.updateEmbeddingAndSetProcessed(questionary);
     }

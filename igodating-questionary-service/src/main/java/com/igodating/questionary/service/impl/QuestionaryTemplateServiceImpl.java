@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -42,20 +43,26 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional(readOnly = true)
-    public QuestionaryTemplate getById(Long id) {
-        return questionaryTemplateRepository.findById(id).orElseThrow(() -> new RuntimeException("Entity not found"));
+    public <T> T getById(Long id, Function<QuestionaryTemplate, T> mappingFunc) {
+        return questionaryTemplateRepository.findById(id).map(mappingFunc).orElseThrow(() -> new RuntimeException("Entity not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Question> getAllQuestionsFromBlock(Long questionBlockId) {
-        return questionRepository.findAllByQuestionBlockId(questionBlockId);
+    public <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc) {
+        return questionRepository.findAllByQuestionBlockId(questionBlockId).stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<QuestionaryTemplate> getAll() {
-        return questionaryTemplateRepository.findAll();
+    public <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc) {
+        return questionBlockRepository.findAllByQuestionaryTemplateId(templateId).stream().map(mappingFunc).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc) {
+        return questionaryTemplateRepository.findAll().stream().map(mappingFunc).toList();
     }
 
     @Override

@@ -1,8 +1,11 @@
 package com.igodating.questionary.service.validation;
 
+import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.model.UserQuestionary;
 
 public interface UserQuestionaryValidationService {
+
+    void validateUserQuestionaryFilter(UserQuestionaryRecommendationRequest filter, String userId);
 
     void validateOnDelete(UserQuestionary userQuestionary, String userId);
 

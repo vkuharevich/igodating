@@ -72,6 +72,10 @@ input QuestionaryTemplateUpdateRequest {
     questions: [QuestionUpdateDto]
 }
 
+input QuestionaryTemplateDeleteRequest {
+    id: Int!
+}
+
 type QuestionaryTemplateView {
     id: Int
     name: String
@@ -124,7 +128,14 @@ type QuestionView {
 extend type Mutation {
     createTemplate(template: QuestionaryTemplateCreateRequest!): Int
     updateTemplate(template: QuestionaryTemplateUpdateRequest!): Int
-    deleteTemplate(template: QuestionaryTemplateUpdateRequest!): Int
+    deleteTemplate(template: QuestionaryTemplateDeleteRequest!): Int
     createQuestionBlock(questionBlock: QuestionBlockCreateDto!): Int
     updateQuestionBlock(questionBlock: QuestionBlockUpdateDto!): Int
+}
+
+extend type Query {
+    questionaryTemplate(templateId: Int!): QuestionaryTemplateView
+    questionsFromBlock(questionBlockId: Int!): [QuestionView]
+    questionsWithoutBlock(templateId: Int!): [QuestionView]
+    questionBlocks(templateId: Int!): [QuestionBlockView]
 }

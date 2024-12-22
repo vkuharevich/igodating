@@ -32,6 +32,14 @@ input UserQuestionaryUpdateRequest {
     answers: [UserQuestionaryAnswerUpdateDto]
 }
 
+input UserQuestionaryDeleteRequest {
+    id: Int!
+}
+
+input UserQuestionaryMoveFromDraftRequest {
+    id: Int!
+}
+
 type UserQuestionaryView {
     id: Int
     title: String
@@ -79,13 +87,14 @@ type RecommendationsSliceResponse {
 }
 
 extend type Query {
+    userQuestionary(questionaryId: Int!): UserQuestionaryView
     recommendations(request: UserQuestionaryFilter!): RecommendationsSliceResponse
     publicFilters(questionaryTemplateId: Int!): [PublicFilterDescriptorDto]
 }
 
 extend type Mutation {
-    createQuestionary(questionary: UserQuestionaryCreateRequest!): Boolean
-    updateQuestionary(questionary: UserQuestionaryUpdateRequest!): Boolean
-    deleteQuestionary(questionary: UserQuestionaryUpdateRequest!): Boolean
-    moveFromDraft(questionary: UserQuestionaryUpdateRequest!): Boolean
+    createQuestionary(questionary: UserQuestionaryCreateRequest!): Int
+    updateQuestionary(questionary: UserQuestionaryUpdateRequest!): Int
+    deleteQuestionary(questionary: UserQuestionaryDeleteRequest!): Int
+    moveFromDraft(questionary: UserQuestionaryMoveFromDraftRequest!): Int
 }

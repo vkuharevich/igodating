@@ -55,6 +55,12 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional(readOnly = true)
+    public <T> List<T> getAllQuestionsWithoutBlock(Long questionTemplateId, Function<Question, T> mappingFunc) {
+        return questionRepository.findAllByQuestionaryTemplateIdAndQuestionBlockIdIsNull(questionTemplateId).stream().map(mappingFunc).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc) {
         return questionBlockRepository.findAllByQuestionaryTemplateId(templateId).stream().map(mappingFunc).toList();
     }

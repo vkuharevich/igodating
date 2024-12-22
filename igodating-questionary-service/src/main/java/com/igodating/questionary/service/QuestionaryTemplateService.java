@@ -13,6 +13,8 @@ public interface QuestionaryTemplateService {
 
     <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc);
 
+    <T> List<T> getAllQuestionsWithoutBlock(Long questionTemplateId, Function<Question, T> mappingFunc);
+
     <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc);
 
     <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc);

@@ -31,6 +31,9 @@ enum UserQuestionaryStatus {
 
 type Query {
     answerTypes: [QuestionAnswerType]
+    ruleAccessTypes: [RuleAccessType]
+    ruleMatchingTypes: [RuleMatchingType]
+    userQuestionaryStatuses: [UserQuestionaryStatus]
 }
 
 type Mutation {

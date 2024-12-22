@@ -4,8 +4,11 @@ import com.igodating.questionary.dto.SliceResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.dto.template.PublicFilterDescriptorDto;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryDeleteRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryMoveFromDraftRequest;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryView;
 import com.igodating.questionary.mapper.UserQuestionaryAnswerMapper;
 import com.igodating.questionary.mapper.UserQuestionaryMapper;
 import com.igodating.questionary.service.UserQuestionaryService;
@@ -45,14 +48,14 @@ public class UserQuestionaryController {
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long deleteQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
-        return userQuestionaryService.delete(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
+    public Long deleteQuestionary(@Argument UserQuestionaryDeleteRequest questionary) {
+        return userQuestionaryService.delete(userQuestionaryMapper.deleteRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @MutationMapping
 //    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long moveFromDraft(@Argument UserQuestionaryUpdateRequest questionary) {
-        return userQuestionaryService.moveFromDraft(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
+    public Long moveFromDraft(@Argument UserQuestionaryMoveFromDraftRequest questionary) {
+        return userQuestionaryService.moveFromDraft(userQuestionaryMapper.moveFromDraftRequestToModel(questionary), CurrentUserInfo.getUserId());
     }
 
     @QueryMapping
@@ -63,5 +66,10 @@ public class UserQuestionaryController {
     @QueryMapping
     public List<PublicFilterDescriptorDto> publicFilters(@Argument Long questionaryTemplateId) {
         return userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId(), userQuestionaryAnswerMapper::modelToPublicDescriptorDto);
+    }
+
+    @QueryMapping
+    public UserQuestionaryView userQuestionary(@Argument Long questionaryId) {
+        return userQuestionaryService.getById(questionaryId, userQuestionaryMapper::modelToView);
     }
 }

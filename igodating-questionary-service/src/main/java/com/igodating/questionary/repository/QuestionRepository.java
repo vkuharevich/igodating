@@ -23,5 +23,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @EntityGraph("question")
     List<Question> findAllByQuestionBlockId(Long questionBlockId);
 
+    @EntityGraph("question")
+    List<Question> findAllByQuestionaryTemplateIdAndQuestionBlockIdIsNull(Long questionaryTemplateId);
+
     void deleteAllByQuestionaryTemplateId(Long questionaryTemplateId);
 }

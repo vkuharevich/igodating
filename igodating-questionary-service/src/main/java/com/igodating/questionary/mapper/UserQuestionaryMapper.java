@@ -2,6 +2,8 @@ package com.igodating.questionary.mapper;
 
 import com.igodating.questionary.constant.SimilarityCalculatingOperator;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryDeleteRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryMoveFromDraftRequest;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
 import com.igodating.questionary.dto.userquestionary.UserQuestionaryView;
@@ -15,6 +17,10 @@ public interface UserQuestionaryMapper {
     UserQuestionary createRequestToModel(UserQuestionaryCreateRequest userQuestionary);
 
     UserQuestionary updateRequestToModel(UserQuestionaryUpdateRequest userQuestionary);
+
+    UserQuestionary deleteRequestToModel(UserQuestionaryDeleteRequest userQuestionary);
+
+    UserQuestionary moveFromDraftRequestToModel(UserQuestionaryMoveFromDraftRequest userQuestionary);
 
     UserQuestionaryView modelToView(UserQuestionary userQuestionary);
 

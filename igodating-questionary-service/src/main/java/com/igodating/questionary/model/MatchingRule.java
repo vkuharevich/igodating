@@ -1,5 +1,6 @@
 package com.igodating.questionary.model;
 
+import com.igodating.commons.model.Identifiable;
 import com.igodating.questionary.model.constant.RuleAccessType;
 import com.igodating.questionary.model.constant.RuleMatchingType;
 import jakarta.persistence.Column;

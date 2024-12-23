@@ -1,6 +1,6 @@
-package com.igodating.questionary.util;
+package com.igodating.commons.utils;
 
-import com.igodating.questionary.model.Identifiable;
+import com.igodating.commons.model.Identifiable;
 import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;

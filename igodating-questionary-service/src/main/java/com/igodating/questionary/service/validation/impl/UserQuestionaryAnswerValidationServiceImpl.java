@@ -1,6 +1,6 @@
 package com.igodating.questionary.service.validation.impl;
 
-import com.igodating.questionary.exception.ValidationException;
+import com.igodating.commons.exception.ValidationException;
 import com.igodating.questionary.model.Question;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;

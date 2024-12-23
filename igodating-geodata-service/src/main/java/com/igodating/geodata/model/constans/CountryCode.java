@@ -1,4 +1,4 @@
-package com.igodating.questionary.model.constant;
+package com.igodating.geodata.model.constans;
 
 public enum CountryCode {
 

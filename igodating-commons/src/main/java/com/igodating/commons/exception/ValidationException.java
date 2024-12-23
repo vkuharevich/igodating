@@ -1,4 +1,4 @@
-package com.igodating.questionary.exception;
+package com.igodating.commons.exception;
 
 import lombok.Getter;
 

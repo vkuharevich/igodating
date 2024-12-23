@@ -16,8 +16,8 @@ import com.igodating.questionary.repository.UserQuestionaryAnswerRepository;
 import com.igodating.questionary.repository.UserQuestionaryRepository;
 import com.igodating.questionary.service.UserQuestionaryService;
 import com.igodating.questionary.service.validation.UserQuestionaryValidationService;
-import com.igodating.questionary.util.EntitiesListChange;
-import com.igodating.questionary.util.ServiceUtils;
+import com.igodating.commons.utils.EntitiesListChange;
+import com.igodating.commons.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +30,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

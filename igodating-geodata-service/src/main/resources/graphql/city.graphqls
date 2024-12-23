@@ -1,0 +1,33 @@
+input CityCreateRequest {
+    name: String!
+    regionId: Int!
+}
+
+input CityUpdateRequest {
+    id: Int!
+    name: String!
+    regionId: Int!
+}
+
+input CityDeleteRequest {
+    id: Int!
+}
+
+type CityView {
+    id: Int
+    name: String
+    regionId: Int
+    region: RegionView
+    createdAt: String
+    deletedAt: String
+}
+
+extend type Query {
+    allCities: [CityView]
+}
+
+extend type Mutation {
+    createCity(city: CityCreateRequest!): Int
+    updateCity(city: CityUpdateRequest!): Int
+    deleteCity(city: CityDeleteRequest!): Int
+}

@@ -1,5 +1,7 @@
 package com.igodating.questionary.model;
 
+import com.igodating.commons.model.Identifiable;
+import com.igodating.commons.model.SoftDeletable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

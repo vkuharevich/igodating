@@ -1,6 +1,6 @@
-package com.igodating.questionary.util;
+package com.igodating.commons.utils;
 
-import com.igodating.questionary.model.Identifiable;
+import com.igodating.commons.model.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

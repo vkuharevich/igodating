@@ -1,4 +1,4 @@
-package com.igodating.questionary.model;
+package com.igodating.commons.model;
 
 public interface SoftDeletable {
     void setToDelete();

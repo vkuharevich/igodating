@@ -1,0 +1,42 @@
+server:
+  port: 8082
+
+spring:
+  graphql:
+    schema:
+      locations: classpath*:graphql/**/
+    graphiql:
+      enabled: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/IgodatingKeycloak
+      client:
+        registration:
+          keycloak:
+            client-authentication-method: client_secret_basic
+            client-id: igodating-geodata-service
+            authorization-grant-type: authorization_code
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/IgodatingKeycloak
+            user-name-attribute: preferred_username
+  application:
+    name: igowed-geodata-service
+  datasource:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 50
+    url: jdbc:postgresql://localhost:5432/igodating
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        default_schema: geodata
+        dialect: org.hibernate.dialect.PostgreSQLDialect

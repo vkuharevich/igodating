@@ -1,0 +1,44 @@
+enum CountryCode {
+    BY,
+    RU,
+    UA,
+    KZ,
+    LT,
+    LV,
+    EE,
+    MD,
+    PL
+}
+
+input CountryCreateRequest {
+    code: CountryCode!
+    name: String!
+}
+
+input CountryUpdateRequest {
+    id: Int!
+    code: CountryCode!
+    name: String!
+}
+
+input CountryDeleteRequest {
+    id: Int!
+}
+
+type CountryView {
+    id: Int
+    code: CountryCode
+    name: String
+    createdAt: String
+    deletedAt: String
+}
+
+extend type Query {
+    allCountries: [CountryView]
+}
+
+extend type Mutation {
+    createCountry(country: CountryCreateRequest!): Int
+    updateCountry(country: CountryUpdateRequest!): Int
+    deleteCountry(country: CountryDeleteRequest!): Int
+}

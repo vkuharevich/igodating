@@ -1,0 +1,33 @@
+input RegionCreateRequest {
+    name: String!
+    countryId: Int!
+}
+
+input RegionUpdateRequest {
+    id: Int!
+    name: String!
+    countryId: Int!
+}
+
+input RegionDeleteRequest {
+    id: Int!
+}
+
+type RegionView {
+    id: Int
+    name: String
+    countryId: Int
+    country: CountryView
+    createdAt: String
+    deletedAt: String
+}
+
+extend type Query {
+    allRegions: [RegionView]
+}
+
+extend type Mutation {
+    createRegion(region: RegionCreateRequest!): Int
+    updateRegion(region: RegionUpdateRequest!): Int
+    deleteRegion(region: RegionDeleteRequest!): Int
+}

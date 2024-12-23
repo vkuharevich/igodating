@@ -1,5 +1,7 @@
-package com.igodating.questionary.model;
+package com.igodating.geodata.model;
 
+import com.igodating.commons.model.Identifiable;
+import com.igodating.commons.model.SoftDeletable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,12 +22,15 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "region")
+@Table(name = "city")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
-public class Region implements SoftDeletable, Identifiable<Long> {
+@NamedEntityGraph(name = "city", attributeNodes = {
+        @NamedAttributeNode("region")
+})
+public class City implements SoftDeletable, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,12 +38,12 @@ public class Region implements SoftDeletable, Identifiable<Long> {
 
     private String name;
 
-    @Column(name = "country_id")
-    private Long countryId;
+    @Column(name = "region_id")
+    private Long regionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "country_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Country country;
+    @JoinColumn(name = "region_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Region region;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -48,8 +55,8 @@ public class Region implements SoftDeletable, Identifiable<Long> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Region region = (Region) o;
-        return Objects.equals(id, region.id);
+        City city = (City) o;
+        return Objects.equals(id, city.id);
     }
 
     @Override

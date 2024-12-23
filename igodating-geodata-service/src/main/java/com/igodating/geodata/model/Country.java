@@ -1,6 +1,8 @@
-package com.igodating.questionary.model;
+package com.igodating.geodata.model;
 
-import com.igodating.questionary.model.constant.CountryCode;
+import com.igodating.commons.model.Identifiable;
+import com.igodating.commons.model.SoftDeletable;
+import com.igodating.geodata.model.constans.CountryCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

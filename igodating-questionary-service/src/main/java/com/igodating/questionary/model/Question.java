@@ -1,5 +1,6 @@
 package com.igodating.questionary.model;
 
+import com.igodating.commons.model.Identifiable;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
 import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.Column;

@@ -107,8 +107,6 @@ public class ExtendedUserQuestionaryRepositoryImpl implements ExtendedUserQuesti
             group by uq.id
             """;
 
-    private final QuestionaryTemplateRepository questionaryTemplateRepository;
-
     private final TsQueryConverter tsQueryConverter;
 
     private final DefaultValueExtractor defaultValueExtractor;

@@ -11,9 +11,9 @@ public interface CityService {
 
     <T> List<T> getAll(Function<City, T> mappingFunc);
 
-    Long create(City city);
+    <T> Long create(T cityCreateRequest, Function<T, City> mappingFunc);
 
-    Long update(City city);
+    <T> Long update(T cityUpdateRequest, Function<T, City> mappingFunc);
 
-    Long delete(City city);
+    <T> Long delete(T cityDeleteRequest, Function<T, City> mappingFunc);
 }

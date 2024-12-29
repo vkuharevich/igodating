@@ -14,14 +14,20 @@ import com.igodating.questionary.mapper.QuestionaryTemplateMapper;
 import com.igodating.questionary.service.QuestionaryTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/questionary-template")
 @RequiredArgsConstructor
 @Slf4j
 public class QuestionaryTemplateController {
@@ -34,51 +40,48 @@ public class QuestionaryTemplateController {
 
     private final QuestionBlockMapper questionBlockMapper;
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Long createTemplate(@Argument QuestionaryTemplateCreateRequest template) {
-        return questionaryTemplateService.create(questionaryTemplateMapper.createRequestToModel(template));
+    @GetMapping("/{id}")
+    public ResponseEntity<QuestionaryTemplateView> questionaryTemplate(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(questionaryTemplateService.getById(id, questionaryTemplateMapper::modelToView));
     }
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Long updateTemplate(@Argument QuestionaryTemplateUpdateRequest template) {
-        return questionaryTemplateService.update(questionaryTemplateMapper.updateRequestToModel(template));
+    @GetMapping("/question-block/{questionBlockId}")
+    public ResponseEntity<List<QuestionView>> questionsFromBlock(@PathVariable("questionBlockId") Long questionBlockId) {
+        return ResponseEntity.ok(questionaryTemplateService.getAllQuestionsFromBlock(questionBlockId, questionMapper::modelToView));
     }
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_QUESTIONARY_TEMPLATE")
-    public Long deleteTemplate(@Argument QuestionaryTemplateDeleteRequest template) {
-        return questionaryTemplateService.delete(questionaryTemplateMapper.deleteRequestToModel(template));
+    @GetMapping("/{id}/questions-without-block")
+    public ResponseEntity<List<QuestionView>> questionsWithoutBlock(@PathVariable("id") Long templateId) {
+        return ResponseEntity.ok(questionaryTemplateService.getAllQuestionsWithoutBlock(templateId, questionMapper::modelToView));
     }
 
-    @MutationMapping
-    public Long createQuestionBlock(@Argument QuestionBlockCreateDto questionBlock) {
-        return questionaryTemplateService.createQuestionBlock(questionBlockMapper.createRequestToModel(questionBlock));
+    @GetMapping("/{id}/question-blocks")
+    public ResponseEntity<List<QuestionBlockView>> questionBlocks(@PathVariable("id") Long templateId) {
+        return ResponseEntity.ok(questionaryTemplateService.getAllQuestionBlocksByTemplateId(templateId, questionBlockMapper::modelToView));
     }
 
-    @MutationMapping
-    public Long updateQuestionBlock(@Argument QuestionBlockUpdateDto questionBlock) {
-        return questionaryTemplateService.updateQuestionBlock(questionBlockMapper.updateRequestToModel(questionBlock));
+    @PostMapping
+    public ResponseEntity<Long> createTemplate(@RequestBody QuestionaryTemplateCreateRequest template) {
+        return ResponseEntity.ok(questionaryTemplateService.create(template, questionaryTemplateMapper::createRequestToModel));
     }
 
-    @QueryMapping
-    public QuestionaryTemplateView questionaryTemplate(@Argument Long templateId) {
-        return questionaryTemplateService.getById(templateId, questionaryTemplateMapper::modelToView);
+    @PutMapping
+    public ResponseEntity<Long> updateTemplate(@RequestBody QuestionaryTemplateUpdateRequest template) {
+        return ResponseEntity.ok(questionaryTemplateService.update(template, questionaryTemplateMapper::updateRequestToModel));
     }
 
-    @QueryMapping
-    public List<QuestionView> questionsFromBlock(@Argument Long questionBlockId) {
-        return questionaryTemplateService.getAllQuestionsFromBlock(questionBlockId, questionMapper::modelToView);
+    @DeleteMapping
+    public ResponseEntity<Long> deleteTemplate(@RequestBody QuestionaryTemplateDeleteRequest template) {
+        return ResponseEntity.ok(questionaryTemplateService.delete(template, questionaryTemplateMapper::deleteRequestToModel));
     }
 
-    @QueryMapping
-    public List<QuestionView> questionsWithoutBlock(@Argument Long templateId) {
-        return questionaryTemplateService.getAllQuestionsWithoutBlock(templateId, questionMapper::modelToView);
+    @PostMapping("/question-block")
+    public ResponseEntity<Long> createQuestionBlock(@RequestBody QuestionBlockCreateDto questionBlock) {
+        return ResponseEntity.ok(questionaryTemplateService.createQuestionBlock(questionBlock, questionBlockMapper::createRequestToModel));
     }
 
-    @QueryMapping
-    public List<QuestionBlockView> questionBlocks(@Argument Long templateId) {
-        return questionaryTemplateService.getAllQuestionBlocksByTemplateId(templateId, questionBlockMapper::modelToView);
+    @PutMapping("/question-block")
+    public ResponseEntity<Long> updateQuestionBlock(@RequestBody QuestionBlockUpdateDto questionBlock) {
+        return ResponseEntity.ok(questionaryTemplateService.updateQuestionBlock(questionBlock, questionBlockMapper::updateRequestToModel));
     }
 }

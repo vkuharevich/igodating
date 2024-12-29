@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -37,7 +38,9 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public Long create(Region region) {
+    public <T> Long create(T regionCreateRequest, Function<T, Region> mappingFunc) {
+        Region region = Optional.of(regionCreateRequest).map(mappingFunc).orElse(null);
+
         regionValidationService.validateOnCreate(region);
 
         regionRepository.save(region);
@@ -47,7 +50,9 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public Long update(Region region) {
+    public <T> Long update(T regionUpdateRequest, Function<T, Region> mappingFunc) {
+        Region region = Optional.of(regionUpdateRequest).map(mappingFunc).orElse(null);
+
         regionValidationService.validateOnUpdate(region);
 
         regionRepository.save(region);
@@ -57,7 +62,9 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public Long delete(Region region) {
+    public <T> Long delete(T regionDeleteRequest, Function<T, Region> mappingFunc) {
+        Region region = Optional.of(regionDeleteRequest).map(mappingFunc).orElse(null);
+
         regionValidationService.validateOnDelete(region);
 
         Long id = region.getId();

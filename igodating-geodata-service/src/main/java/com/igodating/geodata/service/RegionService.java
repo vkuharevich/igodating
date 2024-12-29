@@ -11,9 +11,9 @@ public interface RegionService {
 
     <T> List<T> getAll(Function<Region, T> mappingFunc);
 
-    Long create(Region region);
+    <T> Long create(T regionCreateRequest, Function<T, Region> mappingFunc);
 
-    Long update(Region region);
+    <T> Long update(T regionUpdateRequest, Function<T, Region> mappingFunc);
 
-    Long delete(Region region);
+    <T> Long delete(T regionDeleteRequest, Function<T, Region> mappingFunc);
 }

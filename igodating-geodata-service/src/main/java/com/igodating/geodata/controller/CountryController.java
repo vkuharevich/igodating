@@ -8,14 +8,18 @@ import com.igodating.geodata.mapper.CountryMapper;
 import com.igodating.geodata.service.CountryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@Controller
+@RestController
+@RequestMapping("/api/country")
 @RequiredArgsConstructor
 @Slf4j
 public class CountryController {
@@ -24,23 +28,23 @@ public class CountryController {
 
     private final CountryMapper countryMapper;
 
-    @MutationMapping
-    public Long createCountry(@Argument CountryCreateRequest country) {
-        return countryService.create(countryMapper.createRequestToModel(country));
+    @GetMapping("/{id}")
+    public ResponseEntity<CountryView> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(countryService.getById(id, countryMapper::modelToView));
     }
 
-    @MutationMapping
-    public Long updateCountry(@Argument CountryUpdateRequest country) {
-        return countryService.update(countryMapper.updateRequestToModel(country));
+    @PostMapping
+    public Long createCountry(@RequestBody CountryCreateRequest countryCreateRequest) {
+        return countryService.create(countryCreateRequest, countryMapper::createRequestToModel);
     }
 
-    @MutationMapping
-    public Long deleteCountry(@Argument CountryDeleteRequest country) {
-        return countryService.delete(countryMapper.deleteRequestToModel(country));
+    @PutMapping
+    public Long updateCountry(@RequestBody CountryUpdateRequest countryUpdateRequest) {
+        return countryService.update(countryUpdateRequest, countryMapper::updateRequestToModel);
     }
 
-    @QueryMapping
-    public List<CountryView> allCountries() {
-        return countryService.getAll(countryMapper::modelToView);
+    @DeleteMapping
+    public Long deleteCountry(@RequestBody CountryDeleteRequest countryDeleteRequest) {
+        return countryService.delete(countryDeleteRequest, countryMapper::deleteRequestToModel);
     }
 }

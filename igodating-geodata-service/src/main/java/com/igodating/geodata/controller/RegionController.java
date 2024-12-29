@@ -8,14 +8,18 @@ import com.igodating.geodata.mapper.RegionMapper;
 import com.igodating.geodata.service.RegionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@Controller
+@RestController
+@RequestMapping("/api/region")
 @RequiredArgsConstructor
 @Slf4j
 public class RegionController {
@@ -24,23 +28,23 @@ public class RegionController {
 
     private final RegionMapper regionMapper;
 
-    @MutationMapping
-    public Long createRegion(@Argument RegionCreateRequest region) {
-        return regionService.create(regionMapper.createRequestToModel(region));
+    @GetMapping("/{id}")
+    public ResponseEntity<RegionView> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(regionService.getById(id, regionMapper::modelToView));
     }
 
-    @MutationMapping
-    public Long updateRegion(@Argument RegionUpdateRequest region) {
-        return regionService.update(regionMapper.updateRequestToModel(region));
+    @PostMapping
+    public ResponseEntity<Long> createRegion(@RequestBody RegionCreateRequest regionCreateRequest) {
+        return ResponseEntity.ok(regionService.create(regionCreateRequest, regionMapper::createRequestToModel));
     }
 
-    @MutationMapping
-    public Long deleteRegion(@Argument RegionDeleteRequest region) {
-        return regionService.delete(regionMapper.deleteRequestToModel(region));
+    @PutMapping
+    public ResponseEntity<Long> updateRegion(@RequestBody RegionUpdateRequest regionUpdateRequest) {
+        return ResponseEntity.ok(regionService.update(regionUpdateRequest, regionMapper::updateRequestToModel));
     }
 
-    @QueryMapping
-    public List<RegionView> allRegions() {
-        return regionService.getAll(regionMapper::modelToView);
+    @DeleteMapping
+    public ResponseEntity<Long> deleteRegion(@RequestBody RegionDeleteRequest regionDeleteRequest) {
+        return ResponseEntity.ok(regionService.delete(regionDeleteRequest, regionMapper::deleteRequestToModel));
     }
 }

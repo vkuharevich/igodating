@@ -15,14 +15,20 @@ import com.igodating.questionary.service.UserQuestionaryService;
 import com.igodating.questionary.util.CurrentUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/questionary")
 @RequiredArgsConstructor
 @Slf4j
 public class UserQuestionaryController {
@@ -33,43 +39,38 @@ public class UserQuestionaryController {
 
     private final UserQuestionaryAnswerMapper userQuestionaryAnswerMapper;
 
-
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long createQuestionary(@Argument UserQuestionaryCreateRequest questionary) {
-        return userQuestionaryService.createDraft(userQuestionaryMapper.createRequestToModel(questionary), CurrentUserInfo.getUserId());
+    @GetMapping("/{id}")
+    public ResponseEntity<UserQuestionaryView> userQuestionary(@PathVariable("id") Long questionaryId) {
+        return ResponseEntity.ok(userQuestionaryService.getById(questionaryId, userQuestionaryMapper::modelToView));
     }
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long updateQuestionary(@Argument UserQuestionaryUpdateRequest questionary) {
-        return userQuestionaryService.update(userQuestionaryMapper.updateRequestToModel(questionary), CurrentUserInfo.getUserId());
+    @GetMapping("/recommendations")
+    public ResponseEntity<SliceResponse<UserQuestionaryRecommendation>> recommendations(UserQuestionaryRecommendationRequest request) {
+        return ResponseEntity.ok(new SliceResponse<>(userQuestionaryService.findRecommendations(request, CurrentUserInfo.getUserId(), userQuestionaryMapper::recommendationViewToDto)));
     }
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long deleteQuestionary(@Argument UserQuestionaryDeleteRequest questionary) {
-        return userQuestionaryService.delete(userQuestionaryMapper.deleteRequestToModel(questionary), CurrentUserInfo.getUserId());
+    @GetMapping("/public-filters/{questionaryTemplateId}")
+    public ResponseEntity<List<PublicFilterDescriptorDto>> publicFilters(@PathVariable("questionaryTemplateId") Long questionaryTemplateId) {
+        return ResponseEntity.ok(userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId(), userQuestionaryAnswerMapper::modelToPublicDescriptorDto));
     }
 
-    @MutationMapping
-//    @Secured("ROLE_MANAGE_USER_QUESTIONARY")
-    public Long moveFromDraft(@Argument UserQuestionaryMoveFromDraftRequest questionary) {
-        return userQuestionaryService.moveFromDraft(userQuestionaryMapper.moveFromDraftRequestToModel(questionary), CurrentUserInfo.getUserId());
+    @PostMapping
+    public ResponseEntity<Long> createQuestionary(@RequestBody UserQuestionaryCreateRequest questionary) {
+        return ResponseEntity.ok(userQuestionaryService.createDraft(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::createRequestToModel));
     }
 
-    @QueryMapping
-    public SliceResponse<UserQuestionaryRecommendation> recommendations(@Argument UserQuestionaryRecommendationRequest request) {
-        return new SliceResponse<>(userQuestionaryService.findRecommendations(request, CurrentUserInfo.getUserId(), userQuestionaryMapper::recommendationViewToDto));
+    @PutMapping
+    public ResponseEntity<Long> updateQuestionary(@RequestBody UserQuestionaryUpdateRequest questionary) {
+        return ResponseEntity.ok(userQuestionaryService.update(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::updateRequestToModel));
     }
 
-    @QueryMapping
-    public List<PublicFilterDescriptorDto> publicFilters(@Argument Long questionaryTemplateId) {
-        return userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId(), userQuestionaryAnswerMapper::modelToPublicDescriptorDto);
+    @DeleteMapping
+    public ResponseEntity<Long> deleteQuestionary(@RequestBody UserQuestionaryDeleteRequest questionary) {
+        return ResponseEntity.ok(userQuestionaryService.delete(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::deleteRequestToModel));
     }
 
-    @QueryMapping
-    public UserQuestionaryView userQuestionary(@Argument Long questionaryId) {
-        return userQuestionaryService.getById(questionaryId, userQuestionaryMapper::modelToView);
+    @PutMapping("/publish")
+    public ResponseEntity<Long> moveFromDraft(@RequestBody UserQuestionaryMoveFromDraftRequest questionary) {
+        return ResponseEntity.ok(userQuestionaryService.moveFromDraft(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::moveFromDraftRequestToModel));
     }
 }

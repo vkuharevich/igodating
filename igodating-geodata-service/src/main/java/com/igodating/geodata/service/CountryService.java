@@ -11,9 +11,9 @@ public interface CountryService {
 
     <T> List<T> getAll(Function<Country, T> mappingFunc);
 
-    Long create(Country country);
+    <T> Long create(T countryCreateRequest, Function<T, Country> mappingFunc);
 
-    Long update(Country country);
+    <T> Long update(T countryUpdateRequest, Function<T, Country> mappingFunc);
 
-    Long delete(Country country);
+    <T> Long delete(T countryDeleteRequest, Function<T, Country> mappingFunc);
 }

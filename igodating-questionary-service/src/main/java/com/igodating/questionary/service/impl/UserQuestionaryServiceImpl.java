@@ -4,6 +4,7 @@ import com.igodating.questionary.constant.SimilarityCalculatingOperator;
 import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.model.MatchingRule;
 import com.igodating.questionary.model.Question;
+import com.igodating.questionary.model.QuestionaryTemplate;
 import com.igodating.questionary.model.UserQuestionary;
 import com.igodating.questionary.model.UserQuestionaryAnswer;
 import com.igodating.questionary.model.constant.QuestionAnswerType;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -75,7 +77,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional
-    public Long createDraft(UserQuestionary userQuestionary, String userId) {
+    public <T> Long createDraft(T userQuestionaryCreateRequest, String userId, Function<T, UserQuestionary> mappingFunc) {
+        UserQuestionary userQuestionary = Optional.of(userQuestionaryCreateRequest).map(mappingFunc).orElse(null);
         userQuestionary.setUserId(userId);
 
         userQuestionaryValidationService.validateOnCreate(userQuestionary);
@@ -96,7 +99,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Long update(UserQuestionary userQuestionary, String userId) {
+    public <T> Long update(T userQuestionaryUpdateRequest, String userId, Function<T, UserQuestionary> mappingFunc) {
+        UserQuestionary userQuestionary = Optional.of(userQuestionaryUpdateRequest).map(mappingFunc).orElse(null);
         userQuestionaryValidationService.validateOnUpdate(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -150,7 +154,7 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Long setStatusToPublished(UserQuestionary userQuestionary) {
+    public void setStatusToPublished(UserQuestionary userQuestionary) {
         userQuestionaryValidationService.validateOnSetStatusToPublished(userQuestionary);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -158,13 +162,12 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         existedQuestionary.setQuestionaryStatus(UserQuestionaryStatus.PUBLISHED);
 
         userQuestionaryRepository.save(existedQuestionary);
-
-        return existedQuestionary.getId();
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Long moveFromDraft(UserQuestionary userQuestionary, String userId) {
+    public <T> Long moveFromDraft(T userQuestionaryMoveFromDraftRequest, String userId, Function<T, UserQuestionary> mappingFunc) {
+        UserQuestionary userQuestionary = Optional.of(userQuestionaryMoveFromDraftRequest).map(mappingFunc).orElse(null);
         userQuestionaryValidationService.validateOnMoveFromDraft(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());
@@ -181,7 +184,8 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public Long delete(UserQuestionary userQuestionary, String userId) {
+    public <T> Long delete(T userQuestionaryDeleteRequest, String userId, Function<T, UserQuestionary> mappingFunc) {
+        UserQuestionary userQuestionary = Optional.of(userQuestionaryDeleteRequest).map(mappingFunc).orElse(null);
         userQuestionaryValidationService.validateOnDelete(userQuestionary, userId);
 
         UserQuestionary existedQuestionary = userQuestionaryRepository.getReferenceById(userQuestionary.getId());

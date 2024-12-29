@@ -19,13 +19,13 @@ public interface QuestionaryTemplateService {
 
     <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc);
 
-    Long create(QuestionaryTemplate questionaryTemplate);
+    <T> Long create(T questionaryTemplateCreateRequest, Function<T, QuestionaryTemplate> mappingFunc);
 
-    Long update(QuestionaryTemplate questionaryTemplate);
+    <T> Long update(T questionaryTemplateUpdateRequest, Function<T, QuestionaryTemplate> mappingFunc);
 
-    Long createQuestionBlock(QuestionBlock questionBlock);
+    <T> Long createQuestionBlock(T questionBlockCreateRequest, Function<T, QuestionBlock> mappingFunc);
 
-    Long updateQuestionBlock(QuestionBlock questionBlock);
+    <T> Long updateQuestionBlock(T questionBlockUpdateRequest, Function<T, QuestionBlock> mappingFunc);
 
-    Long delete(QuestionaryTemplate questionaryTemplate);
+    <T> Long delete(T questionaryTemplateDeleteRequest, Function<T, QuestionaryTemplate> mappingFunc);
 }

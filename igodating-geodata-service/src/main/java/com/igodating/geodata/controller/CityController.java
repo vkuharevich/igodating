@@ -8,14 +8,18 @@ import com.igodating.geodata.mapper.CityMapper;
 import com.igodating.geodata.service.CityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@Controller
+@RestController
+@RequestMapping("/api/city")
 @RequiredArgsConstructor
 @Slf4j
 public class CityController {
@@ -24,23 +28,23 @@ public class CityController {
 
     private final CityMapper cityMapper;
 
-    @MutationMapping
-    public Long createCity(@Argument CityCreateRequest city) {
-        return cityService.create(cityMapper.createRequestToModel(city));
+    @GetMapping("/{id}")
+    public ResponseEntity<CityView> getById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(cityService.getById(id, cityMapper::modelToView));
     }
 
-    @MutationMapping
-    public Long updateCity(@Argument CityUpdateRequest city) {
-        return cityService.update(cityMapper.updateRequestToModel(city));
+    @PostMapping
+    public ResponseEntity<Long> createCity(@RequestBody CityCreateRequest cityCreateRequest) {
+        return ResponseEntity.ok(cityService.create(cityCreateRequest, cityMapper::createRequestToModel));
     }
 
-    @MutationMapping
-    public Long deleteCity(@Argument CityDeleteRequest city) {
-        return cityService.delete(cityMapper.deleteRequestToModel(city));
+    @PutMapping
+    public ResponseEntity<Long> updateCity(@RequestBody CityUpdateRequest cityUpdateRequest) {
+        return ResponseEntity.ok(cityService.update(cityUpdateRequest, cityMapper::updateRequestToModel));
     }
 
-    @QueryMapping
-    public List<CityView> allCities() {
-        return cityService.getAll(cityMapper::modelToView);
+    @DeleteMapping
+    public ResponseEntity<Long> deleteCity(@RequestBody CityDeleteRequest cityDeleteRequest) {
+        return ResponseEntity.ok(cityService.delete(cityDeleteRequest, cityMapper::deleteRequestToModel));
     }
 }

@@ -19,15 +19,15 @@ public interface UserQuestionaryService {
 
     <T> Slice<T> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId, BiFunction<UserQuestionaryRecommendationView, SimilarityCalculatingOperator, T> mappingFunc);
 
-    Long createDraft(UserQuestionary userQuestionary, String userId);
+    <T> Long createDraft(T userQuestionaryCreateRequest, String userId, Function<T, UserQuestionary> mappingFunc);
 
-    Long update(UserQuestionary userQuestionary, String userId);
+    <T> Long update(T userQuestionaryUpdateRequest, String userId, Function<T, UserQuestionary> mappingFunc);
 
-    Long setStatusToPublished(UserQuestionary userQuestionary);
+    void setStatusToPublished(UserQuestionary userQuestionary);
 
-    Long moveFromDraft(UserQuestionary userQuestionary, String userId);
+    <T> Long moveFromDraft(T userQuestionaryMoveFromDraftRequest, String userId, Function<T, UserQuestionary> mappingFunc);
 
-    Long delete(UserQuestionary userQuestionary, String userId);
+    <T> Long delete(T userQuestionaryDeleteRequest, String userId, Function<T, UserQuestionary> mappingFunc);
 
     void updateEmbeddingAndSetProcessed(UserQuestionary userQuestionary);
 

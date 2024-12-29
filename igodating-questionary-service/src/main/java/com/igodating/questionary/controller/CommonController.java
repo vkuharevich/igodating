@@ -6,32 +6,34 @@ import com.igodating.questionary.model.constant.RuleMatchingType;
 import com.igodating.questionary.model.constant.UserQuestionaryStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/common")
 @RequiredArgsConstructor
 @Slf4j
 public class CommonController {
 
-    @QueryMapping
-//    @Secured("ROLE_VIEW_QUESTIONARY_TEMPLATE")
-    public QuestionAnswerType[] answerTypes() {
-        return QuestionAnswerType.values();
+    @GetMapping("/answer-types")
+    public ResponseEntity<QuestionAnswerType[]> answerTypes() {
+        return ResponseEntity.ok(QuestionAnswerType.values());
     }
 
-    @QueryMapping
-    public RuleAccessType[] ruleAccessTypes() {
-        return RuleAccessType.values();
+    @GetMapping("/rule-access-types")
+    public ResponseEntity<RuleAccessType[]> ruleAccessTypes() {
+        return ResponseEntity.ok(RuleAccessType.values());
     }
 
-    @QueryMapping
-    public RuleMatchingType[] ruleMatchingTypes() {
-        return RuleMatchingType.values();
+    @GetMapping("/rule-matching-types")
+    public ResponseEntity<RuleMatchingType[]> ruleMatchingTypes() {
+        return ResponseEntity.ok(RuleMatchingType.values());
     }
 
-    @QueryMapping
-    public UserQuestionaryStatus[] userQuestionaryStatuses() {
-        return UserQuestionaryStatus.values();
+    @GetMapping("/user-questionary-statuses")
+    public ResponseEntity<UserQuestionaryStatus[]> userQuestionaryStatuses() {
+        return ResponseEntity.ok(UserQuestionaryStatus.values());
     }
 }

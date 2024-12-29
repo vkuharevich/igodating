@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -34,7 +35,9 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public Long create(City city) {
+    public <T> Long create(T cityCreateRequest, Function<T, City> mappingFunc) {
+        City city = Optional.of(cityCreateRequest).map(mappingFunc).orElse(null);
+
         cityValidationService.validateOnCreate(city);
 
         cityRepository.save(city);
@@ -44,7 +47,9 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public Long update(City city) {
+    public <T> Long update(T cityUpdateRequest, Function<T, City> mappingFunc) {
+        City city = Optional.of(cityUpdateRequest).map(mappingFunc).orElse(null);
+
         cityValidationService.validateOnUpdate(city);
 
         cityRepository.save(city);
@@ -54,7 +59,9 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public Long delete(City city) {
+    public <T> Long delete(T cityDeleteRequest, Function<T, City> mappingFunc) {
+        City city = Optional.of(cityDeleteRequest).map(mappingFunc).orElse(null);
+
         cityValidationService.validateOnDelete(city);
 
         Long id = city.getId();

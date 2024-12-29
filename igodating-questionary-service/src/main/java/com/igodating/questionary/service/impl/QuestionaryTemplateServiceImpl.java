@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -73,7 +74,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public Long create(QuestionaryTemplate questionaryTemplate) {
+    public <T> Long create(T questionaryTemplateCreateRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateCreateRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnCreate(questionaryTemplate);
 
         questionaryTemplateRepository.save(questionaryTemplate);
@@ -87,7 +89,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public Long update(QuestionaryTemplate questionaryTemplate) {
+    public <T> Long update(T questionaryTemplateUpdateRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateUpdateRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnUpdate(questionaryTemplate);
 
         QuestionaryTemplate existedQuestionaryTemplate = questionaryTemplateRepository.getReferenceById(questionaryTemplate.getId());
@@ -124,7 +127,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public Long createQuestionBlock(QuestionBlock questionBlock) {
+    public <T> Long createQuestionBlock(T questionBlockCreateRequest, Function<T, QuestionBlock> mappingFunc) {
+        QuestionBlock questionBlock = Optional.of(questionBlockCreateRequest).map(mappingFunc).orElse(null);
         questionBlockValidationService.validateOnCreate(questionBlock);
 
         questionBlockRepository.save(questionBlock);
@@ -134,7 +138,8 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public Long updateQuestionBlock(QuestionBlock questionBlock) {
+    public <T> Long updateQuestionBlock(T questionBlockUpdateRequest, Function<T, QuestionBlock> mappingFunc) {
+        QuestionBlock questionBlock = Optional.of(questionBlockUpdateRequest).map(mappingFunc).orElse(null);
         questionBlockValidationService.validateOnUpdate(questionBlock);
 
         QuestionBlock existedQuestionBlock = questionBlockRepository.getReferenceById(questionBlock.getId());
@@ -149,8 +154,10 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
 
     @Override
     @Transactional
-    public Long delete(QuestionaryTemplate questionaryTemplate) {
+    public <T> Long delete(T questionaryTemplateDeleteRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateDeleteRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnDelete(questionaryTemplate);
+
         questionaryTemplate.setToDelete();
         questionaryTemplateRepository.save(questionaryTemplate);
         questionRepository.deleteAllByQuestionaryTemplateId(questionaryTemplate.getId());

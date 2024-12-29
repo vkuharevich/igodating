@@ -63,11 +63,15 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(v->v.configurationSource(corsConfigurationSource()));
 
+        //todo разрешить потом, пока для дебага
+//        http.authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/oauth2/**", "/login/**")
+//                .permitAll()
+//                .anyRequest()
+//                .authenticated());
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/oauth2/**", "/login/**")
-                .permitAll()
                 .anyRequest()
-                .authenticated());
+                .permitAll());
         http.oauth2ResourceServer((oauth2) -> oauth2
                 .jwt(Customizer.withDefaults()));
         http.oauth2Login(Customizer.withDefaults())

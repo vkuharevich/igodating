@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -40,7 +41,9 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Transactional
-    public Long create(Country country) {
+    public <T> Long create(T countryCreateRequest, Function<T, Country> mappingFunc) {
+        Country country = Optional.of(countryCreateRequest).map(mappingFunc).orElse(null);
+
         countryValidationService.validateOnCreate(country);
 
         countryRepository.save(country);
@@ -50,7 +53,9 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Transactional
-    public Long update(Country country) {
+    public <T> Long update(T countryUpdateRequest, Function<T, Country> mappingFunc) {
+        Country country = Optional.of(countryUpdateRequest).map(mappingFunc).orElse(null);
+
         countryValidationService.validateOnUpdate(country);
 
         countryRepository.save(country);
@@ -60,7 +65,9 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Transactional
-    public Long delete(Country country) {
+    public <T> Long delete(T countryDeleteRequest, Function<T, Country> mappingFunc) {
+        Country country = Optional.of(countryDeleteRequest).map(mappingFunc).orElse(null);
+
         countryValidationService.validateOnDelete(country);
 
         Long id = country.getId();

@@ -38,10 +38,10 @@ public class SecurityConfig {
     private static final String REALM_ACCESS_CLAIM = "realm_access";
     private static final String ROLES_CLAIM = "roles";
 
-    @Bean
-    public KeycloakLogoutHandler keycloakLogoutHandler() {
-        return new KeycloakLogoutHandler();
-    }
+//    @Bean
+//    public KeycloakLogoutHandler keycloakLogoutHandler() {
+//        return new KeycloakLogoutHandler();
+//    }
 
     @Bean
     public SessionRegistry sessionRegistry() {
@@ -74,8 +74,8 @@ public class SecurityConfig {
                 .permitAll());
         http.oauth2ResourceServer((oauth2) -> oauth2
                 .jwt(Customizer.withDefaults()));
-        http.oauth2Login(Customizer.withDefaults())
-                .logout(logout -> logout.addLogoutHandler(keycloakLogoutHandler()).logoutSuccessUrl("/"));
+//        http.oauth2Login(Customizer.withDefaults())
+//                .logout(logout -> logout.addLogoutHandler(keycloakLogoutHandler()).logoutSuccessUrl("/"));
         return http.build();
     }
 

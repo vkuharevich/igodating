@@ -36,17 +36,20 @@ public class UserService {
 
     @Transactional
     public UserAuthenticateResponse generateToken(UserAuthenticationRequest request) {
+        log.debug("Request for token generation are given {}", request);
         UserEntity authenticatedUser = this.getUserEntityForAuthentication(request);
         return this.createJwt(authenticatedUser);
     }
 
-    public UserDto getUserById(long userId){
+    public UserDto getUserById(long userId) {
+        log.debug("Request for getting user {} are given", userId);
         final UserEntity userEntity = this.userRepository.findById(userId);
         return this.userMapper.mapUserToDto(userEntity);
     }
 
     @Transactional
-    public long createUser(UserCreateRequest request){
+    public long createUser(UserCreateRequest request) {
+        log.debug("Request for user creation are given {}", request);
         final String encodedPassword = passwordEncoder.encode(request.getPassword());
         final UserEntity userEntity = this.userMapper.mapCreateRequestToUserEntity(request);
         userEntity.setPassword(encodedPassword);

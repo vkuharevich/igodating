@@ -20,6 +20,7 @@ import com.igodating.questionary.service.validation.UserQuestionaryValidationSer
 import com.igodating.commons.utils.EntitiesListChange;
 import com.igodating.commons.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -38,6 +39,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class UserQuestionaryServiceImpl implements UserQuestionaryService {
 
     private final QuestionRepository questionRepository;
@@ -69,7 +71,6 @@ public class UserQuestionaryServiceImpl implements UserQuestionaryService {
         userQuestionaryValidationService.validateUserQuestionaryFilter(filter, userId);
 
         UserQuestionary forQuestionary = userQuestionaryRepository.findById(filter.forUserQuestionaryId()).orElseThrow(() -> new RuntimeException("Entity not found by id"));
-
         Slice<UserQuestionaryRecommendationView> recommendations = userQuestionaryRepository.findRecommendations(forQuestionary, filter.userFilters(), similarityCalculatingOperator, filter.limit(), filter.offset());
 
         return new SliceImpl<>(recommendations.getContent().stream().map((r) -> mappingFunc.apply(r, similarityCalculatingOperator)).toList(), recommendations.getPageable(), recommendations.hasNext());

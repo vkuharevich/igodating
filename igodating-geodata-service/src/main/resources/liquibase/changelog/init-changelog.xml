@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="2024-12-24_00_00_00" author="Ihar Smolka">
+        <sql>
+            CREATE TABLE country(
+                id bigserial PRIMARY KEY,
+                code varchar(2) NOT NULL,
+                name varchar(100) NOT NULL,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp,
+
+                UNIQUE (code, deleted_at),
+                UNIQUE ("name", deleted_at)
+            );
+
+            CREATE INDEX country_code_idx ON country(code);
+            CREATE INDEX country_name_idx ON country("name");
+        </sql>
+
+        <sql>
+            CREATE TABLE region(
+                id bigserial PRIMARY KEY,
+                name varchar(100) NOT NULL,
+                country_id bigint NOT NULL REFERENCES country(id) ON DELETE CASCADE,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp,
+
+                UNIQUE ("name", deleted_at)
+            );
+
+            CREATE INDEX region_name_idx ON region("name");
+            CREATE INDEX region_country_idx ON region("country_id");
+        </sql>
+
+        <sql>
+            CREATE TABLE city(
+                id bigserial PRIMARY KEY,
+                name varchar(100) NOT NULL,
+                region_id bigint NOT NULL REFERENCES region(id) ON DELETE CASCADE,
+                created_at timestamp default current_timestamp,
+                deleted_at timestamp
+            );
+
+            CREATE INDEX city_name_idx ON city("name");
+            CREATE INDEX city_region_idx ON city("region_id");
+        </sql>
+    </changeSet>
+</databaseChangeLog>

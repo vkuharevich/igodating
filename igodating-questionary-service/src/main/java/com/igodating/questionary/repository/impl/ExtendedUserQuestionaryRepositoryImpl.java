@@ -17,6 +17,7 @@ import com.igodating.questionary.util.val.DefaultValueExtractor;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -34,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Log4j2
 public class ExtendedUserQuestionaryRepositoryImpl implements ExtendedUserQuestionaryRepository {
 
     private static final String SELECT_ROOT_WITH_SIMILARITY_CALC_FORMAT = """
@@ -192,6 +194,8 @@ public class ExtendedUserQuestionaryRepositoryImpl implements ExtendedUserQuesti
         }
 
         sql.append(orderBy);
+
+        log.debug("SQL for recommendations request are generated {}", sql);
 
         var query = em.createNativeQuery(sql.toString(), Object[].class);
         params.forEach(query::setParameter);

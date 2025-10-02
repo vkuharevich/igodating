@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 9002
 jwt:
   keys:
     private-key: |-
@@ -35,6 +35,3 @@ spring:
       hibernate:
         default_schema: igodating_user
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
-keycloak:
-  base-url: http://localhost:8080/

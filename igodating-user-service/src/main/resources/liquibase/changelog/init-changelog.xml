@@ -57,5 +57,33 @@
                 PRIMARY KEY (role_id, privilege_id)
             );
         </sql>
+
+        <sql>
+            INSERT INTO privileges(name, description) VALUES('READ_USERS', 'READ_USERS');
+            INSERT INTO privileges(name, description) VALUES('WRITE_USERS', 'WRITE_USERS');
+            INSERT INTO privileges(name, description) VALUES('READ_QUESTIONARY', 'READ_QUESTIONARY');
+            INSERT INTO privileges(name, description) VALUES('WRITE_QUESTIONARY', 'WRITE_QUESTIONARY');
+        </sql>
+
+        <sql>
+            INSERT INTO roles(name, description) VALUES('USER', 'USER');
+            INSERT INTO roles(name, description) VALUES('ADMIN', 'ADMIN');
+        </sql>
+
+        <sql>
+            insert into roles_privileges (role_id, privilege_id)
+            select (select id from roles where name = 'ADMIN'), unnest::bigint
+            from unnest(array[
+            (select array_agg(id) id from privileges where name = any('{READ_USERS, WRITE_USERS, READ_QUESTIONARY, WRITE_QUESTIONARY}'::text[]))
+            ]);
+        </sql>
+
+        <sql>
+            insert into roles_privileges (role_id, privilege_id)
+            select (select id from roles where name = 'USER'), unnest::bigint
+            from unnest(array[
+            (select array_agg(id) id from privileges where name = any('{READ_USERS, WRITE_USERS, READ_QUESTIONARY, WRITE_QUESTIONARY}'::text[]))
+            ]);
+        </sql>
     </changeSet>
 </databaseChangeLog>

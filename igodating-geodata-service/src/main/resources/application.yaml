@@ -1,23 +1,7 @@
 server:
-  port: 8082
+  port: 9001
 
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/IgodatingKeycloak
-      client:
-        registration:
-          keycloak:
-            client-authentication-method: client_secret_basic
-            client-id: igodating-geodata-service
-            authorization-grant-type: authorization_code
-            scope: openid
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8080/realms/IgodatingKeycloak
-            user-name-attribute: preferred_username
   application:
     name: igodating-geodata-service
   datasource:
@@ -32,5 +16,5 @@ spring:
   jpa:
     properties:
       hibernate:
-        default_schema: geodata
+        default_schema: igodating_geodata
         dialect: org.hibernate.dialect.PostgreSQLDialect

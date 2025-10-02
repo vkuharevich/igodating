@@ -8,7 +8,7 @@ spring:
     hikari:
       minimum-idle: 1
       maximum-pool-size: 50
-    url: jdbc:postgresql://localhost:5432/igodating
+    url: jdbc:postgresql://postgres:5432/igodating
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -16,5 +16,5 @@ spring:
   jpa:
     properties:
       hibernate:
-        default_schema: igodating_geodata
+        default_schema: public
         dialect: org.hibernate.dialect.PostgreSQLDialect

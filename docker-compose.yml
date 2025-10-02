@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+  postgres:
+    container_name: postgres
+    image: ankane/pgvector:latest
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=igodating
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - igodating-network
+  user-service:
+    image: bellsoft/liberica-openjdk-debian:21
+    container_name: user-service
+    volumes:
+      - ./igodating-user-service-1.0-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    command: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "9002:9002"
+    networks:
+      - igodating-network
+    depends_on:
+      - postgres
+  questionary-service:
+    image: bellsoft/liberica-openjdk-debian:21
+    container_name: questionary-service
+    volumes:
+      - ./igodating-questionary-service-1.0-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    command: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "9000:9000"
+    networks:
+      - igodating-network
+    depends_on:
+      - postgres
+  geodata-service:
+    image: bellsoft/liberica-openjdk-debian:21
+    container_name: geodata-service
+    volumes:
+      - ./igodating-geodata-service-1.0-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    command: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "9001:9001"
+    networks:
+      - igodating-network
+    depends_on:
+      - postgres
+networks:
+  igodating-network:
+    driver: bridge

@@ -6,6 +6,7 @@ import com.igodating.commons.security.JwtUser;
 import com.igodating.user.config.JwtKeysProperties;
 import com.igodating.user.dto.RefreshTokenDto;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -97,9 +98,24 @@ public class JwtUtils {
      * @return данные
      */
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
+        return Jwts.parser().setSigningKey(getSigningKey()).build()
+                .parseClaimsJws(token)
                 .getBody();
     }
+
+//    public Claims parseJwt(String jwt) {
+//        Claims body;
+//        try {
+//            body = this.defaultJwtParser
+//                    .parseSignedClaims(jwt)
+//                    .getPayload();
+//        } catch (ExpiredJwtException e) {
+//            //its normal for auth service
+//            body = e.getClaims();
+//        }
+//        return body;
+//
+//    }
 
     @AllArgsConstructor
     @Getter

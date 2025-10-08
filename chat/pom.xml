@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.bpcbt.marketplace</groupId>
-        <artifactId>microservices</artifactId>
-        <version>1.0</version>
+        <groupId>com.igodating</groupId>
+        <artifactId>igodating-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>chat</artifactId>
     <packaging>pom</packaging>
@@ -27,17 +27,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.bpcbt.marketplace</groupId>
+                <groupId>com.igodating</groupId>
                 <artifactId>chat-db-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bpcbt.marketplace</groupId>
+                <groupId>com.igodating</groupId>
                 <artifactId>chat-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.bpcbt.marketplace</groupId>
+                <groupId>com.igodating</groupId>
                 <artifactId>chat-postgres</artifactId>
                 <version>${project.version}</version>
             </dependency>

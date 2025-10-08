@@ -26,6 +26,7 @@ services:
       - igodating-network
     depends_on:
       - postgres
+    restart: unless-stopped
   questionary-service:
     image: bellsoft/liberica-openjdk-debian:21
     container_name: questionary-service
@@ -39,6 +40,7 @@ services:
       - igodating-network
     depends_on:
       - postgres
+    restart: unless-stopped
   geodata-service:
     image: bellsoft/liberica-openjdk-debian:21
     container_name: geodata-service
@@ -52,6 +54,7 @@ services:
       - igodating-network
     depends_on:
       - postgres
+    restart: unless-stopped
 networks:
   igodating-network:
     driver: bridge

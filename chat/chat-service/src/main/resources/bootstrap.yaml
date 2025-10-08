@@ -39,7 +39,7 @@ logging:
 swagger:
   title: Chat service API
 springdoc:
-  packages-to-scan: com.bpcbt.marketplace.boot.chat.controller, com.bpcbt.marketplace.boot.commons.controller
+  packages-to-scan: com.igodating.boot.chat.controller, com.igodating.boot.commons.controller
 ---
 spring:
   config:

@@ -4,6 +4,9 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <changeSet id="2024-11-15_00_00_00" author="Ihar Smolka">
+
+        <sql>CREATE EXTENSION IF NOT EXISTS vector</sql>
+
         <sql>
             CREATE TABLE questionary_template(
                 id bigserial PRIMARY KEY,

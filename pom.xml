@@ -21,6 +21,7 @@
         <module>igodating-geodata-service</module>
         <module>igodating-commons</module>
         <module>igodating-user-service</module>
+        <module>chat</module>
     </modules>
 
     <properties>
@@ -42,6 +43,7 @@
 <!--        <jakson.version>2.20.0</jakson.version>-->
         <springdoc.version>2.6.0</springdoc.version>
         <swagger-annotations.version>2.2.37</swagger-annotations.version>
+        <guava.version>33.5.0-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -154,6 +156,12 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-common</artifactId>
             <version>${springdoc.version}</version>
+        </dependency>
+        <!-- Google libraries -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
     </dependencyManagement>

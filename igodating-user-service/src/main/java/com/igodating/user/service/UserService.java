@@ -1,26 +1,33 @@
 package com.igodating.user.service;
 
+import com.igodating.commons.security.JwtConstants;
 import com.igodating.commons.security.JwtUser;
 import com.igodating.commons.security.UserAuthenticateResponse;
 import com.igodating.user.dto.JwtAuthenticationToken;
+import com.igodating.user.dto.RefreshTokenDto;
 import com.igodating.user.dto.UserAuthenticationDto;
 import com.igodating.user.dto.UserDto;
 import com.igodating.user.dto.request.UserAuthenticationRequest;
 import com.igodating.user.dto.request.UserCreateRequest;
 import com.igodating.user.entity.UserEntity;
+import com.igodating.user.exception.RefreshTokenExpiredException;
 import com.igodating.user.mapper.UserMapper;
 import com.igodating.user.repository.UserRepository;
 import com.igodating.user.util.JwtUtils;
+import io.jsonwebtoken.Claims;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,7 +65,7 @@ public class UserService {
 
 //    @Transactional
 //    public UserAuthenticateResponse refreshToken(String token) {
-//        final Claims claims = this.jwtSigner.parseJwt(token);
+//        final Claims claims = this.jwtUtils.parseJwt(token);
 //
 //        final Instant now = Instant.now();
 //        final Instant refreshExpiration = Instant.ofEpochSecond(claims.get(JwtConstants.REFRESH_LIFETIME, Long.class));
@@ -73,12 +80,12 @@ public class UserService {
 //        if (!tokenUpdated) {
 //            throw new RefreshTokenExpiredException();
 //        }
-//        final UserDto result = this.userManagementService.getUserDtoById(Long.parseLong(claims.getSubject()));
-//        final JwtSecurityUser old = this.jwtSigner.extractOldToken(claims);
+//        final UserDto result = this.getUserById(Long.parseLong(claims.getSubject()));
+//        final JwtUser old = this.jwtSigner.extractOldToken(claims);
 //        if (result.isBlocked() || result.isAccountBlocked(old.getCurrentProfile())) {
 //            throw new LockedException("User name or password invalid");
 //        }
-//        final JwtSecurityUser newSecurityUser = this.mapUser(result, old.getCurrentProfile(), old.isMobileUser());
+//        final JwtUser newSecurityUser = this.mapUser(result, old.getCurrentProfile(), old.isMobileUser());
 //        this.fillSecurityContext(newSecurityUser);
 //        return new UserAuthenticateResponse(this.jwtSigner.updateJwt(newSecurityUser, new RefreshTokenDto(refreshToken, refreshExpiration)), newSecurityUser.getPrivileges());
 //    }

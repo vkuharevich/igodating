@@ -8,6 +8,7 @@ import com.igodating.geodata.repository.RegionRepository;
 import com.igodating.geodata.service.CountryService;
 import com.igodating.geodata.service.validation.CountryValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CountryServiceImpl implements CountryService {
 
     private final CountryValidationService countryValidationService;
@@ -30,18 +32,21 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional(readOnly = true)
     public <T> T getById(Long id, Function<Country, T> mappingFunc) {
+        log.info("getById for country {}", id);
         return countryRepository.findById(id).map(mappingFunc).orElseThrow(() -> new ValidationException("Entity not found by id"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAll(Function<Country, T> mappingFunc) {
+        log.info("getAll for country");
         return countryRepository.findAll().stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional
     public <T> Long create(T countryCreateRequest, Function<T, Country> mappingFunc) {
+        log.info("create for country {}", countryCreateRequest);
         Country country = Optional.of(countryCreateRequest).map(mappingFunc).orElse(null);
 
         countryValidationService.validateOnCreate(country);
@@ -54,6 +59,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional
     public <T> Long update(T countryUpdateRequest, Function<T, Country> mappingFunc) {
+        log.info("update for country {}", countryUpdateRequest);
         Country country = Optional.of(countryUpdateRequest).map(mappingFunc).orElse(null);
 
         countryValidationService.validateOnUpdate(country);
@@ -66,6 +72,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Transactional
     public <T> Long delete(T countryDeleteRequest, Function<T, Country> mappingFunc) {
+        log.info("delete for country {}", countryDeleteRequest);
         Country country = Optional.of(countryDeleteRequest).map(mappingFunc).orElse(null);
 
         countryValidationService.validateOnDelete(country);

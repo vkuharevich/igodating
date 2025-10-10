@@ -15,6 +15,7 @@ import com.igodating.questionary.service.validation.QuestionaryTemplateValidatio
 import com.igodating.commons.utils.EntitiesListChange;
 import com.igodating.commons.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateService {
 
     private final QuestionaryTemplateValidationService questionaryTemplateValidationService;
@@ -45,36 +47,42 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Override
     @Transactional(readOnly = true)
     public <T> T getById(Long id, Function<QuestionaryTemplate, T> mappingFunc) {
+        log.info("getById for questionary template {}", id);
         return questionaryTemplateRepository.findById(id).map(mappingFunc).orElseThrow(() -> new RuntimeException("Entity not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc) {
+        log.info("getAllQuestionsFromBlock for questionary template {}", questionBlockId);
         return questionRepository.findAllByQuestionBlockId(questionBlockId).stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAllQuestionsWithoutBlock(Long questionTemplateId, Function<Question, T> mappingFunc) {
+        log.info("getAllQuestionsWithoutBlock for questionary template {}", questionTemplateId);
         return questionRepository.findAllByQuestionaryTemplateIdAndQuestionBlockIdIsNull(questionTemplateId).stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc) {
+        log.info("getAllQuestionBlocksByTemplateId for questionary template {}", templateId);
         return questionBlockRepository.findAllByQuestionaryTemplateId(templateId).stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc) {
+        log.info("getAll for questionary template");
         return questionaryTemplateRepository.findAll().stream().map(mappingFunc).toList();
     }
 
     @Override
     @Transactional
     public <T> Long create(T questionaryTemplateCreateRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        log.info("create for questionary template {}", questionaryTemplateCreateRequest);
         QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateCreateRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnCreate(questionaryTemplate);
 
@@ -90,6 +98,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Override
     @Transactional
     public <T> Long update(T questionaryTemplateUpdateRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        log.info("update for questionary template {}", questionaryTemplateUpdateRequest);
         QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateUpdateRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnUpdate(questionaryTemplate);
 
@@ -128,6 +137,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Override
     @Transactional
     public <T> Long createQuestionBlock(T questionBlockCreateRequest, Function<T, QuestionBlock> mappingFunc) {
+        log.info("createQuestionBlock for questionary template {}", questionBlockCreateRequest);
         QuestionBlock questionBlock = Optional.of(questionBlockCreateRequest).map(mappingFunc).orElse(null);
         questionBlockValidationService.validateOnCreate(questionBlock);
 
@@ -139,6 +149,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Override
     @Transactional
     public <T> Long updateQuestionBlock(T questionBlockUpdateRequest, Function<T, QuestionBlock> mappingFunc) {
+        log.info("updateQuestionBlock for questionary template {}", questionBlockUpdateRequest);
         QuestionBlock questionBlock = Optional.of(questionBlockUpdateRequest).map(mappingFunc).orElse(null);
         questionBlockValidationService.validateOnUpdate(questionBlock);
 
@@ -155,6 +166,7 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Override
     @Transactional
     public <T> Long delete(T questionaryTemplateDeleteRequest, Function<T, QuestionaryTemplate> mappingFunc) {
+        log.info("delete for questionary template {}", questionaryTemplateDeleteRequest);
         QuestionaryTemplate questionaryTemplate = Optional.of(questionaryTemplateDeleteRequest).map(mappingFunc).orElse(null);
         questionaryTemplateValidationService.validateOnDelete(questionaryTemplate);
 

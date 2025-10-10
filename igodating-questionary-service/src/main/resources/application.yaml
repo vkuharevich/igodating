@@ -28,7 +28,7 @@ spring:
 
 task:
   user-questionary-embedding-calculation-task:
-    cron: 0 0/1 * * * ?
+    cron: 0 0/59 * * * ?
     batch-size: 100
 
 recommendation:

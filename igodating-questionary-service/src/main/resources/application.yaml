@@ -13,7 +13,7 @@ spring:
     hikari:
       minimum-idle: 1
       maximum-pool-size: 50
-    url: jdbc:postgresql://postgres:5432/igodating
+    url: jdbc:postgresql://postgres:5432/igodating?current_schema=questionary
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -23,7 +23,7 @@ spring:
       hibernate:
         jdbc:
           batch_size: 20
-        default_schema: public
+        default_schema: questionary
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 task:

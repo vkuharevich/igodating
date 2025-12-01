@@ -1,0 +1,5 @@
+package com.igodating.commons.exception;
+
+public enum ApiErrorCode {
+    INTERNAL_SERVER_ERROR, NOT_FOUND, ENTITY_NOT_FOUND, INVALID_FORM_PARAM, MULTIPART_PAYLOAD_TOO_LARGE, INVALID_PATH_VARIABLES
+}

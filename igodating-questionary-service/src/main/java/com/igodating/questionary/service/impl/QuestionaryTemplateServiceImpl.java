@@ -48,14 +48,18 @@ public class QuestionaryTemplateServiceImpl implements QuestionaryTemplateServic
     @Transactional(readOnly = true)
     public <T> T getById(Long id, Function<QuestionaryTemplate, T> mappingFunc) {
         log.info("getById for questionary template {}", id);
-        return questionaryTemplateRepository.findById(id).map(mappingFunc).orElseThrow(() -> new RuntimeException("Entity not found"));
+        return questionaryTemplateRepository.findById(id)
+                .map(mappingFunc)
+                .orElseThrow(() -> new RuntimeException("Entity not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc) {
         log.info("getAllQuestionsFromBlock for questionary template {}", questionBlockId);
-        return questionRepository.findAllByQuestionBlockId(questionBlockId).stream().map(mappingFunc).toList();
+        return questionRepository.findAllByQuestionBlockId(questionBlockId).stream()
+                .map(mappingFunc)
+                .toList();
     }
 
     @Override

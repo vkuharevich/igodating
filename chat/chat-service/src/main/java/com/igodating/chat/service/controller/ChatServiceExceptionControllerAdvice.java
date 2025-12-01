@@ -21,7 +21,6 @@ import java.util.List;
 @Log4j2
 public class ChatServiceExceptionControllerAdvice extends BaseRestExceptionControllerAdvice {
 
-    private final ExceptionToStringConverter exceptionToStringConverter;
 
     public ChatServiceExceptionControllerAdvice(ExceptionToStringConverter exceptionToStringConverter) {
         this.exceptionToStringConverter = exceptionToStringConverter;
@@ -32,7 +31,7 @@ public class ChatServiceExceptionControllerAdvice extends BaseRestExceptionContr
         final HttpServletRequest request = webRequest.getRequest();
         log.error("Error occurred while handling api request. URL {}, Method {}, Headers {}, principal {}",
                 ServletUriComponentsBuilder.fromRequest(webRequest.getRequest()).toUriString(), request.getMethod(), this.getRequestHeaders(request), this.request.getUserPrincipal(), e);
-        return ActionResult.fail(ApiErrorCode.INTERNAL_SERVER_ERROR, this.exceptionToStringConverter.convert(e));
+        return ActionResult.fail(ApiErrorCode.INTERNAL_SERVER_ERROR, e.getStackTrace());
     }
 
     @ExceptionHandler(ChatMemberCreateException.class)

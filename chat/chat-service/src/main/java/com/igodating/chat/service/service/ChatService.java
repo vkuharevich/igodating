@@ -35,7 +35,7 @@ import com.igodating.chat.db.api.dto.ChatPaginationDto;
 import com.igodating.chat.db.api.dto.MessageDto;
 import com.igodating.commons.ActionResult;
 import com.igodating.commons.exception.ApiErrorCode;
-import com.igodating.commons.exception.FailedActionResultException;
+import com.igodating.commons.exception.FailedResponseWrapperException;
 import com.igodating.commons.model.FileAttachment;
 import com.igodating.commons.model.image.ImageExtension;
 import com.igodating.commons.model.image.ImageSize;
@@ -239,7 +239,7 @@ public class ChatService {
     @Transactional
     public FileAttachment uploadAttachment(MultipartFile file) {
         if (!this.allowFileExtension(file)) {
-            throw new FailedActionResultException(ActionResult.fail(ApiErrorCode.FORBIDDEN_FILE_EXTENSION));
+            throw new FailedResponseWrapperException(ActionResult.fail(ApiErrorCode.FORBIDDEN_FILE_EXTENSION));
         }
         return this.mediaServiceConnector.attachmentUpload(file).orElseThrow();
     }
@@ -262,7 +262,7 @@ public class ChatService {
 
         } catch (IOException e) {
             log.error(e);
-            throw new FailedActionResultException(ActionResult.fail(ApiErrorCode.INTERNAL_SERVER_ERROR,
+            throw new FailedResponseWrapperException(ActionResult.fail(ApiErrorCode.INTERNAL_SERVER_ERROR,
                     "File " + file.getName() + "couldn't be saved to storage: " + this.exceptionToStringConverter.convert(e)
             ));
         }

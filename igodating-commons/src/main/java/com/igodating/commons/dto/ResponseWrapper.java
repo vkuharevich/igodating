@@ -1,6 +1,8 @@
 package com.igodating.commons.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.igodating.commons.exception.ApiErrorCode;
+import com.igodating.commons.exception.FailedResponseWrapperException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Getter
@@ -23,7 +24,8 @@ import java.util.function.Supplier;
         description = "Wrapper for API response",
         discriminatorProperty = "success"
 )
-public class ActionResult<T> {
+public class ResponseWrapper<T> {
+
     @Schema(title = "Response main value", nullable = true, description = "Only if success is true")
     protected T value;
     @Schema(title = "Success or not", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -41,58 +43,58 @@ public class ActionResult<T> {
     @JsonIgnore
     private HttpStatusCode status = HttpStatus.OK;
 
-    public static <T> ActionResult<T> ok() {
+    public static <T> ResponseWrapper<T> ok() {
         return ok(null, null);
     }
 
-    public static <T> ActionResult<T> okWithRedirect(String redirectUrl) {
+    public static <T> ResponseWrapper<T> okWithRedirect(String redirectUrl) {
         return ok(null, redirectUrl);
     }
 
-    public static <T> ActionResult<T> ok(T value) {
+    public static <T> ResponseWrapper<T> ok(T value) {
         return ok(value, null);
     }
 
-    public static <T> ActionResult<T> ok(T value, String redirectUrl) {
-        return new ActionResult<T>()
+    public static <T> ResponseWrapper<T> ok(T value, String redirectUrl) {
+        return new ResponseWrapper<T>()
                 .setSuccess(true)
                 .setValue(value)
                 .setTargetUrl(redirectUrl);
     }
 
-    public static <T> ActionResult<T> fail(ApiErrorCode errorCode, Object errorValue) {
-        return new ActionResult<T>()
+    public static <T> ResponseWrapper<T> fail(ApiErrorCode errorCode, Object errorValue) {
+        return new ResponseWrapper<T>()
                 .setSuccess(false)
                 .setErrorCode(errorCode.name())
                 .setErrorValue(errorValue);
     }
 
-    public static <T> ActionResult<T> fail() {
+    public static <T> ResponseWrapper<T> fail() {
         return fail((String) null, null, null);
     }
 
-    public static <T> ActionResult<T> fail(ApiErrorCode errorCode) {
+    public static <T> ResponseWrapper<T> fail(ApiErrorCode errorCode) {
         return fail(errorCode, null, null);
     }
 
-    public static <T> ActionResult<T> fail(String errorCode) {
+    public static <T> ResponseWrapper<T> fail(String errorCode) {
         return fail(errorCode, null, null);
     }
 
-    public static <T> ActionResult<T> fail(String errorCode, String message) {
+    public static <T> ResponseWrapper<T> fail(String errorCode, String message) {
         return fail(errorCode, message, null);
     }
 
-    public static <T> ActionResult<T> fail(ApiErrorCode errorCode, String message) {
+    public static <T> ResponseWrapper<T> fail(ApiErrorCode errorCode, String message) {
         return fail(errorCode.name(), message, null);
     }
 
-    public static <T> ActionResult<T> fail(ApiErrorCode errorCode, String message, Object errorValue) {
+    public static <T> ResponseWrapper<T> fail(ApiErrorCode errorCode, String message, Object errorValue) {
         return fail(errorCode.name(), message, errorValue);
     }
 
-    public static <T> ActionResult<T> fail(String errorCode, String message, Object errorValue) {
-        return new ActionResult<T>()
+    public static <T> ResponseWrapper<T> fail(String errorCode, String message, Object errorValue) {
+        return new ResponseWrapper<T>()
                 .setErrorCode(errorCode)
                 .setMessage(message)
                 .setSuccess(false)
@@ -100,19 +102,10 @@ public class ActionResult<T> {
                 .setErrorValue(errorValue);
     }
 
-    public T orElseThrow() {
-        return this.orElseThrow(false);
-    }
-
-    public void orElseLog() {
-        if (this.isError())
-            log.error("Failed response, {}", this.toString());
-    }
-
     @JsonIgnore
-    public T orElseThrow(boolean propagate) {
+    public T orElseThrow() {
         if (this.isError()) {
-            throw new FailedActionResultException(this, propagate);
+            throw new FailedResponseWrapperException(this);
         }
         return value;
     }
@@ -124,23 +117,11 @@ public class ActionResult<T> {
         return value;
     }
 
-    public <U> ActionResult<U> map(Function<? super T, ? extends U> mapper) {
+    public <U> ResponseWrapper<U> map(Function<? super T, ? extends U> mapper) {
         if (this.isError())
             return this.wrapToFail();
         else {
-            return ActionResult.ok(mapper.apply(value));
-        }
-    }
-
-    public ActionResult<T> filter(Predicate<? super T> predicate) {
-        if (this.isError())
-            return this.wrapToFail();
-        else {
-            if (predicate.test(this.getValue())) {
-                return this;
-            } else {
-                return ActionResult.fail(ApiErrorCode.NOT_FOUND);
-            }
+            return ResponseWrapper.ok(mapper.apply(value));
         }
     }
 
@@ -149,28 +130,7 @@ public class ActionResult<T> {
         return !success;
     }
 
-    public T orElseThrowInternalRestException() {
-        if (success) {
-            return value;
-        } else {
-            throw InternalRestServiceException.builder()
-                    .forward(true)
-                    .view("/error")
-                    .httpStatus(HttpStatus.SERVICE_UNAVAILABLE)
-                    .build();
-        }
-    }
-
-    public boolean hasErrorCode(ApiErrorCode... errorCodes) {
-        for (ApiErrorCode apiErrorCode : errorCodes) {
-            if (apiErrorCode.name().equals(errorCode)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public <X extends Throwable> T orElseThrow(Function<? super ActionResult<T>, ? extends X> exceptionSupplier) throws X {
+    public <X extends Throwable> T orElseThrow(Function<? super ResponseWrapper<T>, ? extends X> exceptionSupplier) throws X {
         if (success) {
             return value;
         } else {
@@ -178,11 +138,11 @@ public class ActionResult<T> {
         }
     }
 
-    public ActionResult<T> orElseGetAction(Function<? super ActionResult<T>, ? extends ActionResult<T>> other) {
+    public ResponseWrapper<T> orElseGetAction(Function<? super ResponseWrapper<T>, ? extends ResponseWrapper<T>> other) {
         return success ? this : other.apply(this);
     }
 
-    public T orElseGet(Function<? super ActionResult<T>, ? extends T> other) {
+    public T orElseGet(Function<? super ResponseWrapper<T>, ? extends T> other) {
         return success ? value : other.apply(this);
     }
 
@@ -194,11 +154,7 @@ public class ActionResult<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public <R> ActionResult<R> wrapToFail() {
-        return (ActionResult<R>) this;
-    }
-
-    public <R> ActionResult<R> wrapToFail(boolean setService) {
-        return this.setService(ServiceEnum.getCurrentService()).wrapToFail();
+    public <R> ResponseWrapper<R> wrapToFail() {
+        return (ResponseWrapper<R>) this;
     }
 }

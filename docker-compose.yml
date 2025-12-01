@@ -4,11 +4,13 @@ services:
     container_name: postgres
     image: ankane/pgvector:latest
     volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=igodating
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
+    mem_limit: 1g
     ports:
       - "5432:5432"
     networks:

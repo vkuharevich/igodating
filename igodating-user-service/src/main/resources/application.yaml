@@ -33,7 +33,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        default_schema: public
+        default_schema: users
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 keycloak:

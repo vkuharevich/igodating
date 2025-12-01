@@ -40,7 +40,6 @@
         <schedlock.version>5.16.0</schedlock.version>
         <spring.cloud.version>2025.0.0</spring.cloud.version>
         <openfeign.version>4.1.3</openfeign.version>
-<!--        <jakson.version>2.20.0</jakson.version>-->
         <springdoc.version>2.6.0</springdoc.version>
         <swagger-annotations.version>2.2.37</swagger-annotations.version>
         <guava.version>33.5.0-jre</guava.version>
@@ -69,6 +68,11 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-web</artifactId>-->
+<!--&lt;!&ndash;            <version>6.2.11</version>&ndash;&gt;-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
@@ -85,10 +89,6 @@
             <artifactId>jjwt-impl</artifactId>
             <version>${jwt.version}</version>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>

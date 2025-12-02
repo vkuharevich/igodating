@@ -1,5 +1,9 @@
 package com.igodating.geodata.service;
 
+import com.igodating.geodata.dto.RegionCreateRequest;
+import com.igodating.geodata.dto.RegionDeleteRequest;
+import com.igodating.geodata.dto.RegionUpdateRequest;
+import com.igodating.geodata.dto.RegionView;
 import com.igodating.geodata.model.Region;
 
 import java.util.List;
@@ -7,13 +11,13 @@ import java.util.function.Function;
 
 public interface RegionService {
 
-    <T> T getById(Long id, Function<Region, T> mappingFunc);
+    RegionView getById(Long id);
 
-    <T> List<T> getAll(Function<Region, T> mappingFunc);
+    List<RegionView> getAll();
 
-    <T> Long create(T regionCreateRequest, Function<T, Region> mappingFunc);
+    Long create(RegionCreateRequest regionCreateRequest);
 
-    <T> Long update(T regionUpdateRequest, Function<T, Region> mappingFunc);
+    Long update(RegionUpdateRequest regionUpdateRequest);
 
-    <T> Long delete(T regionDeleteRequest, Function<T, Region> mappingFunc);
+    Long delete(RegionDeleteRequest regionDeleteRequest);
 }

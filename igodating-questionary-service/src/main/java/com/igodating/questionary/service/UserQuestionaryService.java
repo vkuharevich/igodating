@@ -1,33 +1,35 @@
 package com.igodating.questionary.service;
 
-import com.igodating.questionary.constant.SimilarityCalculatingOperator;
 import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
+import com.igodating.questionary.dto.template.PublicFilterDescriptorDto;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryCreateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryDeleteRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryMoveFromDraftRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryRecommendation;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryUpdateRequest;
+import com.igodating.questionary.dto.userquestionary.UserQuestionaryView;
 import com.igodating.questionary.model.UserQuestionary;
-import com.igodating.questionary.model.UserQuestionaryAnswer;
-import com.igodating.questionary.model.view.UserQuestionaryRecommendationView;
 import org.springframework.data.domain.Slice;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public interface UserQuestionaryService {
 
-    <T> T getById(Long id, Function<UserQuestionary, T> mappingFunc);
+    UserQuestionaryView getById(Long id);
 
-    <T> List<T> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId, Function<UserQuestionaryAnswer, T> mappingFunc);
+    List<PublicFilterDescriptorDto> getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(Long templateId, String userId);
 
-    <T> Slice<T> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId, BiFunction<UserQuestionaryRecommendationView, SimilarityCalculatingOperator, T> mappingFunc);
+    Slice<UserQuestionaryRecommendation> findRecommendations(UserQuestionaryRecommendationRequest filter, String userId);
 
-    <T> Long createDraft(T userQuestionaryCreateRequest, String userId, Function<T, UserQuestionary> mappingFunc);
+    Long createDraft(UserQuestionaryCreateRequest userQuestionaryCreateRequest, String userId);
 
-    <T> Long update(T userQuestionaryUpdateRequest, String userId, Function<T, UserQuestionary> mappingFunc);
+    Long update(UserQuestionaryUpdateRequest userQuestionaryUpdateRequest, String userId);
 
     void setStatusToPublished(UserQuestionary userQuestionary);
 
-    <T> Long moveFromDraft(T userQuestionaryMoveFromDraftRequest, String userId, Function<T, UserQuestionary> mappingFunc);
+    Long moveFromDraft(UserQuestionaryMoveFromDraftRequest userQuestionaryMoveFromDraftRequest, String userId);
 
-    <T> Long delete(T userQuestionaryDeleteRequest, String userId, Function<T, UserQuestionary> mappingFunc);
+    Long delete(UserQuestionaryDeleteRequest userQuestionaryDeleteRequest, String userId);
 
     void updateEmbeddingAndSetProcessed(UserQuestionary userQuestionary);
 

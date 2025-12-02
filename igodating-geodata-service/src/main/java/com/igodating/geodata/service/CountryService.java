@@ -1,19 +1,21 @@
 package com.igodating.geodata.service;
 
-import com.igodating.geodata.model.Country;
+import com.igodating.geodata.dto.CountryCreateRequest;
+import com.igodating.geodata.dto.CountryDeleteRequest;
+import com.igodating.geodata.dto.CountryUpdateRequest;
+import com.igodating.geodata.dto.CountryView;
 
 import java.util.List;
-import java.util.function.Function;
 
 public interface CountryService {
 
-    <T> T getById(Long id, Function<Country, T> mappingFunc);
+    CountryView getById(Long id);
 
-    <T> List<T> getAll(Function<Country, T> mappingFunc);
+    List<CountryView> getAll();
 
-    <T> Long create(T countryCreateRequest, Function<T, Country> mappingFunc);
+    Long create(CountryCreateRequest countryCreateRequest);
 
-    <T> Long update(T countryUpdateRequest, Function<T, Country> mappingFunc);
+    Long update(CountryUpdateRequest countryUpdateRequest);
 
-    <T> Long delete(T countryDeleteRequest, Function<T, Country> mappingFunc);
+    Long delete(CountryDeleteRequest countryDeleteRequest);
 }

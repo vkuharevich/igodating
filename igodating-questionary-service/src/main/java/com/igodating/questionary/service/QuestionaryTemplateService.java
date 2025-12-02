@@ -1,31 +1,35 @@
 package com.igodating.questionary.service;
 
-import com.igodating.questionary.model.Question;
-import com.igodating.questionary.model.QuestionBlock;
-import com.igodating.questionary.model.QuestionaryTemplate;
+import com.igodating.questionary.dto.template.QuestionBlockCreateDto;
+import com.igodating.questionary.dto.template.QuestionBlockUpdateDto;
+import com.igodating.questionary.dto.template.QuestionBlockView;
+import com.igodating.questionary.dto.template.QuestionView;
+import com.igodating.questionary.dto.template.QuestionaryTemplateCreateRequest;
+import com.igodating.questionary.dto.template.QuestionaryTemplateDeleteRequest;
+import com.igodating.questionary.dto.template.QuestionaryTemplateUpdateRequest;
+import com.igodating.questionary.dto.template.QuestionaryTemplateView;
 
 import java.util.List;
-import java.util.function.Function;
 
 public interface QuestionaryTemplateService {
 
-    <T> T getById(Long id, Function<QuestionaryTemplate, T> mappingFunc);
+    QuestionaryTemplateView getById(Long id);
 
-    <T> List<T> getAllQuestionsFromBlock(Long questionBlockId, Function<Question, T> mappingFunc);
+    List<QuestionView> getAllQuestionsFromBlock(Long questionBlockId);
 
-    <T> List<T> getAllQuestionsWithoutBlock(Long questionTemplateId, Function<Question, T> mappingFunc);
+    List<QuestionView> getAllQuestionsWithoutBlock(Long questionTemplateId);
 
-    <T> List<T> getAllQuestionBlocksByTemplateId(Long templateId, Function<QuestionBlock, T> mappingFunc);
+    List<QuestionBlockView> getAllQuestionBlocksByTemplateId(Long templateId);
 
-    <T> List<T> getAll(Function<QuestionaryTemplate, T> mappingFunc);
+    List<QuestionaryTemplateView> getAll();
 
-    <T> Long create(T questionaryTemplateCreateRequest, Function<T, QuestionaryTemplate> mappingFunc);
+    Long create(QuestionaryTemplateCreateRequest questionaryTemplateCreateRequest);
 
-    <T> Long update(T questionaryTemplateUpdateRequest, Function<T, QuestionaryTemplate> mappingFunc);
+    Long update(QuestionaryTemplateUpdateRequest questionaryTemplateUpdateRequest);
 
-    <T> Long createQuestionBlock(T questionBlockCreateRequest, Function<T, QuestionBlock> mappingFunc);
+    Long createQuestionBlock(QuestionBlockCreateDto questionBlockCreateRequest);
 
-    <T> Long updateQuestionBlock(T questionBlockUpdateRequest, Function<T, QuestionBlock> mappingFunc);
+    Long updateQuestionBlock(QuestionBlockUpdateDto questionBlockUpdateRequest);
 
-    <T> Long delete(T questionaryTemplateDeleteRequest, Function<T, QuestionaryTemplate> mappingFunc);
+    Long delete(QuestionaryTemplateDeleteRequest questionaryTemplateDeleteRequest);
 }

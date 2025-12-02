@@ -1,5 +1,6 @@
 package com.igodating.questionary.controller;
 
+import com.igodating.commons.dto.ResponseWrapper;
 import com.igodating.questionary.dto.SliceResponse;
 import com.igodating.questionary.dto.filter.UserQuestionaryRecommendationRequest;
 import com.igodating.questionary.dto.template.PublicFilterDescriptorDto;
@@ -38,49 +39,45 @@ public class UserQuestionaryController {
 
     private final UserQuestionaryService userQuestionaryService;
 
-    private final UserQuestionaryMapper userQuestionaryMapper;
-
-    private final UserQuestionaryAnswerMapper userQuestionaryAnswerMapper;
-
     @GetMapping("/{id}")
     @Operation(summary = "Пользовательская анкета", description = "Получение пользовательской анкеты по ID")
-    public ResponseEntity<UserQuestionaryView> userQuestionary(@PathVariable("id") Long questionaryId) {
-        return ResponseEntity.ok(userQuestionaryService.getById(questionaryId, userQuestionaryMapper::modelToView));
+    public ResponseWrapper<UserQuestionaryView> userQuestionary(@PathVariable("id") Long questionaryId) {
+        return ResponseWrapper.ok(userQuestionaryService.getById(questionaryId));
     }
 
     @Operation(summary = "Рекомендации", description = "Получение рекомендаций по определенному запросу")
     @GetMapping("/recommendations")
-    public ResponseEntity<SliceResponse<UserQuestionaryRecommendation>> recommendations(UserQuestionaryRecommendationRequest request) {
-        return ResponseEntity.ok(new SliceResponse<>(userQuestionaryService.findRecommendations(request, CurrentUserInfo.getUserId(), userQuestionaryMapper::recommendationViewToDto)));
+    public ResponseWrapper<SliceResponse<UserQuestionaryRecommendation>> recommendations(UserQuestionaryRecommendationRequest request) {
+        return ResponseWrapper.ok(new SliceResponse<>(userQuestionaryService.findRecommendations(request, CurrentUserInfo.getUserId())));
     }
 
     @Operation(summary = "Фильтры поиска", description = "Получение доступных фильтров поиска по ID шаблона")
     @GetMapping("/public-filters/{questionaryTemplateId}")
-    public ResponseEntity<List<PublicFilterDescriptorDto>> publicFilters(@PathVariable("questionaryTemplateId") Long questionaryTemplateId) {
-        return ResponseEntity.ok(userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId(), userQuestionaryAnswerMapper::modelToPublicDescriptorDto));
+    public ResponseWrapper<List<PublicFilterDescriptorDto>> publicFilters(@PathVariable("questionaryTemplateId") Long questionaryTemplateId) {
+        return ResponseWrapper.ok(userQuestionaryService.getAllAnswersMatchedWithPublicRulesByTemplateIdAndUserId(questionaryTemplateId, CurrentUserInfo.getUserId()));
     }
 
     @Operation(summary = "Создание пользовательской анкеты", description = "Создание пользовательской анкеты")
     @PostMapping
-    public ResponseEntity<Long> createQuestionary(@RequestBody UserQuestionaryCreateRequest questionary) {
-        return ResponseEntity.ok(userQuestionaryService.createDraft(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::createRequestToModel));
+    public ResponseWrapper<Long> createQuestionary(@RequestBody UserQuestionaryCreateRequest questionary) {
+        return ResponseWrapper.ok(userQuestionaryService.createDraft(questionary, CurrentUserInfo.getUserId()));
     }
 
     @Operation(summary = "Обновление пользовательской анкеты", description = "Обновление пользовательской анкеты")
     @PutMapping
-    public ResponseEntity<Long> updateQuestionary(@RequestBody UserQuestionaryUpdateRequest questionary) {
-        return ResponseEntity.ok(userQuestionaryService.update(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::updateRequestToModel));
+    public ResponseWrapper<Long> updateQuestionary(@RequestBody UserQuestionaryUpdateRequest questionary) {
+        return ResponseWrapper.ok(userQuestionaryService.update(questionary, CurrentUserInfo.getUserId()));
     }
 
     @Operation(summary = "Удаление пользовательской анкеты", description = "Удаление пользовательской анкеты")
     @DeleteMapping
-    public ResponseEntity<Long> deleteQuestionary(@RequestBody UserQuestionaryDeleteRequest questionary) {
-        return ResponseEntity.ok(userQuestionaryService.delete(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::deleteRequestToModel));
+    public ResponseWrapper<Long> deleteQuestionary(@RequestBody UserQuestionaryDeleteRequest questionary) {
+        return ResponseWrapper.ok(userQuestionaryService.delete(questionary, CurrentUserInfo.getUserId()));
     }
 
     @Operation(summary = "Публикация пользовательской анкеты", description = "Публикация пользовательской анкеты")
     @PutMapping("/publish")
-    public ResponseEntity<Long> moveFromDraft(@RequestBody UserQuestionaryMoveFromDraftRequest questionary) {
-        return ResponseEntity.ok(userQuestionaryService.moveFromDraft(questionary, CurrentUserInfo.getUserId(), userQuestionaryMapper::moveFromDraftRequestToModel));
+    public ResponseWrapper<Long> moveFromDraft(@RequestBody UserQuestionaryMoveFromDraftRequest questionary) {
+        return ResponseWrapper.ok(userQuestionaryService.moveFromDraft(questionary, CurrentUserInfo.getUserId()));
     }
 }

@@ -1,5 +1,6 @@
 package com.igodating.user.controller;
 
+import com.igodating.commons.dto.ResponseWrapper;
 import com.igodating.user.dto.UserDto;
 import com.igodating.user.dto.request.UserCreateRequest;
 import com.igodating.user.service.UserService;
@@ -7,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +25,12 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseWrapper<UserDto> getUser(@PathVariable("id") Long id) {
+        return ResponseWrapper.ok(userService.getUserById(id));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createUser(@RequestBody UserCreateRequest request) {
-        return ResponseEntity.ok(userService.createUser(request));
+    public ResponseWrapper<Long> createUser(@RequestBody UserCreateRequest request) {
+        return ResponseWrapper.ok(userService.createUser(request));
     }
-
-
-
 }

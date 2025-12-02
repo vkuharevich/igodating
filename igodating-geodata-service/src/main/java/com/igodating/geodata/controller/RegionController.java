@@ -1,15 +1,14 @@
 package com.igodating.geodata.controller;
 
+import com.igodating.commons.dto.ResponseWrapper;
 import com.igodating.geodata.dto.RegionCreateRequest;
 import com.igodating.geodata.dto.RegionDeleteRequest;
 import com.igodating.geodata.dto.RegionUpdateRequest;
 import com.igodating.geodata.dto.RegionView;
-import com.igodating.geodata.mapper.RegionMapper;
 import com.igodating.geodata.service.RegionService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,29 +26,27 @@ public class RegionController {
 
     private final RegionService regionService;
 
-    private final RegionMapper regionMapper;
-
     @GetMapping("/{id}")
     @Operation(summary = "Регион", description = "Получение информации о регионе по ID")
-    public ResponseEntity<RegionView> getById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(regionService.getById(id, regionMapper::modelToView));
+    public ResponseWrapper<RegionView> getById(@PathVariable("id") Long id) {
+        return ResponseWrapper.ok(regionService.getById(id));
     }
 
     @PostMapping
     @Operation(summary = "Создание региона", description = "Создание информации в справочнике о новом регионе")
-    public ResponseEntity<Long> createRegion(@RequestBody RegionCreateRequest regionCreateRequest) {
-        return ResponseEntity.ok(regionService.create(regionCreateRequest, regionMapper::createRequestToModel));
+    public ResponseWrapper<Long> createRegion(@RequestBody RegionCreateRequest regionCreateRequest) {
+        return ResponseWrapper.ok(regionService.create(regionCreateRequest));
     }
 
     @PutMapping
     @Operation(summary = "Обновление региона", description = "Обновление информации в справочнике о регионе")
-    public ResponseEntity<Long> updateRegion(@RequestBody RegionUpdateRequest regionUpdateRequest) {
-        return ResponseEntity.ok(regionService.update(regionUpdateRequest, regionMapper::updateRequestToModel));
+    public ResponseWrapper<Long> updateRegion(@RequestBody RegionUpdateRequest regionUpdateRequest) {
+        return ResponseWrapper.ok(regionService.update(regionUpdateRequest));
     }
 
     @DeleteMapping
     @Operation(summary = "Удаление региона", description = "Удаление информации в справочнике о регионе")
-    public ResponseEntity<Long> deleteRegion(@RequestBody RegionDeleteRequest regionDeleteRequest) {
-        return ResponseEntity.ok(regionService.delete(regionDeleteRequest, regionMapper::deleteRequestToModel));
+    public ResponseWrapper<Long> deleteRegion(@RequestBody RegionDeleteRequest regionDeleteRequest) {
+        return ResponseWrapper.ok(regionService.delete(regionDeleteRequest));
     }
 }

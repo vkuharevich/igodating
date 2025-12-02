@@ -1,19 +1,21 @@
 package com.igodating.geodata.service;
 
-import com.igodating.geodata.model.City;
+import com.igodating.geodata.dto.CityCreateRequest;
+import com.igodating.geodata.dto.CityDeleteRequest;
+import com.igodating.geodata.dto.CityUpdateRequest;
+import com.igodating.geodata.dto.CityView;
 
 import java.util.List;
-import java.util.function.Function;
 
 public interface CityService {
 
-    <T> T getById(Long id, Function<City, T> mappingFunc);
+    CityView getById(Long id);
 
-    <T> List<T> getAll(Function<City, T> mappingFunc);
+    List<CityView> getAll();
 
-    <T> Long create(T cityCreateRequest, Function<T, City> mappingFunc);
+    Long create(CityCreateRequest cityCreateRequest);
 
-    <T> Long update(T cityUpdateRequest, Function<T, City> mappingFunc);
+    Long update(CityUpdateRequest cityUpdateRequest);
 
-    <T> Long delete(T cityDeleteRequest, Function<T, City> mappingFunc);
+    Long delete(CityDeleteRequest cityDeleteRequest);
 }

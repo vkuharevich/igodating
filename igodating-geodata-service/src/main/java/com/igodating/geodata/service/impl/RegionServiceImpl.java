@@ -54,7 +54,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public <T> Long create(RegionCreateRequest regionCreateRequest) {
+    public Long create(RegionCreateRequest regionCreateRequest) {
         log.info("create for region {}", regionCreateRequest);
         Region region = Optional.of(regionCreateRequest)
                 .map(regionMapper::createRequestToModel)
@@ -69,7 +69,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public <T> Long update(RegionUpdateRequest regionUpdateRequest) {
+    public Long update(RegionUpdateRequest regionUpdateRequest) {
         log.info("update for region {}", regionUpdateRequest);
         Region region = Optional.of(regionUpdateRequest)
                 .map(regionMapper::updateRequestToModel)
@@ -84,7 +84,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     @Transactional
-    public <T> Long delete(RegionDeleteRequest regionDeleteRequest) {
+    public Long delete(RegionDeleteRequest regionDeleteRequest) {
         log.info("delete for region {}", regionDeleteRequest);
         Region region = Optional.of(regionDeleteRequest)
                 .map(regionMapper::deleteRequestToModel)

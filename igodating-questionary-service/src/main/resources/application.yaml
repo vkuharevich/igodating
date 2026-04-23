@@ -2,23 +2,20 @@ server:
   port: 9000
 
 spring:
-  cloud:
-    openfeign:
-      client:
-        config:
-          textEmbeddingService.url: http://localhost:5000/api/v1/
+  liquibase:
+    enabled: false
   application:
     name: igodating-questionary-service
   datasource:
     hikari:
       minimum-idle: 1
       maximum-pool-size: 50
-    url: jdbc:postgresql://postgres:5432/igodating?current_schema=questionary
+    url: jdbc:postgresql://localhost:5432/igodating?current_schema=questionary
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-
   jpa:
+    show-sql: true
     properties:
       hibernate:
         jdbc:
@@ -26,10 +23,15 @@ spring:
         default_schema: questionary
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-task:
-  user-questionary-embedding-calculation-task:
-    cron: 0 0/59 * * * ?
-    batch-size: 100
+model:
+  path: /lm-model/
+  url: djl://ai.djl.huggingface.pytorch/sentence-transformers/all-MiniLM-L6-v2
 
-recommendation:
-  similarity-calculating-operator: EUCLID
+whitening-matrix:
+  selection-limit: 50000
+  shrinkage-lambda: 0.1
+
+scheduling:
+  whitening-matrix-delay: 10000000
+  vector-init-delay: 10000
+  vector_init_limit: 100

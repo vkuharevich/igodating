@@ -2,7 +2,7 @@ version: "3.8"
 services:
   postgres:
     container_name: postgres
-    image: ankane/pgvector:latest
+    image: pgvector/pgvector:0.8.2-pg18-trixie
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
@@ -38,20 +38,6 @@ services:
     command: [ "java", "-jar", "app.jar" ]
     ports:
       - "9000:9000"
-    networks:
-      - igodating-network
-    depends_on:
-      - postgres
-    restart: unless-stopped
-  geodata-service:
-    image: bellsoft/liberica-openjdk-debian:21
-    container_name: geodata-service
-    volumes:
-      - ./igodating-geodata-service-1.0-SNAPSHOT.jar:/app/app.jar
-    working_dir: /app
-    command: [ "java", "-jar", "app.jar" ]
-    ports:
-      - "9001:9001"
     networks:
       - igodating-network
     depends_on:

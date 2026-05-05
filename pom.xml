@@ -18,7 +18,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>igodating-questionary-service</module>
-        <module>igodating-geodata-service</module>
         <module>igodating-commons</module>
         <module>igodating-user-service</module>
         <module>chat</module>

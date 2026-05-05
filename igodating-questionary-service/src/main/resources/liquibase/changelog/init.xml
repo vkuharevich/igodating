@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="2026_03_07_231600" author="Ihar Smolka">
+
+        <sql>CREATE EXTENSION IF NOT EXISTS vector</sql>
+
+        <sql>
+            CREATE TABLE questionary_type(
+                id bigserial PRIMARY KEY,
+                name varchar(50) NOT NULL UNIQUE,
+                description text,
+                factor_lambda_part float
+            );
+
+            CREATE INDEX questionary_type_name_idx ON questionary_type(name);
+        </sql>
+
+        <sql>
+            CREATE TABLE question_block(
+                id bigserial PRIMARY KEY,
+                questionary_type_id bigint NOT NULL REFERENCES questionary_type(id),
+                name varchar(50),
+                description text,
+                ordering int8
+            );
+
+            CREATE INDEX question_block_name_idx ON question_block(name);
+            CREATE INDEX question_block_type_id_idx ON question_block(questionary_type_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE question(
+                id bigserial PRIMARY KEY,
+                question_block_id bigint NOT NULL REFERENCES question_block(id),
+                type varchar(25) NOT NULL,
+                title varchar(50) NOT NULL,
+                description text,
+                ordering int8,
+                for_semantic_similarity boolean NOT NULL default false,
+                weight_coefficient_for_vector float NOT NULL default 1
+            );
+
+            CREATE INDEX question_type_idx ON question(type);
+            CREATE INDEX question_question_block_idx ON question(question_block_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE answer_option(
+                id bigserial PRIMARY KEY,
+                option_key varchar(2) NOT NULL,
+                question_id bigint NOT NULL REFERENCES question(id),
+                value text,
+                ordering int8,
+                influence float[]
+            );
+
+            CREATE UNIQUE INDEX answer_option_key_idx ON answer_option(option_key, question_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE questionary(
+                id bigserial PRIMARY KEY,
+                name varchar(50) NOT NULL,
+                status varchar(50) NOT NULL DEFAULT 'DRAFT',
+                questionary_type_id bigint NOT NULL REFERENCES questionary_type(id),
+                created_at timestamp NOT NULL default current_timestamp,
+                user_id bigint NOT NULL,
+                vectors_initialized boolean NOT NULL DEFAULT false,
+                semantic_vector vector(384),
+                factor_vector vector(16)
+            );
+
+            CREATE INDEX questionary_name_idx ON questionary(name);
+            CREATE INDEX questionary_type_idx ON questionary(questionary_type_id);
+            CREATE INDEX questionary_user_idx ON questionary(user_id);
+            CREATE INDEX questionary_status_idx ON questionary(status);
+            CREATE INDEX questionary_semantic_vector_idx ON questionary USING ivfflat(semantic_vector);
+            CREATE INDEX questionary_factor_vector_idx ON questionary USING ivfflat(factor_vector);
+        </sql>
+
+        <sql>
+            CREATE TABLE answer(
+                id bigserial PRIMARY KEY,
+                questionary_id bigint NOT NULL REFERENCES questionary(id),
+                question_id bigint NOT NULL REFERENCES question(id),
+                text_value text,
+                numeric_value float,
+                chosen_options_keys varchar(2)[]
+            );
+
+            CREATE INDEX answer_questionary_id_idx ON answer(questionary_id);
+            CREATE INDEX answer_question_id_idx ON answer(question_id);
+            CREATE INDEX answer_numeric_value_id_idx ON answer(numeric_value);
+            CREATE INDEX answer_chosen_options_keys_idx ON answer USING GIN(chosen_options_keys);
+            CREATE UNIQUE INDEX answer_question_questionary_idx ON answer(question_id, questionary_id);
+        </sql>
+
+        <sql>
+            CREATE TABLE similarity_factor(
+                vector_index int8 PRIMARY KEY,
+                name varchar(100) NOT NULL UNIQUE
+            );
+
+            CREATE INDEX similarity_factor_name_idx ON similarity_factor(name);
+        </sql>
+
+        <sql>
+            INSERT INTO similarity_factor(vector_index, name) VALUES(0, 'Планы на будущее');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(1, 'Семейные ценности');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(2, 'Роли в семье');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(3, 'Воспитание детей и семья');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(4, 'Стиль общения и решение конфликтов');
+
+            INSERT INTO similarity_factor(vector_index, name) VALUES(5, 'Жизнерадостность');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(6, 'Религиозность');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(7, 'Работа и карьера');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(8, 'Деньги и фин. модель');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(9, 'Увлечения');
+
+            INSERT INTO similarity_factor(vector_index, name) VALUES(10, 'Отдых');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(11, 'Личностный рост, культура');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(12, 'Взаимоотношения');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(13, 'Склонность к рискам');
+            INSERT INTO similarity_factor(vector_index, name) VALUES(14, 'Границы, доверие, пространство');
+
+            INSERT INTO similarity_factor(vector_index, name) VALUES(15, 'Интимность, ожидание близости');
+        </sql>
+
+        <sql>
+            CREATE TABLE questionary_filter(
+                id bigserial PRIMARY KEY,
+                question_id bigint NOT NULL REFERENCES question(id),
+                filter_type varchar(25) NOT NULL,
+                is_public boolean NOT NULL default true,
+                default_options_in_set_keys varchar(2)[],
+                default_numeric_value_from float,
+                default_numeric_value_to float
+            );
+
+            CREATE INDEX questionary_filter_question_id_idx ON questionary_filter(question_id);
+            CREATE INDEX questionary_filter_type_idx ON questionary_filter(filter_type);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

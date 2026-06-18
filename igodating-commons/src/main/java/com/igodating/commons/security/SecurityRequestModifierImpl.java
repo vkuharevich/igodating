@@ -1,5 +1,6 @@
 package com.igodating.commons.security;
 
+import com.igodating.commons.security.models.JwtUser;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.security.core.Authentication;

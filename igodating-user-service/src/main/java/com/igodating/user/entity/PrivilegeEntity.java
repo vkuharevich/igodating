@@ -1,6 +1,6 @@
 package com.igodating.user.entity;
 
-import com.igodating.commons.security.Privilege;
+import com.igodating.commons.security.models.Privilege;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

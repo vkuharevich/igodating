@@ -39,6 +39,6 @@ public class JwtKeysProperties {
         private String privateKey;
         @NotEmpty
         private String publicKey;
-        private String basicKey;
+        private String secretKey;
     }
 }

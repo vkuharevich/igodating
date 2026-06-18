@@ -1,147 +1,97 @@
 package com.igodating.user.config;
 
+import com.igodating.commons.security.JwtConstants;
+import com.igodating.commons.security.models.Privilege;
+import com.igodating.user.controller.UserRoutes;
+import com.igodating.commons.security.Http401AuthenticationEntryPoint;
+import com.igodating.commons.security.filters.JwtBackendAuthenticationFilter;
+import com.igodating.commons.security.filters.JwtUserAuthenticationFilter;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
-//todo пока не используем, делаем базовую секьюрку без кейклоков
 public class SecurityConfig {
 
-    private static final String GROUPS = "groups";
-    private static final String REALM_ACCESS_CLAIM = "realm_access";
-    private static final String ROLES_CLAIM = "roles";
+    private final SecretKey secretKey;
+
+    public SecurityConfig(JwtKeysProperties jwtKeysProperties) {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtKeysProperties.getKeys().getSecretKey());
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-//    @Bean
-//    public KeycloakLogoutHandler keycloakLogoutHandler() {
-//        return new KeycloakLogoutHandler();
-//    }
-
     @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
+    public JwtUserAuthenticationFilter jwtUserAuthenticationFilter(JsonMapper mapper) {
+        return new JwtUserAuthenticationFilter(this.secretKey,
+                new Http401AuthenticationEntryPoint(),
+                mapper
+        );
     }
 
     @Bean
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new RegisterSessionAuthenticationStrategy(sessionRegistry());
+    public JwtBackendAuthenticationFilter jwtBackendAuthenticationFilter(JsonMapper mapper) {
+        return new JwtBackendAuthenticationFilter(new Http401AuthenticationEntryPoint(), this.secretKey, mapper);
     }
 
-    @Bean
-    public HttpSessionEventPublisher httpSessionEventPublisher() {
-        return new HttpSessionEventPublisher();
+    @Configuration(proxyBeanMethods = false)
+    static class MainSecurityConfig {
+        private final JwtUserAuthenticationFilter jwtUserAuthenticationFilter;
+        private final JwtBackendAuthenticationFilter jwtBackendAuthenticationFilter;
+        private final boolean swaggerEnabled;
+
+        MainSecurityConfig(@Qualifier("jwtUserAuthenticationFilter") JwtUserAuthenticationFilter jwtUserAuthenticationFilter,
+                           JwtBackendAuthenticationFilter jwtBackendAuthenticationFilter,
+                           @Value("${springdoc.api-docs.enabled:false}") boolean swaggerEnabled) {
+            this.jwtUserAuthenticationFilter = jwtUserAuthenticationFilter;
+            this.jwtBackendAuthenticationFilter = jwtBackendAuthenticationFilter;
+            this.swaggerEnabled = swaggerEnabled;
+        }
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, WebProperties webProperties) throws Exception {
+            var config = http.authorizeHttpRequests(req ->
+                    req.requestMatchers(webProperties.getError().getPath()).permitAll()
+                            .requestMatchers(HttpMethod.POST, UserRoutes.USERS)
+                            .hasAnyAuthority(Privilege.WRITE_USERS.name(), JwtConstants.BACKEND_AUTHORITY)
+                            .requestMatchers(HttpMethod.GET, UserRoutes.USERS)
+                            .hasAnyAuthority(Privilege.READ_USERS.name(), JwtConstants.BACKEND_AUTHORITY)
+                            .anyRequest().permitAll());
+            config
+                    .headers(AbstractHttpConfigurer::disable)
+                    .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .logout(AbstractHttpConfigurer::disable)
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .addFilterAt(jwtUserAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtBackendAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            if (swaggerEnabled) {
+                http.httpBasic(Customizer.withDefaults());
+            }
+            return http.build();
+        }
     }
-
-    @Bean
-    public SecurityFilterChain resourceServerFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(CorsConfigurer::disable);
-
-        //todo разрешить потом, пока для дебага
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/oauth2/**", "/login/**")
-//                .permitAll()
-//                .anyRequest()
-//                .authenticated());
-        http.authorizeHttpRequests(auth -> auth
-                .anyRequest()
-                .permitAll());
-//        http.oauth2ResourceServer((oauth2) -> oauth2
-//                .jwt(Customizer.withDefaults()));
-//        http.oauth2Login(Customizer.withDefaults())
-//                .logout(logout -> logout.addLogoutHandler(keycloakLogoutHandler()).logoutSuccessUrl("/"));
-        return http.build();
-    }
-
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "http://localhost:8083"));
-//        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
-//        configuration.setAllowCredentials(true);
-//        List<String> allowedHeaders = List.of("Content-Type", "X-Requested-With", "accept",
-//                "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization");
-//
-//        configuration.setAllowedHeaders(allowedHeaders);
-//        configuration.setExposedHeaders(List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//
-//        return source;
-//    }
-//
-//    @Bean
-//    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
-//        return authorities -> {
-//            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-//            var authority = authorities.iterator().next();
-//            boolean isOidc = authority instanceof OidcUserAuthority;
-//
-//            if (isOidc) {
-//                var oidcUserAuthority = (OidcUserAuthority) authority;
-//                var userInfo = oidcUserAuthority.getUserInfo();
-//
-//                // Tokens can be configured to return roles under
-//                // Groups or REALM ACCESS hence have to check both
-//                if (userInfo.hasClaim(REALM_ACCESS_CLAIM)) {
-//                    var realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
-//                    var roles = (Collection<String>) realmAccess.get(ROLES_CLAIM);
-//                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
-//                } else if (userInfo.hasClaim(GROUPS)) {
-//                    Collection<String> roles = userInfo.getClaim(GROUPS);
-//                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
-//                }
-//            } else {
-//                var oauth2UserAuthority = (OAuth2UserAuthority) authority;
-//                Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
-//
-//                if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
-//                    Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
-//                    Collection<String> roles = (Collection<String>) realmAccess.get(ROLES_CLAIM);
-//                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
-//                }
-//            }
-//            return mappedAuthorities;
-//        };
-//    }
-//
-//    Collection<GrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
-//        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(
-//                Collectors.toList());
-//    }
 }

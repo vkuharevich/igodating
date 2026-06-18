@@ -1,6 +1,6 @@
 package com.igodating.user.entity;
 
-import com.igodating.commons.security.Role;
+import com.igodating.commons.security.models.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

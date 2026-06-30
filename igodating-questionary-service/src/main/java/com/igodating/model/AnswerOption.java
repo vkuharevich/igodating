@@ -1,7 +1,6 @@
 package com.igodating.model;
 
 import io.hypersistence.utils.hibernate.type.array.FloatArrayType;
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,7 +41,6 @@ public class AnswerOption {
     private Integer order;
 
     @Column(name = "influence")
-    @Type(FloatArrayType.class)
     private float[] influence;
 
     @Override

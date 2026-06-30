@@ -121,9 +121,9 @@ public class BaseExceptionControllerAdvice extends ResponseEntityExceptionHandle
 //    }
 
 
-    @ExceptionHandler(FailedResponseWrapperException.class)
+    @ExceptionHandler(FailedResponseException.class)
     @ResponseBody
-    public ResponseEntity<Object> handleFailedActionResult(FailedResponseWrapperException e, ServletWebRequest webRequest) {
+    public ResponseEntity<Object> handleFailedActionResult(FailedResponseException e, ServletWebRequest webRequest) {
         webRequest.getResponse().reset();
         return ResponseEntity.ok(e.getActionResult().wrapToFail());
     }

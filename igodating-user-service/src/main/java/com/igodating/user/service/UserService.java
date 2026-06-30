@@ -1,33 +1,26 @@
 package com.igodating.user.service;
 
-import com.igodating.commons.security.JwtConstants;
-import com.igodating.commons.security.JwtUser;
-import com.igodating.commons.security.UserAuthenticateResponse;
-import com.igodating.user.dto.JwtAuthenticationToken;
-import com.igodating.user.dto.RefreshTokenDto;
+import com.igodating.commons.security.models.JwtUser;
+import com.igodating.commons.security.models.UserAuthenticateResponse;
+import com.igodating.commons.security.models.JwtAuthenticationToken;
 import com.igodating.user.dto.UserAuthenticationDto;
 import com.igodating.user.dto.UserDto;
 import com.igodating.user.dto.request.UserAuthenticationRequest;
 import com.igodating.user.dto.request.UserCreateRequest;
 import com.igodating.user.entity.UserEntity;
-import com.igodating.user.exception.RefreshTokenExpiredException;
 import com.igodating.user.mapper.UserMapper;
 import com.igodating.user.repository.UserRepository;
 import com.igodating.user.util.JwtUtils;
-import io.jsonwebtoken.Claims;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)

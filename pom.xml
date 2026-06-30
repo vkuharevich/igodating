@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>4.1.0-RC1</version>
         <relativePath/>
     </parent>
 
@@ -20,7 +20,7 @@
         <module>igodating-questionary-service</module>
         <module>igodating-commons</module>
         <module>igodating-user-service</module>
-        <module>chat</module>
+        <module>igodating-chat-service</module>
     </modules>
 
     <properties>
@@ -42,6 +42,7 @@
         <springdoc.version>2.6.0</springdoc.version>
         <swagger-annotations.version>2.2.37</swagger-annotations.version>
         <guava.version>33.5.0-jre</guava.version>
+        <freemarker.ql.builder.version>0.2</freemarker.ql.builder.version>
     </properties>
 
     <dependencyManagement>
@@ -81,7 +82,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -94,11 +94,11 @@
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.postgresql</groupId>-->
+<!--            <artifactId>postgresql</artifactId>-->
+<!--            <version>${postgresql.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>io.hypersistence</groupId>
             <artifactId>hypersistence-utils-hibernate-60</artifactId>
@@ -161,6 +161,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>kr.pe.kwonnam.freemarkerdynamicqlbuilder</groupId>
+            <artifactId>freemarker-dynamic-ql-builder</artifactId>
+            <version>${freemarker.ql.builder.version}</version>
         </dependency>
     </dependencies>
     </dependencyManagement>

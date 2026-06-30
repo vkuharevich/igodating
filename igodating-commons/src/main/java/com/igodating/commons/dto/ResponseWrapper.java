@@ -2,7 +2,7 @@ package com.igodating.commons.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.igodating.commons.exception.ApiErrorCode;
-import com.igodating.commons.exception.FailedResponseWrapperException;
+import com.igodating.commons.exception.FailedResponseException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -105,7 +105,7 @@ public class ResponseWrapper<T> {
     @JsonIgnore
     public T orElseThrow() {
         if (this.isError()) {
-            throw new FailedResponseWrapperException(this);
+            throw new FailedResponseException(this);
         }
         return value;
     }

@@ -1,6 +1,6 @@
 package com.igodating.user.mapper;
 
-import com.igodating.commons.security.JwtUser;
+import com.igodating.commons.security.models.JwtUser;
 import com.igodating.user.dto.UserDto;
 import com.igodating.user.dto.request.UserCreateRequest;
 import com.igodating.user.entity.UserEntity;

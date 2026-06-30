@@ -2,11 +2,10 @@ package com.igodating.user.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.igodating.commons.security.JwtConstants;
-import com.igodating.commons.security.JwtUser;
+import com.igodating.commons.security.models.JwtUser;
 import com.igodating.user.config.JwtKeysProperties;
 import com.igodating.user.dto.RefreshTokenDto;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -22,6 +21,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
 
+//TODO надо бы сделать с приватным и публичным ключом
 @Component
 public class JwtUtils {
 
@@ -29,7 +29,8 @@ public class JwtUtils {
     @Getter
     private final Duration refreshLife;
     private final ObjectMapper mapper;
-    private final String basicKey;
+    private final String secretKey;
+    //private final JwtParser defaultJwtParser;
 
 
     public JwtUtils(JwtKeysProperties keysProperties, ObjectMapper mapper) {
@@ -37,7 +38,10 @@ public class JwtUtils {
         this.mapper = mapper;
         this.accessLife = keysProperties.getAccessLifetime();
         this.refreshLife = keysProperties.getRefreshLifetime();
-        this.basicKey = keysProperties.getKeys().getBasicKey();
+        this.secretKey = keysProperties.getKeys().getSecretKey();
+//        this.defaultJwtParser = Jwts.parser()
+//                .verifyWith(CryptoUtils.getPublicKey(keysProperties.getKeys().getPublicKey()))
+//                .build();
     }
 
     @SneakyThrows
@@ -74,7 +78,7 @@ public class JwtUtils {
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(basicKey);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

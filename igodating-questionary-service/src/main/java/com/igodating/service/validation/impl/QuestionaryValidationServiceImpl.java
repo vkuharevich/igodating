@@ -27,10 +27,10 @@ public class QuestionaryValidationServiceImpl implements QuestionaryValidationSe
 
     @Override
     public void validateOnCreate(QuestionaryCreateDto questionaryCreateDto) {
-        if (questionaryCreateDto.name() == null) {
+        if (questionaryCreateDto.getName() == null) {
             throw new ValidationException("Название анкеты не заполнено");
         }
-        if (questionaryCreateDto.questionaryTypeId() == null) {
+        if (questionaryCreateDto.getQuestionaryTypeId() == null) {
             throw new ValidationException("Тип анкеты не выбран");
         }
     }
@@ -54,9 +54,9 @@ public class QuestionaryValidationServiceImpl implements QuestionaryValidationSe
         if (questionary.getStatus() != QuestionaryStatus.DRAFT) {
             throw new ValidationException("Менять можно только анкеты-черновики");
         }
-        if (!Objects.equals(questionary.getUserId(), UserUtils.getCurrentUserId())) {
-            throw new ValidationException("Юзер не имеет права на изменение анкеты %s".formatted(answersCreateUpdateDto.questionaryId()));
-        }
+//        if (!Objects.equals(questionary.getUserId(), UserUtils.getCurrentUserId())) {
+//            throw new ValidationException("Юзер не имеет права на изменение анкеты %s".formatted(answersCreateUpdateDto.questionaryId()));
+//        }
         QuestionaryType type = questionary.getType();
         Map<Long, Question> questions = type.getQuestionBlocks().stream().flatMap(b -> b.getQuestions().stream()).collect(Collectors.toMap(Question::getId, v -> v));
         for (AnswerCreateUpdateDto answerCreateUpdateDto : answersCreateUpdateDto.answers()) {

@@ -1,6 +1,5 @@
 package com.igodating.model;
 
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,7 +13,6 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Type;
 
 import java.util.Objects;
 
@@ -51,7 +49,6 @@ public class Answer {
 
     //todo выбранные варианты ответа (для простого choice - всегда 1 элемент)
     @Column(name = "chosen_options_keys")
-    @Type(StringArrayType.class)
     private String[] chosenOptions;
 
     @Override

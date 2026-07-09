@@ -1,6 +1,5 @@
 package com.igodating.model;
 
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +13,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Type;
 
 import java.util.Objects;
 
@@ -43,7 +41,6 @@ public class QuestionaryFilter {
 
     //todo в случае приватной фильтрации - берется как аргумент именно это. первое - для 1 выбора. второе - для ренджа.
     @Column(name = "default_options_in_set_keys")
-    @Type(StringArrayType.class)
     private String[] defaultOptionsInSetKeys;
 
     @Column(name = "default_numeric_value_from")

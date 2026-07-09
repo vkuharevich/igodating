@@ -16,7 +16,6 @@ import com.igodating.repository.QuestionaryRepository;
 import com.igodating.service.QuestionaryService;
 import com.igodating.service.QuestionaryTypeService;
 import com.igodating.service.validation.QuestionaryValidationService;
-import com.igodating.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,10 +88,10 @@ public class QuestionaryServiceImpl implements QuestionaryService {
         questionaryValidationService.validateOnCreate(questionaryCreateDto);
 
         Questionary questionary = new Questionary();
-        questionary.setType(questionaryTypeService.getTypeModel(questionaryCreateDto.questionaryTypeId()));
-        questionary.setName(questionaryCreateDto.name());
+        questionary.setType(questionaryTypeService.getTypeModel(questionaryCreateDto.getQuestionaryTypeId()));
+        questionary.setName(questionaryCreateDto.getName());
         questionary.setStatus(QuestionaryStatus.DRAFT);
-        questionary.setUserId(UserUtils.getCurrentUserId());
+        questionary.setUserId(questionaryCreateDto.getUserId());
 
         questionary = questionaryRepository.save(questionary);
 

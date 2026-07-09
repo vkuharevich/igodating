@@ -16,7 +16,6 @@ import com.igodating.repository.QuestionaryRepository;
 import com.igodating.service.QuestionaryService;
 import com.igodating.service.QuestionaryTypeService;
 import com.igodating.service.validation.QuestionaryValidationService;
-import com.igodating.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

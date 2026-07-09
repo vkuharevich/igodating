@@ -92,7 +92,7 @@ public class QuestionaryServiceImpl implements QuestionaryService {
         questionary.setType(questionaryTypeService.getTypeModel(questionaryCreateDto.getQuestionaryTypeId()));
         questionary.setName(questionaryCreateDto.getName());
         questionary.setStatus(QuestionaryStatus.DRAFT);
-        questionary.setUserId(UserUtils.getCurrentUserId());
+        questionary.setUserId(questionaryCreateDto.getUserId());
 
         questionary = questionaryRepository.save(questionary);
 

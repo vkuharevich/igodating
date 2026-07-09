@@ -89,8 +89,8 @@ public class QuestionaryServiceImpl implements QuestionaryService {
         questionaryValidationService.validateOnCreate(questionaryCreateDto);
 
         Questionary questionary = new Questionary();
-        questionary.setType(questionaryTypeService.getTypeModel(questionaryCreateDto.questionaryTypeId()));
-        questionary.setName(questionaryCreateDto.name());
+        questionary.setType(questionaryTypeService.getTypeModel(questionaryCreateDto.getQuestionaryTypeId()));
+        questionary.setName(questionaryCreateDto.getName());
         questionary.setStatus(QuestionaryStatus.DRAFT);
         questionary.setUserId(UserUtils.getCurrentUserId());
 
